@@ -1,0 +1,58 @@
+import type { Category } from '../types/tools'
+
+export const CATEGORIES: Category[] = [
+  {
+    id: 'finance',
+    name: 'Finance',
+    emoji: '💰',
+    tagline: 'Money, loan, GST and salary tools.',
+    description: 'Calculators designed for everyday Indian financial decisions, business GST, loans, and salary estimates.',
+    icon: 'IndianRupee',
+    toolCount: 4,
+  },
+  {
+    id: 'calculators',
+    name: 'Calculators',
+    emoji: '🧮',
+    tagline: 'Useful mathematical calculators.',
+    description: 'Fast and reliable math tools to solve arithmetic, percentage, and everyday computational problems.',
+    icon: 'Calculator',
+    toolCount: 2,
+  },
+  {
+    id: 'date-time',
+    name: 'Date & Time',
+    emoji: '📅',
+    tagline: 'Calculate age, dates and time differences.',
+    description: 'Accurate date calculations, age determination, and day-interval tools for events and deadlines.',
+    icon: 'Calendar',
+    toolCount: 2,
+  },
+  {
+    id: 'converters',
+    name: 'Converters',
+    emoji: '📏',
+    tagline: 'Convert units quickly and easily.',
+    description: 'Seamless unit conversions for length, mass, area, temperature, and everyday measurements.',
+    icon: 'ArrowLeftRight',
+    toolCount: 1,
+  },
+  {
+    id: 'education',
+    name: 'Education',
+    emoji: '🎓',
+    tagline: 'Tools for students and learners.',
+    description: 'Handy study companions, grade calculators, word counters, and quick academic utilities.',
+    icon: 'GraduationCap',
+    toolCount: 2,
+  },
+  {
+    id: 'creator-tools',
+    name: 'Creator Tools',
+    emoji: '🎬',
+    tagline: 'Useful tools for content creators.',
+    description: 'Utilities for writers, bloggers, social media creators, and digital editors to streamline production.',
+    icon: 'Video',
+    toolCount: 1,
+  },
+]
