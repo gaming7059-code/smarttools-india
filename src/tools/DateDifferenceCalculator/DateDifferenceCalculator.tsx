@@ -140,7 +140,7 @@ export const DateDifferenceCalculator: React.FC = () => {
 
           {/* Results Display */}
           {diffResult?.success && diffResult.data ? (
-            <div className="space-y-6 pt-2">
+            <div className="space-y-6 pt-2 animate-result-in">
               {/* Primary Difference Card */}
               <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 text-center sm:text-left">
                 <div className="flex items-center justify-between">
@@ -316,7 +316,7 @@ export const DateDifferenceCalculator: React.FC = () => {
 
           {/* Result Card 2 */}
           {addSubtractResult?.success && addSubtractResult.data ? (
-            <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8">
+            <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 animate-result-in">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
                 Calculated Target Date
               </span>

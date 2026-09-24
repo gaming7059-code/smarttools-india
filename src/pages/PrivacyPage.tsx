@@ -12,7 +12,7 @@ export const PrivacyPage: React.FC = () => {
     ]),
   })
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8 animate-fade-in-up">
       <div>
         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
           Legal &amp; Privacy

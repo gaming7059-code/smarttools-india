@@ -18,7 +18,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     <button
       type="button"
       onClick={toggleTheme}
-      className={`relative inline-flex items-center justify-center rounded-xl p-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/40 ${
+      className={`relative inline-flex items-center justify-center rounded-xl p-2 text-sm font-medium transition-all duration-200 ease-out active:scale-90 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500/40 ${
         isDark
           ? 'bg-slate-800 text-amber-300 hover:bg-slate-700/80 border border-slate-700/80 shadow-xs'
           : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 border border-slate-200/80 shadow-xs'
@@ -28,9 +28,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     >
       <div className="relative flex items-center justify-center h-5 w-5">
         {isDark ? (
-          <Sun className="h-4.5 w-4.5 transition-transform duration-200 rotate-0 hover:rotate-45" />
+          <Sun className="h-4.5 w-4.5 transition-transform duration-300 rotate-0 hover:rotate-45" />
         ) : (
-          <Moon className="h-4.5 w-4.5 transition-transform duration-200 -rotate-12 hover:rotate-0" />
+          <Moon className="h-4.5 w-4.5 transition-transform duration-300 -rotate-12 hover:rotate-0" />
         )}
       </div>
 

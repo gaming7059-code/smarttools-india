@@ -3,6 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom'
 import { CATEGORIES } from '../data/categoriesData'
 import { ALL_TOOLS } from '../data/toolsData'
 import { ToolCard } from '../components/common/ToolCard'
+import { ScrollReveal } from '../components/common/ScrollReveal'
 import { usePageSEO, createBreadcrumbSchema } from '../utils/seo'
 import type { LayoutContextType } from '../layouts/MainLayout'
 
@@ -21,7 +22,7 @@ export const CategoriesPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
-      <div>
+      <div className="animate-fade-in-up">
         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
           Collections
         </span>
@@ -37,40 +38,35 @@ export const CategoriesPage: React.FC = () => {
         {CATEGORIES.map((category) => {
           const categoryTools = ALL_TOOLS.filter((t) => t.categoryId === category.id && t.id !== 'date-calculator')
           return (
-            <div
-              key={category.id}
-              id={category.id}
-              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xs space-y-6"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
-                <div className="flex items-center gap-3.5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-2xl">
-                    {category.emoji}
+            <ScrollReveal key={category.id} delay={50}>
+              <div
+                id={category.id}
+                className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xs space-y-6"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-2xl transition-transform duration-300 hover:scale-105">
+                      {category.emoji}
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                        {category.name}
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        {category.tagline}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                      {category.name}
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                      {category.tagline}
-                    </p>
-                  </div>
+
+                  <Link
+                    to={`/tools?category=${category.id}`}
+                    className="inline-flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                  >
+                    View all in {category.name} →
+                  </Link>
                 </div>
 
-                <Link
-                  to={`/tools?category=${category.id}`}
-                  className="inline-flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                >
-                  View only {category.name} →
-                </Link>
-              </div>
-
-              {categoryTools.length === 0 ? (
-                <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-                  Additional tools for this category are in development.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {categoryTools.map((tool) => (
                     <ToolCard
                       key={tool.id}
@@ -79,8 +75,8 @@ export const CategoriesPage: React.FC = () => {
                     />
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            </ScrollReveal>
           )
         })}
       </div>

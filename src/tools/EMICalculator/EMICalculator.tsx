@@ -156,7 +156,7 @@ export const EMICalculator: React.FC = () => {
 
       {/* Results Section */}
       {emiResult?.success && emiResult.data ? (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 animate-result-in">
           {/* Monthly EMI Hero Card */}
           <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 text-center sm:text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

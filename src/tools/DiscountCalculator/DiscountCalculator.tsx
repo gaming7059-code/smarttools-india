@@ -150,7 +150,7 @@ export const DiscountCalculator: React.FC = () => {
 
           {/* Result Card 1 */}
           {result1?.success && result1.data ? (
-            <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-emerald-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-emerald-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 space-y-6">
+            <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-emerald-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-emerald-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 space-y-6 animate-result-in">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
                   Final Discounted Price
@@ -251,7 +251,7 @@ export const DiscountCalculator: React.FC = () => {
 
           {/* Result Card 2 */}
           {result2?.success && result2.data ? (
-            <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-emerald-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-emerald-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 space-y-6">
+            <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-emerald-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-emerald-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 space-y-6 animate-result-in">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
                   Calculated Discount Rate

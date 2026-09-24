@@ -91,7 +91,7 @@ export const AgeCalculator: React.FC = () => {
 
       {/* Results Section */}
       {ageResult.success && ageResult.data ? (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 animate-result-in">
           {/* Primary Age Display */}
           <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-blue-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8 text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">

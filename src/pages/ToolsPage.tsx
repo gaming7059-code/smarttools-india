@@ -60,7 +60,7 @@ export const ToolsPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
       {/* Header */}
-      <div>
+      <div className="animate-fade-in-up">
         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
           Directory
         </span>
@@ -73,16 +73,16 @@ export const ToolsPage: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+      <div className="animate-fade-in flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         {/* Search input */}
         <div className="relative w-full sm:w-80">
-          <Search className="h-4 w-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="h-4 w-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter tools by keyword..."
-            className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 shadow-2xs focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 shadow-2xs transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20 dark:focus:ring-blue-500/20"
           />
         </div>
 
@@ -91,9 +91,9 @@ export const ToolsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => handleSelectCategory('all')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-200 active:scale-95 ${
               activeCategory === 'all'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-blue-600 text-white shadow-2xs'
                 : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
@@ -106,9 +106,9 @@ export const ToolsPage: React.FC = () => {
                 key={cat.id}
                 type="button"
                 onClick={() => handleSelectCategory(cat.id)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 active:scale-95 ${
                   activeCategory === cat.id
-                    ? 'bg-blue-600 text-white font-semibold'
+                    ? 'bg-blue-600 text-white font-semibold shadow-2xs'
                     : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
@@ -121,7 +121,7 @@ export const ToolsPage: React.FC = () => {
 
       {/* Tools Grid */}
       {filteredTools.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center bg-white dark:bg-slate-900">
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center bg-white dark:bg-slate-900 animate-fade-in">
           <Filter className="h-8 w-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
           <p className="text-slate-700 dark:text-slate-300 font-medium">No tools match your criteria</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Try clearing your search query or selecting another category.</p>
@@ -131,13 +131,13 @@ export const ToolsPage: React.FC = () => {
               setSearchQuery('')
               handleSelectCategory('all')
             }}
-            className="mt-4 rounded-lg bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40"
+            className="mt-4 rounded-lg bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
           >
             Clear filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-fade-in">
           {filteredTools.map((tool: Tool) => (
             <ToolCard
               key={tool.id}

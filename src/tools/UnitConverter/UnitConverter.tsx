@@ -152,7 +152,7 @@ export const UnitConverter: React.FC = () => {
 
       {/* Result Card */}
       {conversionResult?.success && conversionResult.formatted !== undefined ? (
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 border border-blue-100 p-6 sm:p-8 dark:from-blue-950/30 dark:via-slate-900 dark:to-indigo-950/20 dark:border-blue-900/50">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 border border-blue-100 p-6 sm:p-8 dark:from-blue-950/30 dark:via-slate-900 dark:to-indigo-950/20 dark:border-blue-900/50 animate-result-in">
           <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
             Conversion Result
           </span>

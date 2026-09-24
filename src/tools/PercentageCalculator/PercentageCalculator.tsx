@@ -155,7 +155,7 @@ export const PercentageCalculator: React.FC = () => {
           </div>
 
           {/* Result Card A */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6 animate-result-in">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Calculated Result</span>
               <button
@@ -221,7 +221,7 @@ export const PercentageCalculator: React.FC = () => {
           </div>
 
           {/* Result Card B */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6 animate-result-in">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Calculated Percentage</span>
               <button
@@ -287,7 +287,7 @@ export const PercentageCalculator: React.FC = () => {
           </div>
 
           {/* Result Card C */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6 animate-result-in">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Percentage Change</span>
               <button
@@ -366,7 +366,7 @@ export const PercentageCalculator: React.FC = () => {
           </div>
 
           {/* Result Card D */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6 animate-result-in">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Original Total Value</span>
               <button

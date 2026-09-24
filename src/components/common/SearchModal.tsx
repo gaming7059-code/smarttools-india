@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { Search, X, ArrowRight, CornerDownLeft } from 'lucide-react'
+import { Search, X, ArrowRight } from 'lucide-react'
 import { POPULAR_TOOLS } from '../../data/toolsData'
 import type { Tool } from '../../types/tools'
 import { DynamicIcon } from './DynamicIcon'
@@ -45,8 +45,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, handleClose])
 
-
-
   const filteredTools = useMemo(() => {
     const cleanQuery = query.trim().toLowerCase()
     if (!cleanQuery) return POPULAR_TOOLS.slice(0, 6)
@@ -63,14 +61,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs">
+    <div 
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose()
+      }}
+    >
       <div 
-        className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+        className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-scale-in"
         role="dialog"
         aria-modal="true"
       >
         {/* Search Input Bar */}
-        <div className="relative flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-3">
+        <div className="relative flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-3 focus-within:bg-blue-50/20 dark:focus-within:bg-blue-950/20 transition-colors duration-200">
           <Search className="h-5 w-5 text-slate-400 mr-3 shrink-0" />
           <input
             ref={inputRef}
@@ -84,7 +87,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mr-2"
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mr-2 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -92,7 +95,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded px-2 py-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="rounded px-2 py-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             ESC
           </button>
@@ -117,10 +120,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   onSelectTool(tool)
                   onClose()
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-xl text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group"
+                className="w-full flex items-center justify-between p-3 rounded-xl text-left hover:bg-blue-50/50 dark:hover:bg-slate-800/80 transition-all duration-200 active:scale-[0.99] group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-200 group-hover:scale-105">
                     <DynamicIcon name={tool.icon} className="h-5 w-5" />
                   </div>
                   <div>
@@ -133,22 +136,24 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded transition-colors">
                     {tool.categoryName}
                   </span>
-                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
+                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all duration-200" />
                 </div>
               </button>
             ))
           )}
         </div>
 
-        {/* Footer info */}
-        <div className="bg-slate-50 dark:bg-slate-900/90 px-4 py-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-          <span className="flex items-center gap-1">
-            <CornerDownLeft className="h-3.5 w-3.5" /> Press Enter or Click to view tool
-          </span>
-          <span>100% Free &amp; Browser-based</span>
+        {/* Modal Footer */}
+        <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-2.5 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between text-xs text-slate-400">
+          <span>Navigate with mouse or keyboard</span>
+          <div className="flex items-center gap-1 text-[11px]">
+            <span>Press</span>
+            <kbd className="rounded bg-white dark:bg-slate-800 px-1 border border-slate-200 dark:border-slate-700">Enter</kbd>
+            <span>to select</span>
+          </div>
         </div>
       </div>
     </div>

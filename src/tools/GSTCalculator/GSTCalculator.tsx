@@ -129,7 +129,7 @@ export const GSTCalculator: React.FC = () => {
 
       {/* Mode A Results: Adding GST */}
       {mode === 'add' && addResult?.success && addResult.data && (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 animate-result-in">
           {/* Final Gross Amount Hero */}
           <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8">
             <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
@@ -186,7 +186,7 @@ export const GSTCalculator: React.FC = () => {
 
       {/* Mode B Results: Removing GST */}
       {mode === 'remove' && removeResult?.success && removeResult.data && (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 animate-result-in">
           {/* Base Net Amount Hero */}
           <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 p-6 sm:p-8">
             <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">

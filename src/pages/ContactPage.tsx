@@ -24,7 +24,7 @@ export const ContactPage: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
+    <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 animate-fade-in-up">
       <div>
         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
           Get in Touch

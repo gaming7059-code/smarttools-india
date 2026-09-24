@@ -19,7 +19,7 @@ export const NotFoundPage: React.FC = () => {
   ]
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 text-center space-y-8">
+    <div className="mx-auto max-w-3xl px-4 py-16 text-center space-y-8 animate-fade-in-up">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mx-auto">
         <Compass className="h-8 w-8" />
       </div>

@@ -203,7 +203,7 @@ export const SalaryCalculator: React.FC = () => {
 
       {/* Results Section */}
       {salaryResult?.success && salaryResult.data ? (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 animate-result-in">
           {/* Take-Home Pay Hero Card */}
           <div className="rounded-2xl bg-gradient-to-br from-emerald-50/90 via-slate-50 to-blue-50/40 dark:from-emerald-950/25 dark:via-slate-900/40 dark:to-blue-950/20 border border-emerald-200 dark:border-emerald-900/40 p-6 sm:p-8">
             <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">

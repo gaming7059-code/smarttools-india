@@ -25,9 +25,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         {/* Brand / Logo */}
         <Link 
           to="/" 
-          className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
+          className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs transition-transform duration-200 hover:rotate-3">
             <Wrench className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
@@ -47,9 +47,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${
+                `rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 ease-out ${
                   isActive
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold shadow-2xs'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`
               }
@@ -64,10 +64,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <button
             type="button"
             onClick={onOpenSearch}
-            className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/80 px-3 py-1.5 text-sm text-slate-500 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/80 px-3 py-1.5 text-sm text-slate-500 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-all duration-200 ease-out active:scale-[0.98] shadow-2xs"
             title="Search tools (Ctrl+K)"
           >
-            <Search className="h-4 w-4 text-slate-400 dark:text-slate-400" />
+            <Search className="h-4 w-4 text-slate-400 dark:text-slate-400 transition-colors" />
             <span className="hidden sm:inline">Search tools...</span>
             <kbd className="hidden lg:inline-block rounded bg-white dark:bg-slate-700 px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
               Ctrl K
@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden rounded-lg p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="md:hidden rounded-lg p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95"
             aria-label="Toggle navigation menu"
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -91,14 +91,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
       {/* Mobile navigation drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pt-2 pb-4 space-y-2 shadow-md">
+        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-2 shadow-lg animate-fade-in">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               onClick={closeMobileMenu}
               className={({ isActive }) =>
-                `block rounded-lg px-3 py-2 text-base font-medium transition-colors ${
+                `block rounded-lg px-3 py-2 text-base font-medium transition-all duration-200 ${
                   isActive
                     ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'

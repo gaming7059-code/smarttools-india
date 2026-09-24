@@ -23,3 +23,200 @@ body {
   background-color: #0b0f19;
   color: #f1f5f9;
 }
+
+/* ==========================================================================
+   Motion Graphics & Animation Keyframes
+   ========================================================================== */
+
+/* Ambient drifting background orbs */
+@keyframes blob-drift-1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(28px, -32px) scale(1.08);
+  }
+  66% {
+    transform: translate(-22px, 20px) scale(0.95);
+  }
+}
+
+@keyframes blob-drift-2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(-32px, 24px) scale(1.06);
+  }
+  66% {
+    transform: translate(24px, -18px) scale(0.94);
+  }
+}
+
+@keyframes blob-drift-3 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(18px, 28px) scale(1.05);
+  }
+}
+
+/* Floating subtle geometric particles */
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(8px) rotate(-4deg);
+  }
+}
+
+/* Hero & element entrance animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Calculator result reveal transition */
+@keyframes resultPop {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.99) translateY(4px);
+  }
+  50% {
+    transform: scale(1.004) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Subtle glow pulse */
+@keyframes subtlePulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.04);
+  }
+}
+
+/* Animation Utility Classes */
+.animate-blob-1 {
+  animation: blob-drift-1 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-blob-2 {
+  animation: blob-drift-2 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-blob-3 {
+  animation: blob-drift-3 26s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-result-in {
+  animation: resultPop 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 4s ease-in-out infinite;
+}
+
+/* Stagger delay classes */
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+/* ==========================================================================
+   Accessibility: Reduced Motion Preference
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

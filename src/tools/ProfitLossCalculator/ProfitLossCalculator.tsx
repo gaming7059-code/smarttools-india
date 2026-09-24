@@ -122,7 +122,7 @@ export const ProfitLossCalculator: React.FC = () => {
 
           {/* Result Card 1 */}
           {result1?.success && result1.data ? (
-            <div className={`rounded-2xl border p-6 sm:p-8 space-y-6 ${
+            <div className={`rounded-2xl border p-6 sm:p-8 space-y-6 animate-result-in ${
               result1.data.status === 'profit'
                 ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40'
                 : result1.data.status === 'loss'
@@ -265,7 +265,7 @@ export const ProfitLossCalculator: React.FC = () => {
 
           {/* Result Card 2 */}
           {result2?.success && result2.data ? (
-            <div className="rounded-2xl bg-gradient-to-br from-emerald-50/90 via-slate-50 to-blue-50/40 dark:from-emerald-950/25 dark:via-slate-900/40 dark:to-blue-950/20 border border-emerald-200 dark:border-emerald-900/40 p-6 sm:p-8 space-y-6">
+            <div className="rounded-2xl bg-gradient-to-br from-emerald-50/90 via-slate-50 to-blue-50/40 dark:from-emerald-950/25 dark:via-slate-900/40 dark:to-blue-950/20 border border-emerald-200 dark:border-emerald-900/40 p-6 sm:p-8 space-y-6 animate-result-in">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
                   Target Selling Price (SP)
