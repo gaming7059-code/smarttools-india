@@ -14,20 +14,20 @@ export const PrivacyPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
       <div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
           Legal &amp; Privacy
         </span>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mt-1">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
           Privacy Policy
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Last updated: September 2026
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-2xs space-y-6 text-slate-600 text-sm leading-relaxed">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-10 shadow-2xs space-y-6 text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             1. Browser-First Architecture
           </h2>
           <p>
@@ -36,7 +36,7 @@ export const PrivacyPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             2. No User Accounts or Personal Registration
           </h2>
           <p>
@@ -45,7 +45,7 @@ export const PrivacyPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             3. No Central Calculation Database
           </h2>
           <p>
@@ -54,16 +54,16 @@ export const PrivacyPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             4. Local Storage
           </h2>
           <p>
-            Certain tools may offer local preferences (such as light/dark mode or remembering your last unit selection) utilizing standard browser <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">localStorage</code>. This data never leaves your device.
+            Certain tools may offer local preferences (such as light/dark mode or remembering your last unit selection) utilizing standard browser <code className="text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">localStorage</code>. This data never leaves your device.
           </p>
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             5. Realistic Security Scope
           </h2>
           <p>
@@ -72,7 +72,7 @@ export const PrivacyPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             6. Inquiries
           </h2>
           <p>

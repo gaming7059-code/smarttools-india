@@ -14,20 +14,20 @@ export const TermsPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
       <div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
           Legal Agreement
         </span>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mt-1">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
           Terms of Service
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Last updated: September 2026
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-2xs space-y-6 text-slate-600 text-sm leading-relaxed">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-10 shadow-2xs space-y-6 text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             1. Acceptance of Terms
           </h2>
           <p>
@@ -36,7 +36,7 @@ export const TermsPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             2. Nature of the Service
           </h2>
           <p>
@@ -45,7 +45,7 @@ export const TermsPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             3. Informational and Educational Purpose Only
           </h2>
           <p>
@@ -54,7 +54,7 @@ export const TermsPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             4. No Fees or Subscriptions
           </h2>
           <p>
@@ -63,7 +63,7 @@ export const TermsPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             5. Modifications
           </h2>
           <p>

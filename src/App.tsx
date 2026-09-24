@@ -19,10 +19,12 @@ import { SalaryCalculatorPage } from './pages/tools/SalaryCalculatorPage'
 import { DateDifferenceCalculatorPage } from './pages/tools/DateDifferenceCalculatorPage'
 import { UnitConverterPage } from './pages/tools/UnitConverterPage'
 import { WordCounterPage } from './pages/tools/WordCounterPage'
+import { ThemeProvider } from './context/ThemeContext'
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
@@ -48,7 +50,8 @@ export const App: React.FC = () => {
         </Route>
       </Routes>
     </BrowserRouter>
-  )
+  </ThemeProvider>
+)
 }
 
 export default App

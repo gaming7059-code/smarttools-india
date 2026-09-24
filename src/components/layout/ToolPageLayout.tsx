@@ -85,37 +85,37 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12">
       {/* 1. Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
-        <Link to="/" className="hover:text-blue-600 transition-colors">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
           Home
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-        <Link to="/tools" className="hover:text-blue-600 transition-colors">
+        <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-600" />
+        <Link to="/tools" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
           Tools
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+        <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-600" />
         <Link
           to={`/tools?category=${tool.categoryId}`}
-          className="hover:text-blue-600 transition-colors"
+          className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
         >
           {tool.categoryName}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-        <span className="text-slate-900 font-medium truncate" aria-current="page">
+        <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-600" />
+        <span className="text-slate-900 dark:text-slate-200 font-medium truncate" aria-current="page">
           {tool.name}
         </span>
       </nav>
 
       {/* 2. Page Header */}
       <header className="space-y-2">
-        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 dark:bg-blue-950/60 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40">
           <Sparkles className="h-3.5 w-3.5" />
           <span>{tool.categoryName} Utility</span>
         </div>
-        <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
           {tool.name}
         </h1>
-        <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
           {tool.description}
         </p>
       </header>
@@ -127,15 +127,15 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
 
       {/* 4. How to Use */}
       {howToUseSteps.length > 0 && (
-        <section aria-labelledby="how-to-use-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-lg">
-            <BookOpen className="h-5 w-5 text-blue-600" />
+        <section aria-labelledby="how-to-use-heading" className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-lg">
+            <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <h2 id="how-to-use-heading">How to Use the {tool.name}</h2>
           </div>
-          <ol className="list-decimal list-inside space-y-2.5 text-sm text-slate-600">
+          <ol className="list-decimal list-inside space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
             {howToUseSteps.map((step, index) => (
               <li key={index} className="leading-relaxed pl-1">
-                <span className="text-slate-800 font-medium">{step}</span>
+                <span className="text-slate-800 dark:text-slate-200 font-medium">{step}</span>
               </li>
             ))}
           </ol>
@@ -144,19 +144,19 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
 
       {/* 5. Formula & Explanation */}
       {formulas.length > 0 && (
-        <section aria-labelledby="formula-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xs space-y-6">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-lg">
-            <Calculator className="h-5 w-5 text-blue-600" />
+        <section aria-labelledby="formula-heading" className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xs space-y-6">
+          <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-lg">
+            <Calculator className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <h2 id="formula-heading">Formulas &amp; Calculation Method</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {formulas.map((item, idx) => (
-              <div key={idx} className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-2">
-                <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
-                <div className="rounded-lg bg-white p-3 border border-slate-200 font-mono text-xs sm:text-sm text-blue-700 select-all overflow-x-auto">
+              <div key={idx} className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</h3>
+                <div className="rounded-lg bg-white dark:bg-slate-950 p-3 border border-slate-200 dark:border-slate-700/80 font-mono text-xs sm:text-sm text-blue-700 dark:text-blue-400 select-all overflow-x-auto">
                   {item.formula}
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">{item.explanation}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{item.explanation}</p>
               </div>
             ))}
           </div>
@@ -165,21 +165,21 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
 
       {/* 6. Worked Examples */}
       {examples.length > 0 && (
-        <section aria-labelledby="examples-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xs space-y-4">
-          <h2 id="examples-heading" className="text-lg font-bold text-slate-900">
+        <section aria-labelledby="examples-heading" className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xs space-y-4">
+          <h2 id="examples-heading" className="text-lg font-bold text-slate-900 dark:text-white">
             Practical Examples
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {examples.map((ex, idx) => (
-              <div key={idx} className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-2">
-                <h3 className="text-sm font-semibold text-slate-800">{ex.title}</h3>
-                <p className="text-xs text-slate-600">{ex.description}</p>
-                <div className="pt-2 border-t border-slate-200/60 flex flex-col gap-1 text-xs">
-                  <div className="text-slate-500">
-                    <span className="font-semibold text-slate-700">Input:</span> {ex.input}
+              <div key={idx} className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{ex.title}</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400">{ex.description}</p>
+                <div className="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex flex-col gap-1 text-xs">
+                  <div className="text-slate-500 dark:text-slate-400">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Input:</span> {ex.input}
                   </div>
-                  <div className="text-blue-700 font-medium">
-                    <span className="font-semibold text-slate-700">Result:</span> {ex.output}
+                  <div className="text-blue-700 dark:text-blue-400 font-medium">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Result:</span> {ex.output}
                   </div>
                 </div>
               </div>
@@ -190,12 +190,12 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
 
       {/* 7. FAQ Section */}
       {faqs.length > 0 && (
-        <section aria-labelledby="faq-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-lg">
-            <HelpCircle className="h-5 w-5 text-blue-600" />
+        <section aria-labelledby="faq-heading" className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-lg">
+            <HelpCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <h2 id="faq-heading">Frequently Asked Questions</h2>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {faqs.map((faq, idx) => {
               const isOpen = openFaqIndex === idx
               return (
@@ -203,18 +203,18 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="flex w-full items-center justify-between text-left text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                    className="flex w-full items-center justify-between text-left text-sm font-semibold text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                     aria-expanded={isOpen}
                   >
                     <span>{faq.question}</span>
                     <ChevronDown
-                      className={`h-4 w-4 text-slate-400 transition-transform ${
-                        isOpen ? 'rotate-180 text-blue-600' : ''
+                      className={`h-4 w-4 text-slate-400 dark:text-slate-500 transition-transform ${
+                        isOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''
                       }`}
                     />
                   </button>
                   {isOpen && (
-                    <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed pr-4">
+                    <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pr-4">
                       {faq.answer}
                     </p>
                   )}
@@ -227,19 +227,19 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
 
       {/* 8. Related Tools */}
       {relatedTools.length > 0 && (
-        <section aria-labelledby="related-heading" className="space-y-4 pt-4 border-t border-slate-200">
+        <section aria-labelledby="related-heading" className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div>
-              <h2 id="related-heading" className="text-xl font-bold tracking-tight text-slate-900">
+              <h2 id="related-heading" className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Related Tools &amp; Calculators
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Explore complementary calculation and conversion helpers for everyday tasks.
               </p>
             </div>
             <Link
               to="/tools"
-              className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1"
             >
               Browse all 10 tools →
             </Link>

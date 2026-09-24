@@ -43,10 +43,10 @@ export const UnitConverter: React.FC = () => {
   const toUnitObj = currentCategory.units.find((u) => u.id === toUnitId)
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6 dark:border-slate-800 dark:bg-slate-900">
       {/* Category Pills Selector */}
       <div>
-        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2 dark:text-slate-300">
           Select Measurement Category
         </label>
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
@@ -58,7 +58,7 @@ export const UnitConverter: React.FC = () => {
               className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                 activeCategoryId === cat.id
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
               }`}
             >
               <span>{cat.emoji}</span>
@@ -72,7 +72,7 @@ export const UnitConverter: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
         {/* From Side (3 cols) */}
         <div className="md:col-span-3 space-y-2">
-          <label htmlFor="fromValueInput" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+          <label htmlFor="fromValueInput" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider dark:text-slate-300">
             From
           </label>
           <div className="space-y-2">
@@ -83,15 +83,15 @@ export const UnitConverter: React.FC = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Enter value"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-900/30"
             />
             <select
               value={fromUnitId}
               onChange={(e) => setFromUnitId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
             >
               {currentCategory.units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
+                <option key={unit.id} value={unit.id} className="dark:bg-slate-900 dark:text-slate-200">
                   {unit.name} ({unit.symbol})
                 </option>
               ))}
@@ -104,7 +104,7 @@ export const UnitConverter: React.FC = () => {
           <button
             type="button"
             onClick={handleSwapUnits}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-colors shadow-2xs"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-colors shadow-2xs dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-blue-950/50 dark:hover:text-blue-400 dark:hover:border-blue-800"
             title="Swap Units"
             aria-label="Swap from and to units"
           >
@@ -114,11 +114,11 @@ export const UnitConverter: React.FC = () => {
 
         {/* To Side (3 cols) */}
         <div className="md:col-span-3 space-y-2">
-          <label htmlFor="toUnitSelect" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+          <label htmlFor="toUnitSelect" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider dark:text-slate-300">
             To
           </label>
           <div className="space-y-2">
-            <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2.5 text-base font-bold text-blue-900 truncate">
+            <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2.5 text-base font-bold text-blue-900 truncate dark:border-slate-800 dark:bg-slate-950/80 dark:text-blue-300">
               {conversionResult?.success && conversionResult.formatted !== undefined
                 ? conversionResult.formatted
                 : '—'}
@@ -127,10 +127,10 @@ export const UnitConverter: React.FC = () => {
               id="toUnitSelect"
               value={toUnitId}
               onChange={(e) => setToUnitId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
             >
               {currentCategory.units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
+                <option key={unit.id} value={unit.id} className="dark:bg-slate-900 dark:text-slate-200">
                   {unit.name} ({unit.symbol})
                 </option>
               ))}
@@ -144,7 +144,7 @@ export const UnitConverter: React.FC = () => {
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
         >
           <RotateCcw className="h-3.5 w-3.5" /> Reset
         </button>
@@ -152,27 +152,27 @@ export const UnitConverter: React.FC = () => {
 
       {/* Result Card */}
       {conversionResult?.success && conversionResult.formatted !== undefined ? (
-        <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 border border-blue-100 p-6 sm:p-8">
-          <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-50/40 border border-blue-100 p-6 sm:p-8 dark:from-blue-950/30 dark:via-slate-900 dark:to-indigo-950/20 dark:border-blue-900/50">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
             Conversion Result
           </span>
-          <div className="mt-1 text-2xl sm:text-4xl font-black text-slate-900 tracking-tight flex flex-wrap items-baseline gap-2">
+          <div className="mt-1 text-2xl sm:text-4xl font-black text-slate-900 tracking-tight flex flex-wrap items-baseline gap-2 dark:text-slate-100">
             <span>{inputValue || '0'} {fromUnitObj?.symbol}</span>
-            <span className="text-blue-600">=</span>
-            <span className="text-blue-700">{conversionResult.formatted} {toUnitObj?.symbol}</span>
+            <span className="text-blue-600 dark:text-blue-400">=</span>
+            <span className="text-blue-700 dark:text-blue-300">{conversionResult.formatted} {toUnitObj?.symbol}</span>
           </div>
           {conversionResult.formula && (
-            <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium">
+            <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium dark:text-slate-400">
               Formula: {conversionResult.formula}
             </p>
           )}
         </div>
       ) : conversionResult?.error ? (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400">
           {conversionResult.error}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
           Enter a value to convert units in real time.
         </div>
       )}

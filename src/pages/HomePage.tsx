@@ -48,37 +48,37 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-16 sm:space-y-20 pb-16">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-slate-50 to-slate-50 pt-12 pb-14 sm:pt-16 sm:pb-20 border-b border-slate-200/60">
+      <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-slate-50 to-slate-50 dark:from-slate-900/50 dark:via-slate-950 dark:to-slate-950 pt-12 pb-14 sm:pt-16 sm:pb-20 border-b border-slate-200/60 dark:border-slate-800">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 mb-6">
-            <span className="inline-block h-2 w-2 rounded-full bg-blue-600"></span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/60 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 mb-6">
+            <span className="inline-block h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
             100% Free • No Login Required • Browser-Based
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             Free Online Tools for Everyday Life
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
             Calculate, convert and solve everyday problems with simple, fast and free online tools.
           </p>
 
           {/* Prominent Search Box */}
           <div className="mt-8 max-w-2xl mx-auto">
-            <div className="relative flex items-center rounded-2xl bg-white p-2 shadow-lg shadow-slate-200/50 border border-slate-200 transition-all focus-within:border-blue-500 focus-within:ring-3 focus-within:ring-blue-100">
-              <Search className="h-5 w-5 text-slate-400 ml-3 shrink-0" />
+            <div className="relative flex items-center rounded-2xl bg-white dark:bg-slate-900 p-2 shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 transition-all focus-within:border-blue-500 focus-within:ring-3 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/40">
+              <Search className="h-5 w-5 text-slate-400 dark:text-slate-500 ml-3 shrink-0" />
               <input
                 type="text"
                 value={heroSearchQuery}
                 onChange={(e) => setHeroSearchQuery(e.target.value)}
                 placeholder="Search for a tool..."
-                className="w-full bg-transparent px-3 py-2 text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none"
+                className="w-full bg-transparent px-3 py-2 text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
               />
               {heroSearchQuery && (
                 <button
                   type="button"
                   onClick={() => setHeroSearchQuery('')}
-                  className="mr-2 text-xs text-slate-400 hover:text-slate-600 px-2 py-1 rounded"
+                  className="mr-2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 px-2 py-1 rounded"
                 >
                   Clear
                 </button>
@@ -87,12 +87,12 @@ export const HomePage: React.FC = () => {
 
             {/* Category Shortcuts */}
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-xs font-medium text-slate-400 mr-1">Quick:</span>
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 mr-1">Quick:</span>
               {categoryShortcuts.map((cat) => (
                 <Link
                   key={cat.id}
                   to={`/tools?category=${cat.id}`}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-2xs hover:border-blue-400 hover:text-blue-600 transition-colors"
+                  className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 shadow-2xs hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {cat.label}
                 </Link>
@@ -106,20 +106,20 @@ export const HomePage: React.FC = () => {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
               Featured Utilities
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
               Popular Tools
             </h2>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               Most used online calculators and utility helpers across India.
             </p>
           </div>
 
           <Link
             to="/tools"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
           >
             <span>View All Tools</span>
             <ArrowRight className="h-4 w-4" />
@@ -127,12 +127,12 @@ export const HomePage: React.FC = () => {
         </div>
 
         {filteredPopularTools.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center bg-white">
-            <p className="text-slate-600 font-medium">No tools found matching &ldquo;{heroSearchQuery}&rdquo;</p>
+          <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center bg-white dark:bg-slate-900">
+            <p className="text-slate-600 dark:text-slate-300 font-medium">No tools found matching &ldquo;{heroSearchQuery}&rdquo;</p>
             <button
               type="button"
               onClick={() => setHeroSearchQuery('')}
-              className="mt-3 inline-flex items-center text-xs font-semibold text-blue-600 hover:underline"
+              className="mt-3 inline-flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
             >
               Reset search
             </button>
@@ -153,13 +153,13 @@ export const HomePage: React.FC = () => {
       {/* 3. CATEGORY SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
             Browse
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             Explore Tools by Category
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Choose from specialized collections suited for your daily calculation needs.
           </p>
         </div>
@@ -173,60 +173,60 @@ export const HomePage: React.FC = () => {
 
       {/* 4. WHY SMARTTOOLS INDIA SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-12 shadow-xs">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-12 shadow-xs">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
               Why SmartTools India
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
               Simple Tools. No Sign-Up.
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               Everything runs locally in your browser with zero friction, zero sign-ups, and zero cost.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Benefit 1 */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-5 transition-colors hover:bg-slate-100/60">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 mb-3">
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/50 p-5 transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 mb-3">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">⚡ Fast</h3>
-              <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">⚡ Fast</h3>
+              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Tools load quickly and work directly in your browser.
               </p>
             </div>
 
             {/* Benefit 2 */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-5 transition-colors hover:bg-slate-100/60">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 mb-3">
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/50 p-5 transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mb-3">
                 <Shield className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">🔒 Private</h3>
-              <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">🔒 Private</h3>
+              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Your calculations stay in your browser.
               </p>
             </div>
 
             {/* Benefit 3 */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-5 transition-colors hover:bg-slate-100/60">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 mb-3">
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/50 p-5 transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 mb-3">
                 <Gift className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">🆓 Free</h3>
-              <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">🆓 Free</h3>
+              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 No subscription required.
               </p>
             </div>
 
             {/* Benefit 4 */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-5 transition-colors hover:bg-slate-100/60">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 mb-3">
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/50 p-5 transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 mb-3">
                 <Smartphone className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">📱 Mobile Friendly</h3>
-              <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">📱 Mobile Friendly</h3>
+              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Works smoothly on phones, tablets and computers.
               </p>
             </div>
@@ -237,19 +237,19 @@ export const HomePage: React.FC = () => {
       {/* 5. SEO & EDUCATIONAL SECTIONS */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* What is SmartTools India? */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-xs">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-10 shadow-xs">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400">
               <Landmark className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">Platform Overview</span>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Platform Overview</span>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                 What is SmartTools India?
               </h2>
             </div>
           </div>
-          <div className="space-y-3.5 text-sm sm:text-base text-slate-600 leading-relaxed">
+          <div className="space-y-3.5 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
             <p>
               SmartTools India is a dedicated, lightning-fast digital utility platform built to simplify mathematical, financial, date, and text calculations for users across India. Whether you are a college student solving assignment problems, a salaried professional planning your monthly budget, a freelance creator writing articles, or a shopkeeper generating billing figures, SmartTools India provides accurate and instant answers directly in your browser.
             </p>
@@ -260,14 +260,14 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* What can you calculate online? */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-xs">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-10 shadow-xs">
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
               <Calculator className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600">Comprehensive Capabilities</span>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Comprehensive Capabilities</span>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                 What Can You Calculate Online?
               </h2>
             </div>
@@ -275,103 +275,103 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Financial Utilities */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
-              <h3 className="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-5">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
                 Financial Calculations
               </h3>
-              <p className="text-xs text-slate-600 mb-3.5 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3.5 leading-relaxed">
                 Make confident personal and commercial money decisions with our Indian finance helpers:
               </p>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/tools/emi-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/emi-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     EMI Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Forecast home, car, and personal loan installments</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Forecast home, car, and personal loan installments</span>
                 </li>
                 <li>
-                  <Link to="/tools/gst-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/gst-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     GST Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Compute Indian GST tax slabs (5%, 12%, 18%, 28%)</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Compute Indian GST tax slabs (5%, 12%, 18%, 28%)</span>
                 </li>
                 <li>
-                  <Link to="/tools/salary-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/salary-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Salary Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Convert annual CTC to monthly in-hand take-home pay</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Convert annual CTC to monthly in-hand take-home pay</span>
                 </li>
                 <li>
-                  <Link to="/tools/discount-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/discount-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Discount Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Calculate shopping markdown and stacked festive deals</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Calculate shopping markdown and stacked festive deals</span>
                 </li>
                 <li>
-                  <Link to="/tools/profit-loss-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/profit-loss-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Profit & Loss Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Analyze profit margin, cost price, and business revenue</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Analyze profit margin, cost price, and business revenue</span>
                 </li>
               </ul>
             </div>
 
             {/* Math & Date Tools */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
-              <h3 className="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-5">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
                 Math & Date Calculations
               </h3>
-              <p className="text-xs text-slate-600 mb-3.5 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3.5 leading-relaxed">
                 Solve arithmetic, proportions, and calendar milestones with microsecond precision:
               </p>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/tools/percentage-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/percentage-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Percentage Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Work out percentages, percentage changes, and ratios</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Work out percentages, percentage changes, and ratios</span>
                 </li>
                 <li>
-                  <Link to="/tools/age-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/age-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Age Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Find your exact age in years, months, and days</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Find your exact age in years, months, and days</span>
                 </li>
                 <li>
-                  <Link to="/tools/date-difference-calculator" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/date-difference-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Date Difference Calculator
                   </Link>
-                  <span className="text-xs text-slate-500 block">Count elapsed days and weeks between any two calendar dates</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Count elapsed days and weeks between any two calendar dates</span>
                 </li>
               </ul>
             </div>
 
             {/* Everyday Converters & Text Tools */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
-              <h3 className="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-purple-600"></span>
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-5">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-purple-600 dark:bg-purple-400"></span>
                 Converters & Content Tools
               </h3>
-              <p className="text-xs text-slate-600 mb-3.5 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3.5 leading-relaxed">
                 Streamline practical measurements and optimize copy for essays, blogs, and social feeds:
               </p>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/tools/unit-converter" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/unit-converter" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Unit Converter
                   </Link>
-                  <span className="text-xs text-slate-500 block">Convert units across length, weight, area, volume & temp</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Convert units across length, weight, area, volume & temp</span>
                 </li>
                 <li>
-                  <Link to="/tools/word-counter" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  <Link to="/tools/word-counter" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
                     Word Counter
                   </Link>
-                  <span className="text-xs text-slate-500 block">Live word count, character count, and reading time analyzer</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">Live word count, character count, and reading time analyzer</span>
                 </li>
                 <li className="pt-2">
-                  <Link to="/tools" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800">
+                  <Link to="/tools" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
                     Explore all 10 tools <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </li>
@@ -381,21 +381,21 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* Free Online Calculators and Useful Tools */}
-        <div className="rounded-2xl border border-slate-200/80 bg-slate-50 p-8 sm:p-10">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-8 sm:p-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-purple-600">Why Use Our Platform</span>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">Why Use Our Platform</span>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Free Online Calculators and Useful Tools for Everyday Life
               </h2>
             </div>
           </div>
-          <div className="space-y-3.5 text-sm text-slate-600 leading-relaxed">
+          <div className="space-y-3.5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             <p>
-              In our fast-paced daily routines, quick and accurate calculations are indispensable. Whether you need to figure out how much you save during a festive e-commerce sale with our <Link to="/tools/discount-calculator" className="font-medium text-blue-600 hover:underline">Discount Calculator</Link>, double-check your merchant&apos;s invoice using the <Link to="/tools/gst-calculator" className="font-medium text-blue-600 hover:underline">GST Calculator</Link>, or evaluate multiple home loan offers using our <Link to="/tools/emi-calculator" className="font-medium text-blue-600 hover:underline">EMI Calculator</Link>, SmartTools India eliminates mental arithmetic friction.
+              In our fast-paced daily routines, quick and accurate calculations are indispensable. Whether you need to figure out how much you save during a festive e-commerce sale with our <Link to="/tools/discount-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:underline">Discount Calculator</Link>, double-check your merchant&apos;s invoice using the <Link to="/tools/gst-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:underline">GST Calculator</Link>, or evaluate multiple home loan offers using our <Link to="/tools/emi-calculator" className="font-medium text-blue-600 dark:text-blue-400 hover:underline">EMI Calculator</Link>, SmartTools India eliminates mental arithmetic friction.
             </p>
             <p>
               We believe everyday web utilities should be lightweight, distraction-free, and respectful of user privacy. You don&apos;t need to download bloated native mobile applications or share phone numbers to get simple answers. Simply bookmark SmartTools India, choose the calculator you need, and receive real-time answers formatted cleanly in Indian numbering conventions (lakhs and crores).

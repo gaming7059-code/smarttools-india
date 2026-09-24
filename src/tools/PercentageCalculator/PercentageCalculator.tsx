@@ -67,16 +67,16 @@ export const PercentageCalculator: React.FC = () => {
 
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm space-y-6">
       {/* Mode Selector Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         <button
           type="button"
           onClick={() => setMode('of')}
           className={`rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-colors ${
             mode === 'of'
               ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
           What is X% of Y?
@@ -87,7 +87,7 @@ export const PercentageCalculator: React.FC = () => {
           className={`rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-colors ${
             mode === 'isWhat'
               ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
           X is what % of Y?
@@ -98,7 +98,7 @@ export const PercentageCalculator: React.FC = () => {
           className={`rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-colors ${
             mode === 'change'
               ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
           % Increase / Decrease
@@ -109,7 +109,7 @@ export const PercentageCalculator: React.FC = () => {
           className={`rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-colors ${
             mode === 'original'
               ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
           Find Original Value
@@ -121,7 +121,7 @@ export const PercentageCalculator: React.FC = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-              <label htmlFor="percentA" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="percentA" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Percentage (%)
               </label>
               <div className="relative">
@@ -132,14 +132,14 @@ export const PercentageCalculator: React.FC = () => {
                   value={percentA}
                   onChange={(e) => setPercentA(e.target.value)}
                   placeholder="e.g. 20"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
                 />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">%</span>
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-semibold text-sm">%</span>
               </div>
             </div>
 
             <div>
-              <label htmlFor="totalA" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="totalA" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Total Number (Y)
               </label>
               <input
@@ -149,19 +149,19 @@ export const PercentageCalculator: React.FC = () => {
                 value={totalA}
                 onChange={(e) => setTotalA(e.target.value)}
                 placeholder="e.g. 500"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
               />
             </div>
           </div>
 
           {/* Result Card A */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 border border-blue-100 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">Calculated Result</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Calculated Result</span>
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Reset
               </button>
@@ -169,17 +169,17 @@ export const PercentageCalculator: React.FC = () => {
 
             {resultA?.success && resultA.data ? (
               <div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-blue-900 dark:text-blue-200 tracking-tight">
                   {resultA.data.formatted}
                 </div>
-                <p className="mt-1 text-sm text-blue-700 font-medium">
+                <p className="mt-1 text-sm text-blue-700 dark:text-blue-400 font-medium">
                   {percentA}% of {totalA} is {resultA.data.formatted}
                 </p>
               </div>
             ) : resultA?.error ? (
-              <p className="text-sm font-medium text-rose-600">{resultA.error}</p>
+              <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{resultA.error}</p>
             ) : (
-              <p className="text-sm text-slate-500">Enter numbers above to calculate result in real-time.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Enter numbers above to calculate result in real-time.</p>
             )}
           </div>
         </div>
@@ -190,7 +190,7 @@ export const PercentageCalculator: React.FC = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-              <label htmlFor="valueB" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="valueB" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Value (X)
               </label>
               <input
@@ -200,12 +200,12 @@ export const PercentageCalculator: React.FC = () => {
                 value={valueB}
                 onChange={(e) => setValueB(e.target.value)}
                 placeholder="e.g. 100"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
               />
             </div>
 
             <div>
-              <label htmlFor="totalB" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="totalB" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Total (Y)
               </label>
               <input
@@ -215,19 +215,19 @@ export const PercentageCalculator: React.FC = () => {
                 value={totalB}
                 onChange={(e) => setTotalB(e.target.value)}
                 placeholder="e.g. 500"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
               />
             </div>
           </div>
 
           {/* Result Card B */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 border border-blue-100 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">Calculated Percentage</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Calculated Percentage</span>
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Reset
               </button>
@@ -235,17 +235,17 @@ export const PercentageCalculator: React.FC = () => {
 
             {resultB?.success && resultB.data ? (
               <div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-blue-900 dark:text-blue-200 tracking-tight">
                   {resultB.data.formatted}
                 </div>
-                <p className="mt-1 text-sm text-blue-700 font-medium">
+                <p className="mt-1 text-sm text-blue-700 dark:text-blue-400 font-medium">
                   {valueB} is {resultB.data.formatted} of {totalB}
                 </p>
               </div>
             ) : resultB?.error ? (
-              <p className="text-sm font-medium text-rose-600">{resultB.error}</p>
+              <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{resultB.error}</p>
             ) : (
-              <p className="text-sm text-slate-500">Enter numbers above to calculate percentage.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Enter numbers above to calculate percentage.</p>
             )}
           </div>
         </div>
@@ -256,7 +256,7 @@ export const PercentageCalculator: React.FC = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-              <label htmlFor="originalC" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="originalC" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Original Value
               </label>
               <input
@@ -266,12 +266,12 @@ export const PercentageCalculator: React.FC = () => {
                 value={originalC}
                 onChange={(e) => setOriginalC(e.target.value)}
                 placeholder="e.g. 500"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
               />
             </div>
 
             <div>
-              <label htmlFor="newC" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="newC" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 New Value
               </label>
               <input
@@ -281,19 +281,19 @@ export const PercentageCalculator: React.FC = () => {
                 value={newC}
                 onChange={(e) => setNewC(e.target.value)}
                 placeholder="e.g. 600"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
               />
             </div>
           </div>
 
           {/* Result Card C */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 border border-blue-100 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">Percentage Change</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Percentage Change</span>
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Reset
               </button>
@@ -303,15 +303,15 @@ export const PercentageCalculator: React.FC = () => {
               <div>
                 <div className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
                   resultC.data.type === 'increase'
-                    ? 'text-emerald-700'
+                    ? 'text-emerald-700 dark:text-emerald-400'
                     : resultC.data.type === 'decrease'
-                    ? 'text-rose-700'
-                    : 'text-slate-800'
+                    ? 'text-rose-700 dark:text-rose-400'
+                    : 'text-slate-800 dark:text-slate-200'
                 }`}>
                   {resultC.data.formatted}
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-600">
-                  <span className="font-semibold text-slate-800">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     Change Type: {resultC.data.type.toUpperCase()}
                   </span>
                   <span>•</span>
@@ -319,9 +319,9 @@ export const PercentageCalculator: React.FC = () => {
                 </div>
               </div>
             ) : resultC?.error ? (
-              <p className="text-sm font-medium text-rose-600">{resultC.error}</p>
+              <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{resultC.error}</p>
             ) : (
-              <p className="text-sm text-slate-500">Enter original and new values to calculate change.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Enter original and new values to calculate change.</p>
             )}
           </div>
         </div>
@@ -332,7 +332,7 @@ export const PercentageCalculator: React.FC = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-              <label htmlFor="percentD" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="percentD" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Percentage (%)
               </label>
               <div className="relative">
@@ -343,14 +343,14 @@ export const PercentageCalculator: React.FC = () => {
                   value={percentD}
                   onChange={(e) => setPercentD(e.target.value)}
                   placeholder="e.g. 20"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
                 />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">%</span>
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-semibold text-sm">%</span>
               </div>
             </div>
 
             <div>
-              <label htmlFor="valueD" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="valueD" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Given Value / Result (Y)
               </label>
               <input
@@ -360,19 +360,19 @@ export const PercentageCalculator: React.FC = () => {
                 value={valueD}
                 onChange={(e) => setValueD(e.target.value)}
                 placeholder="e.g. 100"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
               />
             </div>
           </div>
 
           {/* Result Card D */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 border border-blue-100 p-5 sm:p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-slate-50 dark:from-blue-950/30 dark:to-slate-900/60 border border-blue-100 dark:border-blue-900/40 p-5 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">Original Total Value</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Original Total Value</span>
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Reset
               </button>
@@ -380,17 +380,17 @@ export const PercentageCalculator: React.FC = () => {
 
             {resultD?.success && resultD.data ? (
               <div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-blue-900 dark:text-blue-200 tracking-tight">
                   {resultD.data.formatted}
                 </div>
-                <p className="mt-1 text-sm text-blue-700 font-medium">
+                <p className="mt-1 text-sm text-blue-700 dark:text-blue-400 font-medium">
                   If {percentD}% is {valueD}, the full 100% original value is {resultD.data.formatted}.
                 </p>
               </div>
             ) : resultD?.error ? (
-              <p className="text-sm font-medium text-rose-600">{resultD.error}</p>
+              <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{resultD.error}</p>
             ) : (
-              <p className="text-sm text-slate-500">Enter percentage and value to find original total.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Enter percentage and value to find original total.</p>
             )}
           </div>
         </div>
