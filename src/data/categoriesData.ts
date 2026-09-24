@@ -53,6 +53,6 @@ export const CATEGORIES: Category[] = [
     tagline: 'Useful tools for content creators.',
     description: 'Utilities for writers, bloggers, social media creators, and digital editors to streamline production.',
     icon: 'Video',
-    toolCount: 1,
+    toolCount: 2,
   },
 ]

@@ -19,6 +19,7 @@ import { SalaryCalculatorPage } from './pages/tools/SalaryCalculatorPage'
 import { DateDifferenceCalculatorPage } from './pages/tools/DateDifferenceCalculatorPage'
 import { UnitConverterPage } from './pages/tools/UnitConverterPage'
 import { WordCounterPage } from './pages/tools/WordCounterPage'
+import { PDFEditorPage } from './pages/tools/PDFEditorPage'
 import { ThemeProvider } from './context/ThemeContext'
 
 export const App: React.FC = () => {
@@ -41,6 +42,7 @@ export const App: React.FC = () => {
           <Route path="tools/date-calculator" element={<Navigate to="/tools/date-difference-calculator" replace />} />
           <Route path="tools/unit-converter" element={<UnitConverterPage />} />
           <Route path="tools/word-counter" element={<WordCounterPage />} />
+          <Route path="tools/pdf-editor" element={<PDFEditorPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="contact" element={<ContactPage />} />

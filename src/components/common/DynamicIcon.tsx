@@ -26,6 +26,7 @@ import {
   Layers,
   HelpCircle,
   CheckCircle2,
+  FileEdit,
   type LucideProps
 } from 'lucide-react'
 
@@ -56,6 +57,7 @@ const iconMap: Record<string, React.ComponentType<LucideProps>> = {
   Layers,
   HelpCircle,
   CheckCircle2,
+  FileEdit,
 }
 
 interface DynamicIconProps extends LucideProps {
