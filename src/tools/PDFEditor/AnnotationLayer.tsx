@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Edit3 } from 'lucide-react'
 import type { Annotation, EditorToolMode, Point } from './types'
 
 interface AnnotationLayerProps {
@@ -29,6 +29,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
   pageIndex,
   pageWidth,
   pageHeight,
+  scale,
   activeTool,
   selectedColor,
   fontSize,
@@ -48,11 +49,17 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
   const [shapeStart, setShapeStart] = useState<Point | null>(null)
   const [shapeCurrent, setShapeCurrent] = useState<Point | null>(null)
 
-  // Dragging / Resizing state
+  // Dragging state (local preview during drag for 60fps responsiveness)
   const [isDragging, setIsDragging] = useState(false)
-  const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState<Point | null>(null)
-  const [originalAnn, setOriginalAnn] = useState<Annotation | null>(null)
+  const [dragTargetId, setDragTargetId] = useState<string | null>(null)
+  const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null)
+
+  // Resizing state (local preview during resize)
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeStart, setResizeStart] = useState<Point | null>(null)
+  const [resizeTargetId, setResizeTargetId] = useState<string | null>(null)
+  const [resizeDims, setResizeDims] = useState<{ width: number; height: number } | null>(null)
 
   // Text inline editing
   const [editingTextId, setEditingTextId] = useState<string | null>(null)
@@ -60,7 +67,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
 
   const pageAnnotations = annotations.filter((a) => a.pageIndex === pageIndex)
 
-  // Converts client event coordinates to normalized [0, 1] relative to page
+  // Converts client event coordinates to normalized [0, 1] relative to page container
   const getNormalizedPoint = (e: React.PointerEvent): Point => {
     if (!containerRef.current) return { x: 0, y: 0 }
     const rect = containerRef.current.getBoundingClientRect()
@@ -69,18 +76,40 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     return { x, y }
   }
 
-  // Handle Pointer Down
+  // Commit text editing
+  const handleCommitText = (annId: string, valueToCommit: string) => {
+    const target = annotations.find((a) => a.id === annId)
+    if (!target) {
+      setEditingTextId(null)
+      return
+    }
+
+    const trimmed = valueToCommit.trim()
+    if (!trimmed) {
+      onDeleteAnnotation(annId)
+      if (selectedAnnotationId === annId) onSelectAnnotation(null)
+    } else {
+      onUpdateAnnotation({ ...target, text: valueToCommit })
+    }
+    setEditingTextId(null)
+  }
+
+  // Handle Pointer Down on Container
   const handlePointerDown = (e: React.PointerEvent) => {
-    // If clicking on an input/textarea or action button, let it handle
     const target = e.target as HTMLElement
+    // Ignore clicks on form inputs or action buttons
     if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT' || target.closest('button')) {
       return
+    }
+
+    // Commit any currently open text editing first
+    if (editingTextId) {
+      handleCommitText(editingTextId, editingTextVal)
     }
 
     const pt = getNormalizedPoint(e)
 
     if (activeTool === 'select') {
-      // If clicking background, deselect
       if (target === containerRef.current) {
         onSelectAnnotation(null)
       }
@@ -108,18 +137,19 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     }
 
     if (activeTool === 'text' || activeTool === 'textbox') {
-      // Create text element immediately
+      // Create new text element on background click
       const id = generateAnnotationId()
       const isBox = activeTool === 'textbox'
+      const initialText = 'Type text...'
       const newAnn: Annotation = {
         id,
         pageIndex,
         type: activeTool,
-        x: pt.x,
-        y: pt.y,
+        x: Math.max(0, Math.min(0.75, pt.x)),
+        y: Math.max(0, Math.min(0.92, pt.y)),
         width: isBox ? 0.35 : 0.25,
         height: isBox ? 0.12 : 0.06,
-        text: 'Click or type text...',
+        text: initialText,
         fontSize,
         color: selectedColor,
         backgroundColor: isBox ? '#ffffff' : 'transparent',
@@ -127,7 +157,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       onAddAnnotation(newAnn)
       onSelectAnnotation(id)
       setEditingTextId(id)
-      setEditingTextVal('Click or type text...')
+      setEditingTextVal(initialText)
     }
   }
 
@@ -145,27 +175,27 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       return
     }
 
-    if (isDragging && dragStart && originalAnn) {
-      const dx = pt.x - dragStart.x
-      const dy = pt.y - dragStart.y
-      const updated: Annotation = {
-        ...originalAnn,
-        x: Math.max(0, Math.min(1 - originalAnn.width, originalAnn.x + dx)),
-        y: Math.max(0, Math.min(1 - originalAnn.height, originalAnn.y + dy)),
+    if (isDragging && dragStart && dragTargetId) {
+      const target = annotations.find((a) => a.id === dragTargetId)
+      if (target) {
+        const dx = pt.x - dragStart.x
+        const dy = pt.y - dragStart.y
+        const newX = Math.max(0, Math.min(1 - target.width, target.x + dx))
+        const newY = Math.max(0, Math.min(1 - target.height, target.y + dy))
+        setDragPos({ x: newX, y: newY })
       }
-      onUpdateAnnotation(updated)
       return
     }
 
-    if (isResizing && dragStart && originalAnn) {
-      const dx = pt.x - dragStart.x
-      const dy = pt.y - dragStart.y
-      const updated: Annotation = {
-        ...originalAnn,
-        width: Math.max(0.04, originalAnn.width + dx),
-        height: Math.max(0.03, originalAnn.height + dy),
+    if (isResizing && resizeStart && resizeTargetId) {
+      const target = annotations.find((a) => a.id === resizeTargetId)
+      if (target) {
+        const dx = pt.x - resizeStart.x
+        const dy = pt.y - resizeStart.y
+        const newW = Math.max(0.05, Math.min(1 - target.x, target.width + dx))
+        const newH = Math.max(0.03, Math.min(1 - target.y, target.height + dy))
+        setResizeDims({ width: newW, height: newH })
       }
-      onUpdateAnnotation(updated)
     }
   }
 
@@ -224,11 +254,34 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       }
     }
 
-    if (isDragging || isResizing) {
+    if (isDragging) {
+      if (dragTargetId && dragPos) {
+        const target = annotations.find((a) => a.id === dragTargetId)
+        if (target && (target.x !== dragPos.x || target.y !== dragPos.y)) {
+          onUpdateAnnotation({ ...target, x: dragPos.x, y: dragPos.y })
+        }
+      }
       setIsDragging(false)
-      setIsResizing(false)
       setDragStart(null)
-      setOriginalAnn(null)
+      setDragTargetId(null)
+      setDragPos(null)
+    }
+
+    if (isResizing) {
+      if (resizeTargetId && resizeDims) {
+        const target = annotations.find((a) => a.id === resizeTargetId)
+        if (target && (target.width !== resizeDims.width || target.height !== resizeDims.height)) {
+          onUpdateAnnotation({
+            ...target,
+            width: resizeDims.width,
+            height: resizeDims.height,
+          })
+        }
+      }
+      setIsResizing(false)
+      setResizeStart(null)
+      setResizeTargetId(null)
+      setResizeDims(null)
     }
   }
 
@@ -263,8 +316,8 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
           : 'cursor-crosshair'
       }`}
       style={{
-        width: `${pageWidth}px`,
-        height: `${pageHeight}px`,
+        width: '100%',
+        height: '100%',
         touchAction: 'none',
       }}
     >
@@ -272,6 +325,12 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       {pageAnnotations.map((ann) => {
         const isSelected = selectedAnnotationId === ann.id
         const isEditing = editingTextId === ann.id
+
+        // Apply local drag or resize preview position if currently being transformed
+        const currentX = isDragging && dragTargetId === ann.id && dragPos ? dragPos.x : ann.x
+        const currentY = isDragging && dragTargetId === ann.id && dragPos ? dragPos.y : ann.y
+        const currentW = isResizing && resizeTargetId === ann.id && resizeDims ? resizeDims.width : ann.width
+        const currentH = isResizing && resizeTargetId === ann.id && resizeDims ? resizeDims.height : ann.height
 
         if (ann.type === 'draw' || ann.type === 'highlight') {
           // Render SVG polyline
@@ -281,6 +340,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
           return (
             <svg
               key={ann.id}
+              viewBox={`0 0 ${pageWidth} ${pageHeight}`}
               className="absolute inset-0 pointer-events-auto"
               style={{ width: '100%', height: '100%' }}
               onClick={(e) => {
@@ -304,22 +364,18 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
           )
         }
 
-        const leftPx = ann.x * pageWidth
-        const topPx = ann.y * pageHeight
-        const widthPx = Math.abs(ann.width * pageWidth)
-        const heightPx = Math.abs(ann.height * pageHeight)
-
         if (ann.type === 'line' || ann.type === 'arrow') {
-          const x1 = ann.x * pageWidth
-          const y1 = ann.y * pageHeight
-          const x2 = (ann.x + ann.width) * pageWidth
-          const y2 = (ann.y + ann.height) * pageHeight
+          const x1 = currentX * pageWidth
+          const y1 = currentY * pageHeight
+          const x2 = (currentX + currentW) * pageWidth
+          const y2 = (currentY + currentH) * pageHeight
           const angle = Math.atan2(y2 - y1, x2 - x1)
           const headLen = Math.max(12, (ann.strokeWidth || 3) * 3)
 
           return (
             <svg
               key={ann.id}
+              viewBox={`0 0 ${pageWidth} ${pageHeight}`}
               className="absolute inset-0 pointer-events-auto"
               style={{ width: '100%', height: '100%' }}
               onClick={(e) => {
@@ -357,12 +413,21 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
           <div
             key={ann.id}
             onPointerDown={(e) => {
-              if (activeTool === 'select') {
-                e.stopPropagation()
-                onSelectAnnotation(ann.id)
+              e.stopPropagation()
+              onSelectAnnotation(ann.id)
+
+              // If Text tool is active and user clicked a text element, switch directly to editing it
+              if ((activeTool === 'text' || activeTool === 'textbox') && (ann.type === 'text' || ann.type === 'textbox')) {
+                setEditingTextId(ann.id)
+                setEditingTextVal(ann.text || '')
+                return
+              }
+
+              // Otherwise start dragging
+              if (activeTool === 'select' && !isEditing) {
                 setIsDragging(true)
                 setDragStart(getNormalizedPoint(e))
-                setOriginalAnn(ann)
+                setDragTargetId(ann.id)
               }
             }}
             onDoubleClick={(e) => {
@@ -370,17 +435,18 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
                 e.stopPropagation()
                 setEditingTextId(ann.id)
                 setEditingTextVal(ann.text || '')
+                onSelectAnnotation(ann.id)
               }
             }}
             style={{
               position: 'absolute',
-              left: `${leftPx}px`,
-              top: `${topPx}px`,
-              width: `${widthPx}px`,
-              height: `${heightPx}px`,
+              left: `${currentX * 100}%`,
+              top: `${currentY * 100}%`,
+              width: `${currentW * 100}%`,
+              minHeight: `${currentH * 100}%`,
             }}
             className={`pointer-events-auto group ${
-              isSelected ? 'ring-2 ring-blue-500 ring-offset-1 dark:ring-offset-slate-900' : ''
+              isSelected ? 'ring-2 ring-blue-500 ring-offset-1 dark:ring-offset-slate-900 cursor-move' : ''
             }`}
           >
             {/* Visual Element Rendering */}
@@ -388,7 +454,8 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
               <div
                 className="w-full h-full"
                 style={{
-                  border: `${ann.strokeWidth || 3}px solid ${ann.strokeColor || '#2563eb'}`,
+                  minHeight: '24px',
+                  border: `${(ann.strokeWidth || 3) * scale}px solid ${ann.strokeColor || '#2563eb'}`,
                   backgroundColor: ann.fillColor || 'transparent',
                 }}
               />
@@ -398,7 +465,8 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
               <div
                 className="w-full h-full rounded-full"
                 style={{
-                  border: `${ann.strokeWidth || 3}px solid ${ann.strokeColor || '#2563eb'}`,
+                  minHeight: '24px',
+                  border: `${(ann.strokeWidth || 3) * scale}px solid ${ann.strokeColor || '#2563eb'}`,
                   backgroundColor: ann.fillColor || 'transparent',
                 }}
               />
@@ -406,35 +474,43 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
 
             {(ann.type === 'text' || ann.type === 'textbox') && (
               <div
-                className="w-full h-full p-1 overflow-hidden"
+                className="w-full h-full p-1 rounded"
                 style={{
                   backgroundColor: ann.backgroundColor || 'transparent',
                   color: ann.color || '#0f172a',
-                  fontSize: `${ann.fontSize || 16}px`,
+                  fontSize: `${(ann.fontSize || 16) * scale}px`,
                   fontWeight: 'bold',
                   lineHeight: '1.25',
+                  border: ann.type === 'textbox' ? '1px solid #cbd5e1' : 'none',
                 }}
               >
                 {isEditing ? (
                   <textarea
                     autoFocus
                     value={editingTextVal}
-                    onChange={(e) => {
-                      setEditingTextVal(e.target.value)
-                      onUpdateAnnotation({ ...ann, text: e.target.value })
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => setEditingTextVal(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape' || (e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+                        e.preventDefault()
+                        handleCommitText(ann.id, editingTextVal)
+                      }
                     }}
-                    onBlur={() => setEditingTextId(null)}
-                    className="w-full h-full resize-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-1 rounded border border-blue-400 focus:outline-none"
+                    onBlur={() => handleCommitText(ann.id, editingTextVal)}
+                    className="w-full h-full min-h-[44px] resize-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-1.5 rounded border border-blue-500 focus:outline-none shadow-sm"
                   />
                 ) : (
-                  <span className="whitespace-pre-wrap break-words">{ann.text || 'Text'}</span>
+                  <span className="whitespace-pre-wrap break-words block">
+                    {ann.text || 'Type text...'}
+                  </span>
                 )}
               </div>
             )}
 
-            {/* Selection Controls (Resize Handle & Delete Button) */}
-            {isSelected && (
+            {/* Selection Controls: Delete, Edit Text, and Resize Handle */}
+            {isSelected && !isEditing && (
               <>
+                {/* Delete Button */}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -442,22 +518,39 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
                     onDeleteAnnotation(ann.id)
                     onSelectAnnotation(null)
                   }}
-                  className="absolute -top-3.5 -right-3.5 flex h-6 w-6 items-center justify-center rounded-full bg-rose-600 text-white shadow-md hover:bg-rose-700 transition-colors"
+                  className="absolute -top-3.5 -right-3.5 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-rose-600 text-white shadow-md hover:bg-rose-700 active:scale-95 transition-all cursor-pointer"
                   title="Delete element"
                   aria-label="Delete element"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
 
+                {/* Edit Text Button (for text and textbox items) */}
+                {(ann.type === 'text' || ann.type === 'textbox') && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEditingTextId(ann.id)
+                      setEditingTextVal(ann.text || '')
+                    }}
+                    className="absolute -top-3.5 right-4 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700 active:scale-95 transition-all cursor-pointer"
+                    title="Edit text"
+                    aria-label="Edit text"
+                  >
+                    <Edit3 className="h-3 w-3" />
+                  </button>
+                )}
+
                 {/* Resize Handle */}
                 <div
                   onPointerDown={(e) => {
                     e.stopPropagation()
                     setIsResizing(true)
-                    setDragStart(getNormalizedPoint(e))
-                    setOriginalAnn(ann)
+                    setResizeStart(getNormalizedPoint(e))
+                    setResizeTargetId(ann.id)
                   }}
-                  className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full bg-blue-600 border-2 border-white shadow-sm cursor-se-resize"
+                  className="absolute -bottom-2 -right-2 z-20 h-4 w-4 rounded-full bg-blue-600 border-2 border-white shadow-sm cursor-se-resize"
                   title="Resize element"
                 />
               </>
@@ -469,6 +562,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       {/* Live Freehand Drawing Preview */}
       {isDrawing && (activeTool === 'draw' || activeTool === 'highlight') && currentPoints.length > 0 && (
         <svg
+          viewBox={`0 0 ${pageWidth} ${pageHeight}`}
           className="absolute inset-0 pointer-events-none"
           style={{ width: '100%', height: '100%' }}
         >
@@ -487,6 +581,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       {/* Live Shape Preview */}
       {isDrawing && shapeStart && shapeCurrent && (
         <svg
+          viewBox={`0 0 ${pageWidth} ${pageHeight}`}
           className="absolute inset-0 pointer-events-none"
           style={{ width: '100%', height: '100%' }}
         >

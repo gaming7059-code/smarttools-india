@@ -17,23 +17,27 @@ export interface LoadedPdfResult {
 }
 
 /**
- * Loads a PDF file and extracts page dimensions and metadata
+ * Loads a PDF file and extracts page dimensions and metadata.
+ * Uses a cloned buffer for PDF.js so the original ArrayBuffer remains intact.
  */
 export async function loadPdfData(file: File): Promise<LoadedPdfResult> {
   const arrayBuffer = await file.arrayBuffer()
-  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) })
+  // Clone buffer so PDF.js Web Worker does not transfer or detach the primary ArrayBuffer
+  const bufferForWorker = arrayBuffer.slice(0)
+  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(bufferForWorker) })
   const pdfDoc = await loadingTask.promise
 
   const pages: PDFPageItem[] = []
   for (let i = 1; i <= pdfDoc.numPages; i++) {
     const page = await pdfDoc.getPage(i)
-    const viewport = page.getViewport({ scale: 1.0 })
+    // Extract canonical unrotated MediaBox dimensions
+    const unrotatedViewport = page.getViewport({ scale: 1.0, rotation: 0 })
     pages.push({
       id: `page-${i - 1}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       originalIndex: i - 1,
       rotation: page.rotate || 0,
-      width: viewport.width,
-      height: viewport.height,
+      width: unrotatedViewport.width,
+      height: unrotatedViewport.height,
     })
   }
 
@@ -57,7 +61,7 @@ export async function renderPdfPageToCanvas(
   canvas: HTMLCanvasElement
 ): Promise<{ width: number; height: number }> {
   const page = await pdfDoc.getPage(originalPageIndex + 1)
-  const effectiveRotation = (rotation) % 360
+  const effectiveRotation = rotation % 360
   const viewport = page.getViewport({ scale, rotation: effectiveRotation })
 
   const dpr = window.devicePixelRatio || 1
@@ -171,14 +175,14 @@ export async function createSamplePdf(): Promise<{ file: File }> {
   )
 
   const pdfBytes = await doc.save()
-  const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
+  const blob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' })
   const file = new File([blob], 'sample_document.pdf', { type: 'application/pdf' })
 
   return { file }
 }
 
 /**
- * Renders annotations to an offscreen canvas matching the target page's unrotated dimensions
+ * Renders annotations to a 2D canvas context with full word wrapping and vector styling
  */
 export function drawAnnotationsToCanvas(
   ctx: CanvasRenderingContext2D,
@@ -210,13 +214,18 @@ export function drawAnnotationsToCanvas(
     } else if (ann.type === 'text' || ann.type === 'textbox') {
       const x = ann.x * pageWidth
       const y = ann.y * pageHeight
-      const w = ann.width * pageWidth
-      const h = ann.height * pageHeight
+      const w = Math.max(30, ann.width * pageWidth)
+      const h = Math.max(20, ann.height * pageHeight)
       const fontSize = ann.fontSize || 16
 
       if (ann.backgroundColor && ann.backgroundColor !== 'transparent') {
         ctx.fillStyle = ann.backgroundColor
         ctx.fillRect(x, y, w, h)
+        if (ann.type === 'textbox') {
+          ctx.strokeStyle = ann.strokeColor || '#94a3b8'
+          ctx.lineWidth = 1
+          ctx.strokeRect(x, y, w, h)
+        }
       }
 
       ctx.fillStyle = ann.color || '#0f172a'
@@ -224,10 +233,38 @@ export function drawAnnotationsToCanvas(
       ctx.textBaseline = 'top'
 
       const text = ann.text || ''
-      const lines = text.split('\n')
-      lines.forEach((line, idx) => {
-        ctx.fillText(line, x + 6, y + 6 + idx * (fontSize * 1.25))
-      })
+      if (text.trim()) {
+        const paragraphs = text.split('\n')
+        let currentY = y + 4
+        const padding = 6
+        const maxWidth = Math.max(20, w - padding * 2)
+        const lineHeight = fontSize * 1.25
+
+        for (const para of paragraphs) {
+          if (!para) {
+            currentY += lineHeight
+            continue
+          }
+          const words = para.split(' ')
+          let currentLine = ''
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = currentLine ? `${currentLine} ${words[n]}` : words[n]
+            const metrics = ctx.measureText(testLine)
+            if (metrics.width > maxWidth && n > 0) {
+              ctx.fillText(currentLine, x + padding, currentY)
+              currentLine = words[n]
+              currentY += lineHeight
+            } else {
+              currentLine = testLine
+            }
+          }
+          if (currentLine) {
+            ctx.fillText(currentLine, x + padding, currentY)
+            currentY += lineHeight
+          }
+        }
+      }
     } else if (ann.type === 'rectangle') {
       const x = ann.x * pageWidth
       const y = ann.y * pageHeight
@@ -274,7 +311,6 @@ export function drawAnnotationsToCanvas(
       ctx.stroke()
 
       if (ann.type === 'arrow') {
-        // Draw arrowhead at (x2, y2)
         const angle = Math.atan2(y2 - y1, x2 - x1)
         const headLen = Math.max(12, (ann.strokeWidth || 3) * 3)
 
@@ -299,54 +335,81 @@ export function drawAnnotationsToCanvas(
 }
 
 /**
- * Exports the modified PDF with pages rearranged, rotated, and annotations embedded
+ * Exports the modified PDF with pages rearranged, rotated, and annotations embedded.
+ * Returns the output bytes as a Uint8Array and triggers browser download when applicable.
  */
 export async function exportEditedPdf(
   originalBytes: ArrayBuffer,
   pages: PDFPageItem[],
   annotations: Annotation[],
   originalFileName: string
-): Promise<void> {
-  const srcDoc = await PDFDocument.load(originalBytes)
+): Promise<Uint8Array> {
+  const srcDoc = await PDFDocument.load(originalBytes, { ignoreEncryption: true })
   const newDoc = await PDFDocument.create()
 
   for (let i = 0; i < pages.length; i++) {
     const pageItem = pages[i]
     const [copiedPage] = await newDoc.copyPages(srcDoc, [pageItem.originalIndex])
-    copiedPage.setRotation(degrees(pageItem.rotation % 360))
+    const pageRotation = (pageItem.rotation % 360 + 360) % 360
+    copiedPage.setRotation(degrees(pageRotation))
     newDoc.addPage(copiedPage)
 
     // Filter annotations for this page
     const pageAnns = annotations.filter((a) => a.pageIndex === i)
     if (pageAnns.length > 0) {
-      const pageWidth = copiedPage.getWidth()
-      const pageHeight = copiedPage.getHeight()
+      const isRotatedSideways = pageRotation % 180 !== 0
+      const visibleWidth = isRotatedSideways ? copiedPage.getHeight() : copiedPage.getWidth()
+      const visibleHeight = isRotatedSideways ? copiedPage.getWidth() : copiedPage.getHeight()
 
       // High-resolution canvas for crisp vector/drawing rendering
       const scaleFactor = 2.0
       const offscreenCanvas = document.createElement('canvas')
-      offscreenCanvas.width = Math.floor(pageWidth * scaleFactor)
-      offscreenCanvas.height = Math.floor(pageHeight * scaleFactor)
+      offscreenCanvas.width = Math.floor(visibleWidth * scaleFactor)
+      offscreenCanvas.height = Math.floor(visibleHeight * scaleFactor)
 
       const ctx = offscreenCanvas.getContext('2d')
       if (ctx) {
         ctx.scale(scaleFactor, scaleFactor)
-        drawAnnotationsToCanvas(ctx, pageAnns, pageWidth, pageHeight)
+        drawAnnotationsToCanvas(ctx, pageAnns, visibleWidth, visibleHeight)
 
-        // Convert canvas to PNG blob
-        const pngBlob = await new Promise<Blob | null>((resolve) => {
-          offscreenCanvas.toBlob((b) => resolve(b), 'image/png')
-        })
+        const dataUrl = offscreenCanvas.toDataURL('image/png')
+        const pngImage = await newDoc.embedPng(dataUrl)
 
-        if (pngBlob) {
-          const pngBuffer = await pngBlob.arrayBuffer()
-          const pngImage = await newDoc.embedPng(new Uint8Array(pngBuffer))
+        const originX = copiedPage.getX() || 0
+        const originY = copiedPage.getY() || 0
+        const pageW = copiedPage.getWidth()
+        const pageH = copiedPage.getHeight()
 
+        if (pageRotation === 0) {
           copiedPage.drawImage(pngImage, {
-            x: 0,
-            y: 0,
-            width: pageWidth,
-            height: pageHeight,
+            x: originX,
+            y: originY,
+            width: visibleWidth,
+            height: visibleHeight,
+          })
+        } else if (pageRotation === 90) {
+          copiedPage.drawImage(pngImage, {
+            x: originX,
+            y: originY + pageH,
+            width: visibleWidth,
+            height: visibleHeight,
+            rotate: degrees(-90),
+          })
+        } else if (pageRotation === 180) {
+          copiedPage.drawImage(pngImage, {
+            x: originX + pageW,
+            y: originY + pageH,
+            width: visibleWidth,
+            height: visibleHeight,
+            rotate: degrees(-180),
+          })
+        } else if (pageRotation === 270) {
+          copiedPage.drawImage(pngImage, {
+            x: originX + pageW,
+            y: originY,
+            width: visibleWidth,
+            height: visibleHeight,
+            rotate: degrees(-270),
           })
         }
       }
@@ -354,16 +417,22 @@ export async function exportEditedPdf(
   }
 
   const outputBytes = await newDoc.save()
-  const outputBlob = new Blob([new Uint8Array(outputBytes)], { type: 'application/pdf' })
-  const downloadUrl = URL.createObjectURL(outputBlob)
 
-  const downloadLink = document.createElement('a')
-  const baseName = originalFileName.replace(/\.[^/.]+$/, '')
-  downloadLink.href = downloadUrl
-  downloadLink.download = `${baseName || 'document'}_edited.pdf`
-  document.body.appendChild(downloadLink)
-  downloadLink.click()
-  document.body.removeChild(downloadLink)
+  // Trigger browser download if running in browser window
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    const outputBlob = new Blob([outputBytes.buffer as ArrayBuffer], { type: 'application/pdf' })
+    const downloadUrl = URL.createObjectURL(outputBlob)
 
-  setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000)
+    const downloadLink = document.createElement('a')
+    const baseName = originalFileName.replace(/\.[^/.]+$/, '')
+    downloadLink.href = downloadUrl
+    downloadLink.download = `${baseName || 'document'}_edited.pdf`
+    document.body.appendChild(downloadLink)
+    downloadLink.click()
+    document.body.removeChild(downloadLink)
+
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000)
+  }
+
+  return outputBytes
 }
