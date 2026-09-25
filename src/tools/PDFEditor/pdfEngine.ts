@@ -1,7 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist'
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { PDFDocument, degrees } from 'pdf-lib'
-import type { PDFPageItem, Annotation } from './types'
+import type { PDFPageItem, Annotation, DetectedTextItem } from './types'
 
 // Initialize PDF.js worker
 if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
@@ -87,6 +87,74 @@ export async function renderPdfPageToCanvas(
   return {
     width: viewport.width,
     height: viewport.height,
+  }
+}
+
+/**
+ * Extracts text items from a PDF page and computes normalized bounding boxes matching the visible viewport
+ */
+export async function extractPageTextItems(
+  pdfDoc: pdfjsLib.PDFDocumentProxy,
+  originalPageIndex: number,
+  rotation: number
+): Promise<DetectedTextItem[]> {
+  try {
+    const page = await pdfDoc.getPage(originalPageIndex + 1)
+    const effectiveRotation = ((rotation % 360) + 360) % 360
+    const viewport = page.getViewport({ scale: 1.0, rotation: effectiveRotation })
+    const textContent = await page.getTextContent()
+
+    const detected: DetectedTextItem[] = []
+    let itemIdx = 0
+
+    for (const item of textContent.items) {
+      if (!('str' in item) || !item.str.trim()) continue
+
+      const tx = item.transform[4]
+      const ty = item.transform[5]
+      const fontH = Math.max(8, Math.hypot(item.transform[2], item.transform[3]) || item.height || 12)
+      const w = Math.max(10, item.width)
+      const h = fontH
+
+      // Calculate 4 corners in PDF coordinate space and convert to viewport coordinates
+      const corners = [
+        viewport.convertToViewportPoint(tx, ty),
+        viewport.convertToViewportPoint(tx + w, ty),
+        viewport.convertToViewportPoint(tx + w, ty + h),
+        viewport.convertToViewportPoint(tx, ty + h),
+      ]
+
+      const xs = corners.map((c) => c[0])
+      const ys = corners.map((c) => c[1])
+      const minX = Math.min(...xs)
+      const maxX = Math.max(...xs)
+      const minY = Math.min(...ys)
+      const maxY = Math.max(...ys)
+
+      const boxW = Math.max(10, maxX - minX)
+      const boxH = Math.max(8, maxY - minY)
+
+      // Normalize to [0, 1] relative to viewport dimensions
+      const normX = Math.max(0, Math.min(1, minX / viewport.width))
+      const normY = Math.max(0, Math.min(1, minY / viewport.height))
+      const normW = Math.min(1 - normX, boxW / viewport.width)
+      const normH = Math.min(1 - normY, boxH / viewport.height)
+
+      detected.push({
+        id: `detected-text-${originalPageIndex}-${itemIdx++}`,
+        str: item.str,
+        x: normX,
+        y: normY,
+        width: normW,
+        height: normH,
+        fontSize: Math.round(fontH),
+      })
+    }
+
+    return detected
+  } catch (err) {
+    console.error('Failed to extract text from page:', err)
+    return []
   }
 }
 

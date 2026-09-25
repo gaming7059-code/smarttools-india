@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Trash2, Edit3 } from 'lucide-react'
-import type { Annotation, EditorToolMode, Point } from './types'
+import { Trash2, Edit3, X } from 'lucide-react'
+import type { Annotation, EditorToolMode, Point, DetectedTextItem } from './types'
 
 interface AnnotationLayerProps {
   pageIndex: number
@@ -13,6 +13,7 @@ interface AnnotationLayerProps {
   strokeWidth: number
   annotations: Annotation[]
   selectedAnnotationId: string | null
+  detectedTextItems?: DetectedTextItem[]
   onSelectAnnotation: (id: string | null) => void
   onAddAnnotation: (ann: Annotation) => void
   onUpdateAnnotation: (ann: Annotation) => void
@@ -36,6 +37,7 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
   strokeWidth,
   annotations,
   selectedAnnotationId,
+  detectedTextItems = [],
   onSelectAnnotation,
   onAddAnnotation,
   onUpdateAnnotation,
@@ -64,6 +66,16 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
   // Text inline editing
   const [editingTextId, setEditingTextId] = useState<string | null>(null)
   const [editingTextVal, setEditingTextVal] = useState('')
+
+  // Selected region for Edit PDF Text workflow
+  const [selectedActionBox, setSelectedActionBox] = useState<{
+    str: string
+    x: number
+    y: number
+    width: number
+    height: number
+    fontSize?: number
+  } | null>(null)
 
   const pageAnnotations = annotations.filter((a) => a.pageIndex === pageIndex)
 
@@ -94,6 +106,68 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     setEditingTextId(null)
   }
 
+  // Redact/Delete original PDF text
+  const handleDeleteOriginalText = (box: {
+    str: string
+    x: number
+    y: number
+    width: number
+    height: number
+  }) => {
+    const id = generateAnnotationId()
+    const padX = 0.003
+    const padY = 0.003
+    const redactionAnn: Annotation = {
+      id,
+      pageIndex,
+      type: 'rectangle',
+      x: Math.max(0, box.x - padX),
+      y: Math.max(0, box.y - padY),
+      width: Math.min(1, box.width + padX * 2),
+      height: Math.min(1, box.height + padY * 2),
+      fillColor: '#ffffff',
+      strokeWidth: 0,
+      strokeColor: 'transparent',
+    }
+    onAddAnnotation(redactionAnn)
+    setSelectedActionBox(null)
+  }
+
+  // Replace original PDF text with a new editable textbox
+  const handleReplaceText = (box: {
+    str: string
+    x: number
+    y: number
+    width: number
+    height: number
+    fontSize?: number
+  }) => {
+    const id = generateAnnotationId()
+    const padX = 0.003
+    const padY = 0.003
+    const initialText = box.str !== 'Selected Area' ? box.str : ''
+    const replacementAnn: Annotation = {
+      id,
+      pageIndex,
+      type: 'textbox',
+      x: Math.max(0, box.x - padX),
+      y: Math.max(0, box.y - padY),
+      width: Math.max(0.12, Math.min(1, box.width + padX * 2)),
+      height: Math.max(0.04, Math.min(1, box.height + padY * 2)),
+      backgroundColor: '#ffffff',
+      text: initialText,
+      fontSize: box.fontSize || fontSize || 16,
+      color: selectedColor || '#0f172a',
+      strokeWidth: 0,
+      strokeColor: 'transparent',
+    }
+    onAddAnnotation(replacementAnn)
+    onSelectAnnotation(id)
+    setEditingTextId(id)
+    setEditingTextVal(initialText)
+    setSelectedActionBox(null)
+  }
+
   // Handle Pointer Down on Container
   const handlePointerDown = (e: React.PointerEvent) => {
     const target = e.target as HTMLElement
@@ -108,6 +182,15 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     }
 
     const pt = getNormalizedPoint(e)
+
+    if (activeTool === 'editText') {
+      setSelectedActionBox(null)
+      setIsDrawing(true)
+      setShapeStart(pt)
+      setShapeCurrent(pt)
+      e.currentTarget.setPointerCapture(e.pointerId)
+      return
+    }
 
     if (activeTool === 'select') {
       if (target === containerRef.current) {
@@ -204,7 +287,25 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     if (isDrawing) {
       setIsDrawing(false)
 
-      if ((activeTool === 'draw' || activeTool === 'highlight') && currentPoints.length > 1) {
+      if (activeTool === 'editText' && shapeStart && shapeCurrent) {
+        const minX = Math.min(shapeStart.x, shapeCurrent.x)
+        const minY = Math.min(shapeStart.y, shapeCurrent.y)
+        const w = Math.abs(shapeCurrent.x - shapeStart.x)
+        const h = Math.abs(shapeCurrent.y - shapeStart.y)
+
+        if (w > 0.015 && h > 0.008) {
+          setSelectedActionBox({
+            str: 'Selected Area',
+            x: minX,
+            y: minY,
+            width: w,
+            height: h,
+            fontSize,
+          })
+        }
+        setShapeStart(null)
+        setShapeCurrent(null)
+      } else if ((activeTool === 'draw' || activeTool === 'highlight') && currentPoints.length > 1) {
         const id = generateAnnotationId()
         const newAnn: Annotation = {
           id,
@@ -311,6 +412,8 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
       className={`absolute inset-0 select-none ${
         activeTool === 'select'
           ? 'cursor-default'
+          : activeTool === 'editText'
+          ? 'cursor-pointer'
           : activeTool === 'text' || activeTool === 'textbox'
           ? 'cursor-text'
           : 'cursor-crosshair'
@@ -321,6 +424,90 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
         touchAction: 'none',
       }}
     >
+      {/* Detected Text Highlights when in "editText" mode */}
+      {activeTool === 'editText' &&
+        detectedTextItems.map((item) => (
+          <div
+            key={item.id}
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelectedActionBox({
+                str: item.str,
+                x: item.x,
+                y: item.y,
+                width: item.width,
+                height: item.height,
+                fontSize: item.fontSize,
+              })
+            }}
+            style={{
+              position: 'absolute',
+              left: `${item.x * 100}%`,
+              top: `${item.y * 100}%`,
+              width: `${item.width * 100}%`,
+              height: `${item.height * 100}%`,
+            }}
+            className="border border-blue-400/80 bg-blue-500/10 hover:bg-blue-500/25 hover:border-blue-600 rounded-xs cursor-pointer transition-colors z-20 group"
+            title={`Click to edit or delete "${item.str}"`}
+          >
+            <div className="hidden group-hover:flex absolute -top-5 left-0 bg-slate-900/90 text-white text-[10px] px-1.5 py-0.5 rounded shadow pointer-events-none whitespace-nowrap z-30">
+              Click to edit or remove
+            </div>
+          </div>
+        ))}
+
+      {/* Floating Action Popover for Selected Original Text Region */}
+      {selectedActionBox && (
+        <div
+          className="absolute z-50 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-3 flex flex-col gap-2 min-w-[260px] max-w-[320px] text-xs"
+          style={{
+            left: `${Math.min(0.65, Math.max(0.02, selectedActionBox.x)) * 100}%`,
+            top: `${Math.max(0.02, selectedActionBox.y - 0.12) * 100}%`,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
+            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
+              {selectedActionBox.str || 'Selected Text Region'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedActionBox(null)}
+              className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              title="Close"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            Choose an action for this original PDF text:
+          </div>
+
+          <div className="flex gap-2 pt-0.5">
+            {/* Replace / Edit Text */}
+            <button
+              type="button"
+              onClick={() => handleReplaceText(selectedActionBox)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium shadow-xs transition-all cursor-pointer"
+            >
+              <Edit3 className="h-3.5 w-3.5" />
+              <span>Edit Text</span>
+            </button>
+
+            {/* Delete / Redact Text */}
+            <button
+              type="button"
+              onClick={() => handleDeleteOriginalText(selectedActionBox)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-medium shadow-xs transition-all cursor-pointer"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span>Delete Text</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Existing Annotations for this Page */}
       {pageAnnotations.map((ann) => {
         const isSelected = selectedAnnotationId === ann.id
@@ -454,8 +641,11 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
               <div
                 className="w-full h-full"
                 style={{
-                  minHeight: '24px',
-                  border: `${(ann.strokeWidth || 3) * scale}px solid ${ann.strokeColor || '#2563eb'}`,
+                  minHeight: '12px',
+                  border:
+                    ann.strokeWidth && ann.strokeWidth > 0 && ann.strokeColor !== 'transparent'
+                      ? `${(ann.strokeWidth || 3) * scale}px solid ${ann.strokeColor || '#2563eb'}`
+                      : 'none',
                   backgroundColor: ann.fillColor || 'transparent',
                 }}
               />
@@ -481,7 +671,10 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
                   fontSize: `${(ann.fontSize || 16) * scale}px`,
                   fontWeight: 'bold',
                   lineHeight: '1.25',
-                  border: ann.type === 'textbox' ? '1px solid #cbd5e1' : 'none',
+                  border:
+                    ann.type === 'textbox' && ann.strokeWidth && ann.strokeWidth > 0
+                      ? '1px solid #cbd5e1'
+                      : 'none',
                 }}
               >
                 {isEditing ? (
@@ -578,8 +771,28 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
         </svg>
       )}
 
+      {/* Live Selection Rectangle Preview when drawing a custom region in editText mode */}
+      {isDrawing && activeTool === 'editText' && shapeStart && shapeCurrent && (
+        <svg
+          viewBox={`0 0 ${pageWidth} ${pageHeight}`}
+          className="absolute inset-0 pointer-events-none z-30"
+          style={{ width: '100%', height: '100%' }}
+        >
+          <rect
+            x={Math.min(shapeStart.x, shapeCurrent.x) * pageWidth}
+            y={Math.min(shapeStart.y, shapeCurrent.y) * pageHeight}
+            width={Math.abs(shapeCurrent.x - shapeStart.x) * pageWidth}
+            height={Math.abs(shapeCurrent.y - shapeStart.y) * pageHeight}
+            fill="rgba(59, 130, 246, 0.15)"
+            stroke="#2563eb"
+            strokeWidth={1.5}
+            strokeDasharray="4 4"
+          />
+        </svg>
+      )}
+
       {/* Live Shape Preview */}
-      {isDrawing && shapeStart && shapeCurrent && (
+      {isDrawing && activeTool !== 'editText' && shapeStart && shapeCurrent && (
         <svg
           viewBox={`0 0 ${pageWidth} ${pageHeight}`}
           className="absolute inset-0 pointer-events-none"

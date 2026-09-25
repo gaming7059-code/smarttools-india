@@ -31,13 +31,15 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Loader2,
+  ScanText,
 } from 'lucide-react'
-import type { EditorToolMode, Annotation, PDFPageItem, HistoryState } from './types'
+import type { EditorToolMode, Annotation, PDFPageItem, HistoryState, DetectedTextItem } from './types'
 import {
   loadPdfData,
   renderPdfPageToCanvas,
   createSamplePdf,
   exportEditedPdf,
+  extractPageTextItems,
   type LoadedPdfResult,
 } from './pdfEngine'
 import { AnnotationLayer } from './AnnotationLayer'
@@ -77,6 +79,8 @@ export const PDFEditor: React.FC = () => {
   const [strokeWidth, setStrokeWidth] = useState<number>(3)
   const [zoom, setZoom] = useState<number>(1.0)
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null)
+  const [detectedTextItems, setDetectedTextItems] = useState<DetectedTextItem[]>([])
+  const [isExtractingText, setIsExtractingText] = useState<boolean>(false)
 
   // History state (undo / redo)
   const [history, setHistory] = useState<HistoryState[]>([])
@@ -152,6 +156,7 @@ export const PDFEditor: React.FC = () => {
       setRedoStack([])
       setSelectedAnnotationId(null)
       setZoom(1.0)
+      setDetectedTextItems([])
     } catch (err: unknown) {
       console.error('Failed to load PDF:', err)
       setErrorMessage('Could not open the selected PDF. The file may be password-protected or corrupted.')
@@ -225,6 +230,40 @@ export const PDFEditor: React.FC = () => {
         }
       })
   }, [loadedPdf, pages, currentPageIndex, zoom])
+
+  // Extract text items from current page whenever document, page, or rotation changes
+  useEffect(() => {
+    if (!loadedPdf || pages.length === 0) return
+
+    const page = pages[currentPageIndex]
+    if (!page) return
+
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setIsExtractingText(true)
+      }
+    })
+
+    extractPageTextItems(loadedPdf.pdfDoc, page.originalIndex, page.rotation)
+      .then((items) => {
+        if (!cancelled) {
+          setDetectedTextItems(items)
+          setIsExtractingText(false)
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('Failed to extract page text items:', err)
+          setDetectedTextItems([])
+          setIsExtractingText(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [loadedPdf, pages, currentPageIndex])
 
   // Page Operations
   const handleRotatePage = (index: number) => {
@@ -335,6 +374,7 @@ export const PDFEditor: React.FC = () => {
       setHistory([])
       setRedoStack([])
       setSelectedAnnotationId(null)
+      setDetectedTextItems([])
       setErrorMessage(null)
     }
   }
@@ -600,6 +640,36 @@ export const PDFEditor: React.FC = () => {
             <span className="hidden sm:inline">Select</span>
           </button>
 
+          {/* Edit PDF Text (Native Text Redact/Replace) */}
+          <button
+            type="button"
+            onClick={() => setActiveTool('editText')}
+            title="Edit or Delete Existing PDF Text"
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+              activeTool === 'editText'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : 'text-amber-700 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
+            }`}
+          >
+            {isExtractingText ? (
+              <Loader2 className="h-4 w-4 animate-spin text-amber-600 dark:text-amber-400" />
+            ) : (
+              <ScanText className="h-4 w-4" />
+            )}
+            <span className="font-semibold">Edit PDF Text</span>
+            {detectedTextItems.length > 0 && (
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeTool === 'editText'
+                    ? 'bg-amber-700 text-white'
+                    : 'bg-amber-200 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200'
+                }`}
+              >
+                {detectedTextItems.length}
+              </span>
+            )}
+          </button>
+
           <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
 
           {/* Text Tool */}
@@ -805,6 +875,25 @@ export const PDFEditor: React.FC = () => {
         </div>
       </div>
 
+      {/* Edit PDF Text Guidance Banner */}
+      {activeTool === 'editText' && (
+        <div className="flex items-center justify-between px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <ScanText className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <span>
+              <strong>Edit PDF Text Mode:</strong> Click any detected text snippet (highlighted in blue) or drag a box over any text area to <strong>Edit/Replace</strong> or <strong>Delete</strong> it.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTool('select')}
+            className="text-xs px-2.5 py-1 rounded bg-amber-200 dark:bg-amber-800 hover:bg-amber-300 dark:hover:bg-amber-700 text-amber-900 dark:text-amber-100 font-semibold cursor-pointer transition-colors"
+          >
+            Done Editing
+          </button>
+        </div>
+      )}
+
       {/* Main Workspace Area: Sidebar + Canvas */}
       <div className="flex flex-1 min-h-[550px] relative overflow-hidden bg-slate-100/70 dark:bg-slate-950/60">
         {/* Left Page Management Sidebar */}
@@ -958,6 +1047,7 @@ export const PDFEditor: React.FC = () => {
               strokeWidth={strokeWidth}
               annotations={annotations}
               selectedAnnotationId={selectedAnnotationId}
+              detectedTextItems={detectedTextItems}
               onSelectAnnotation={setSelectedAnnotationId}
               onAddAnnotation={handleAddAnnotation}
               onUpdateAnnotation={handleUpdateAnnotation}

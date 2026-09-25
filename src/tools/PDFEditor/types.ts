@@ -1,5 +1,6 @@
 export type EditorToolMode =
   | 'select'
+  | 'editText'
   | 'text'
   | 'textbox'
   | 'draw'
@@ -8,6 +9,16 @@ export type EditorToolMode =
   | 'circle'
   | 'line'
   | 'arrow'
+
+export interface DetectedTextItem {
+  id: string
+  str: string
+  x: number // normalized [0, 1] relative to visible page width
+  y: number // normalized [0, 1] relative to visible page height
+  width: number // normalized [0, 1] relative to visible page width
+  height: number // normalized [0, 1] relative to visible page height
+  fontSize: number // estimated px font size
+}
 
 export interface Point {
   x: number
