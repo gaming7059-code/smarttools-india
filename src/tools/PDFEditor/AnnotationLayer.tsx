@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Trash2, Edit3, X } from 'lucide-react'
+import { Trash2, Edit3, X, ScanText } from 'lucide-react'
 import type { Annotation, EditorToolMode, Point, DetectedTextItem } from './types'
 
 interface AnnotationLayerProps {
@@ -67,15 +67,69 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
   const [editingTextId, setEditingTextId] = useState<string | null>(null)
   const [editingTextVal, setEditingTextVal] = useState('')
 
-  // Selected region for Edit PDF Text workflow
+  // Selected region and editing state for Edit PDF Text workflow
   const [selectedActionBox, setSelectedActionBox] = useState<{
+    id?: string
     str: string
     x: number
     y: number
     width: number
     height: number
-    fontSize?: number
+    fontSize: number
+    fontName?: string
+    fontFamily?: string
+    color?: string
+    backgroundColor?: string
+    isBold?: boolean
+    isItalic?: boolean
+    isMonospace?: boolean
+    isSerif?: boolean
+    pdfX?: number
+    pdfY?: number
+    pdfWidth?: number
+    pdfHeight?: number
+    rotation?: number
   } | null>(null)
+
+  const [editInputText, setEditInputText] = useState('')
+  const [editFontSize, setEditFontSize] = useState(14)
+  const [editColor, setEditColor] = useState('#000000')
+  const [editBgColor, setEditBgColor] = useState('#ffffff')
+  const [editIsBold, setEditIsBold] = useState(false)
+  const [editIsItalic, setEditIsItalic] = useState(false)
+  const [editAutoFit, setEditAutoFit] = useState(true)
+
+  const openActionBox = (box: {
+    id?: string
+    str: string
+    x: number
+    y: number
+    width: number
+    height: number
+    fontSize: number
+    fontName?: string
+    fontFamily?: string
+    color?: string
+    backgroundColor?: string
+    isBold?: boolean
+    isItalic?: boolean
+    isMonospace?: boolean
+    isSerif?: boolean
+    pdfX?: number
+    pdfY?: number
+    pdfWidth?: number
+    pdfHeight?: number
+    rotation?: number
+  }) => {
+    setSelectedActionBox(box)
+    setEditInputText(box.str === 'Selected Area' ? '' : box.str)
+    setEditFontSize(box.fontSize || fontSize || 14)
+    setEditColor(box.color || selectedColor || '#000000')
+    setEditBgColor(box.backgroundColor || '#ffffff')
+    setEditIsBold(Boolean(box.isBold))
+    setEditIsItalic(Boolean(box.isItalic))
+    setEditAutoFit(true)
+  }
 
   const pageAnnotations = annotations.filter((a) => a.pageIndex === pageIndex)
 
@@ -106,26 +160,26 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     setEditingTextId(null)
   }
 
-  // Redact/Delete original PDF text
-  const handleDeleteOriginalText = (box: {
-    str: string
-    x: number
-    y: number
-    width: number
-    height: number
-  }) => {
+  // Redact/Delete original PDF text cleanly using detected background color
+  const handleDeleteOriginalText = () => {
+    if (!selectedActionBox) return
     const id = generateAnnotationId()
-    const padX = 0.003
-    const padY = 0.003
     const redactionAnn: Annotation = {
       id,
       pageIndex,
       type: 'rectangle',
-      x: Math.max(0, box.x - padX),
-      y: Math.max(0, box.y - padY),
-      width: Math.min(1, box.width + padX * 2),
-      height: Math.min(1, box.height + padY * 2),
-      fillColor: '#ffffff',
+      isPdfTextReplacement: true,
+      x: selectedActionBox.x,
+      y: selectedActionBox.y,
+      width: selectedActionBox.width,
+      height: selectedActionBox.height,
+      fillColor: editBgColor || selectedActionBox.backgroundColor || '#ffffff',
+      backgroundColor: editBgColor || selectedActionBox.backgroundColor || '#ffffff',
+      pdfX: selectedActionBox.pdfX,
+      pdfY: selectedActionBox.pdfY,
+      pdfWidth: selectedActionBox.pdfWidth,
+      pdfHeight: selectedActionBox.pdfHeight,
+      rotation: selectedActionBox.rotation || 0,
       strokeWidth: 0,
       strokeColor: 'transparent',
     }
@@ -133,38 +187,44 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
     setSelectedActionBox(null)
   }
 
-  // Replace original PDF text with a new editable textbox
-  const handleReplaceText = (box: {
-    str: string
-    x: number
-    y: number
-    width: number
-    height: number
-    fontSize?: number
-  }) => {
-    const id = generateAnnotationId()
-    const padX = 0.003
-    const padY = 0.003
-    const initialText = box.str !== 'Selected Area' ? box.str : ''
+  // Replace original PDF text with a new vector replacement text
+  const handleApplyReplacement = () => {
+    if (!selectedActionBox) return
+    const id = selectedActionBox.id || generateAnnotationId()
     const replacementAnn: Annotation = {
       id,
       pageIndex,
-      type: 'textbox',
-      x: Math.max(0, box.x - padX),
-      y: Math.max(0, box.y - padY),
-      width: Math.max(0.12, Math.min(1, box.width + padX * 2)),
-      height: Math.max(0.04, Math.min(1, box.height + padY * 2)),
-      backgroundColor: '#ffffff',
-      text: initialText,
-      fontSize: box.fontSize || fontSize || 16,
-      color: selectedColor || '#0f172a',
+      type: 'text',
+      isPdfTextReplacement: true,
+      x: selectedActionBox.x,
+      y: selectedActionBox.y,
+      width: selectedActionBox.width,
+      height: selectedActionBox.height,
+      text: editInputText,
+      fontSize: editFontSize,
+      fontName: selectedActionBox.fontName,
+      fontFamily: selectedActionBox.fontFamily,
+      color: editColor,
+      backgroundColor: editBgColor,
+      isBold: editIsBold,
+      isItalic: editIsItalic,
+      isMonospace: selectedActionBox.isMonospace,
+      isSerif: selectedActionBox.isSerif,
+      autoFit: editAutoFit,
+      pdfX: selectedActionBox.pdfX,
+      pdfY: selectedActionBox.pdfY,
+      pdfWidth: selectedActionBox.pdfWidth,
+      pdfHeight: selectedActionBox.pdfHeight,
+      rotation: selectedActionBox.rotation || 0,
       strokeWidth: 0,
       strokeColor: 'transparent',
     }
-    onAddAnnotation(replacementAnn)
+    if (selectedActionBox.id && annotations.some((a) => a.id === selectedActionBox.id)) {
+      onUpdateAnnotation(replacementAnn)
+    } else {
+      onAddAnnotation(replacementAnn)
+    }
     onSelectAnnotation(id)
-    setEditingTextId(id)
-    setEditingTextVal(initialText)
     setSelectedActionBox(null)
   }
 
@@ -294,13 +354,31 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
         const h = Math.abs(shapeCurrent.y - shapeStart.y)
 
         if (w > 0.015 && h > 0.008) {
-          setSelectedActionBox({
-            str: 'Selected Area',
+          const overlapping = detectedTextItems.find((it) => {
+            const ox = Math.max(0, Math.min(minX + w, it.x + it.width) - Math.max(minX, it.x))
+            const oy = Math.max(0, Math.min(minY + h, it.y + it.height) - Math.max(minY, it.y))
+            return ox * oy > 0.0001
+          })
+
+          openActionBox({
+            str: overlapping?.str || 'Selected Area',
             x: minX,
             y: minY,
             width: w,
             height: h,
-            fontSize,
+            fontSize: overlapping?.fontSize || fontSize || 14,
+            fontName: overlapping?.fontName,
+            fontFamily: overlapping?.fontFamily,
+            color: overlapping?.color || selectedColor || '#000000',
+            backgroundColor: overlapping?.backgroundColor || '#ffffff',
+            isBold: overlapping?.isBold,
+            isItalic: overlapping?.isItalic,
+            isMonospace: overlapping?.isMonospace,
+            isSerif: overlapping?.isSerif,
+            pdfX: overlapping?.pdfX,
+            pdfY: overlapping?.pdfY,
+            pdfWidth: overlapping?.pdfWidth,
+            pdfHeight: overlapping?.pdfHeight,
           })
         }
         setShapeStart(null)
@@ -431,13 +509,27 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
             key={item.id}
             onClick={(e) => {
               e.stopPropagation()
-              setSelectedActionBox({
+              openActionBox({
+                id: item.id,
                 str: item.str,
                 x: item.x,
                 y: item.y,
                 width: item.width,
                 height: item.height,
                 fontSize: item.fontSize,
+                fontName: item.fontName,
+                fontFamily: item.fontFamily,
+                color: item.color,
+                backgroundColor: item.backgroundColor,
+                isBold: item.isBold,
+                isItalic: item.isItalic,
+                isMonospace: item.isMonospace,
+                isSerif: item.isSerif,
+                pdfX: item.pdfX,
+                pdfY: item.pdfY,
+                pdfWidth: item.pdfWidth,
+                pdfHeight: item.pdfHeight,
+                rotation: item.rotation,
               })
             }}
             style={{
@@ -447,62 +539,239 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
               width: `${item.width * 100}%`,
               height: `${item.height * 100}%`,
             }}
-            className="border border-blue-400/80 bg-blue-500/10 hover:bg-blue-500/25 hover:border-blue-600 rounded-xs cursor-pointer transition-colors z-20 group"
-            title={`Click to edit or delete "${item.str}"`}
+            className="border border-amber-400/80 bg-amber-500/10 hover:bg-amber-500/25 hover:border-amber-600 rounded-xs cursor-pointer transition-colors z-20 group"
+            title={`Click to edit "${item.str}"`}
           >
             <div className="hidden group-hover:flex absolute -top-5 left-0 bg-slate-900/90 text-white text-[10px] px-1.5 py-0.5 rounded shadow pointer-events-none whitespace-nowrap z-30">
-              Click to edit or remove
+              Click to edit text
             </div>
           </div>
         ))}
 
-      {/* Floating Action Popover for Selected Original Text Region */}
+      {/* Floating Inspector Popover for Selected Original Text Region */}
       {selectedActionBox && (
         <div
-          className="absolute z-50 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-3 flex flex-col gap-2 min-w-[260px] max-w-[320px] text-xs"
+          className="absolute z-50 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3 min-w-[320px] max-w-[380px] text-xs backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
           style={{
-            left: `${Math.min(0.65, Math.max(0.02, selectedActionBox.x)) * 100}%`,
-            top: `${Math.max(0.02, selectedActionBox.y - 0.12) * 100}%`,
+            left: `${Math.min(0.6, Math.max(0.02, selectedActionBox.x)) * 100}%`,
+            top: `${Math.max(0.02, selectedActionBox.y - 0.05) * 100}%`,
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
-              {selectedActionBox.str || 'Selected Text Region'}
-            </span>
+          {/* Popover Header */}
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-100 text-sm">
+              <ScanText className="h-4 w-4 text-amber-500" />
+              <span>Edit PDF Text</span>
+            </div>
             <button
               type="button"
               onClick={() => setSelectedActionBox(null)}
-              className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
               title="Close"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">
-            Choose an action for this original PDF text:
+          {/* Detected Properties Metadata Bar */}
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex flex-col gap-1.5">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Detected Original Properties
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+              {/* Font Name */}
+              <span className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-700 font-medium text-slate-700 dark:text-slate-200 shadow-xs border border-slate-200/50 dark:border-slate-600/50">
+                {selectedActionBox.fontFamily || 'Sans-Serif'}
+              </span>
+              {/* Font Size */}
+              <span className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-700 font-medium text-slate-700 dark:text-slate-200 shadow-xs border border-slate-200/50 dark:border-slate-600/50">
+                {selectedActionBox.fontSize} pt
+              </span>
+              {/* Style badges */}
+              {selectedActionBox.isBold && (
+                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold text-[10px]">
+                  Bold
+                </span>
+              )}
+              {selectedActionBox.isItalic && (
+                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 italic text-[10px]">
+                  Italic
+                </span>
+              )}
+              {/* Color previews */}
+              <div className="flex items-center gap-1 ml-auto text-[10px] text-slate-500 dark:text-slate-400">
+                <span>Color:</span>
+                <span
+                  className="w-3.5 h-3.5 rounded-full border border-slate-300 dark:border-slate-600 inline-block"
+                  style={{ backgroundColor: selectedActionBox.color || '#000000' }}
+                  title={`Text Color: ${selectedActionBox.color}`}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex gap-2 pt-0.5">
-            {/* Replace / Edit Text */}
+          {/* Replacement Text Input */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+              Replacement Text:
+            </label>
+            <input
+              type="text"
+              value={editInputText}
+              onChange={(e) => setEditInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleApplyReplacement()
+                }
+              }}
+              autoFocus
+              placeholder="Enter replacement text..."
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium"
+            />
+          </div>
+
+          {/* Typography & Controls */}
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {/* Font Size & Auto-fit */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400">
+                <span>Font Size:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{editFontSize}pt</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="range"
+                  min="6"
+                  max="72"
+                  value={editFontSize}
+                  onChange={(e) => setEditFontSize(Number(e.target.value))}
+                  className="flex-1 accent-blue-600 cursor-pointer h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg"
+                />
+              </div>
+              <label className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 cursor-pointer mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={editAutoFit}
+                  onChange={(e) => setEditAutoFit(e.target.checked)}
+                  className="rounded text-blue-600 accent-blue-600 cursor-pointer"
+                />
+                <span>Auto-fit to original bounds</span>
+              </label>
+            </div>
+
+            {/* Style & Color Toggles */}
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] text-slate-600 dark:text-slate-400">Style & Colors:</span>
+              <div className="flex items-center gap-1">
+                {/* Bold Button */}
+                <button
+                  type="button"
+                  onClick={() => setEditIsBold(!editIsBold)}
+                  title="Toggle Bold"
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs transition-colors cursor-pointer ${
+                    editIsBold
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                  }`}
+                >
+                  B
+                </button>
+
+                {/* Italic Button */}
+                <button
+                  type="button"
+                  onClick={() => setEditIsItalic(!editIsItalic)}
+                  title="Toggle Italic"
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center italic text-xs transition-colors cursor-pointer ${
+                    editIsItalic
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                  }`}
+                >
+                  I
+                </button>
+
+                {/* Text Color Picker */}
+                <label
+                  title="Change Text Color"
+                  className="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-600 flex items-center justify-center cursor-pointer shadow-xs relative overflow-hidden"
+                  style={{ backgroundColor: editColor }}
+                >
+                  <input
+                    type="color"
+                    value={editColor}
+                    onChange={(e) => setEditColor(e.target.value)}
+                    className="opacity-0 absolute inset-0 cursor-pointer"
+                  />
+                </label>
+
+                {/* Background Color Picker */}
+                <label
+                  title="Change Background Fill Color"
+                  className="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-600 flex items-center justify-center cursor-pointer shadow-xs relative overflow-hidden ml-auto"
+                  style={{ backgroundColor: editBgColor }}
+                >
+                  <input
+                    type="color"
+                    value={editBgColor}
+                    onChange={(e) => setEditBgColor(e.target.value)}
+                    className="opacity-0 absolute inset-0 cursor-pointer"
+                  />
+                </label>
+              </div>
+              <div className="flex items-center justify-between text-[9px] text-slate-400">
+                <span>Text: {editColor}</span>
+                <span>Bg: {editBgColor}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Preview Box */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Live Preview:
+            </span>
+            <div
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center truncate min-h-[36px] flex items-center justify-center transition-colors"
+              style={{
+                backgroundColor: editBgColor,
+                color: editColor,
+                fontSize: `${editFontSize}px`,
+                fontWeight: editIsBold ? 'bold' : 'normal',
+                fontStyle: editIsItalic ? 'italic' : 'normal',
+                fontFamily:
+                  selectedActionBox.fontFamily === 'Serif (Times)'
+                    ? 'Georgia, serif'
+                    : selectedActionBox.fontFamily === 'Monospace (Courier)'
+                    ? 'monospace'
+                    : 'system-ui, sans-serif',
+              }}
+            >
+              {editInputText || <span className="opacity-40 italic text-xs">Empty text</span>}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
-              onClick={() => handleReplaceText(selectedActionBox)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium shadow-xs transition-all cursor-pointer"
+              onClick={handleApplyReplacement}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs shadow-md shadow-blue-600/20 transition-all cursor-pointer"
             >
               <Edit3 className="h-3.5 w-3.5" />
-              <span>Edit Text</span>
+              <span>Replace Text</span>
             </button>
 
-            {/* Delete / Redact Text */}
             <button
               type="button"
-              onClick={() => handleDeleteOriginalText(selectedActionBox)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-medium shadow-xs transition-all cursor-pointer"
+              onClick={handleDeleteOriginalText}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 font-semibold text-xs border border-rose-200 dark:border-rose-900/50 active:scale-95 transition-all cursor-pointer"
+              title="Cover and remove this original text"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              <span>Delete Text</span>
+              <span>Delete</span>
             </button>
           </div>
         </div>
@@ -618,7 +887,31 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
               }
             }}
             onDoubleClick={(e) => {
-              if (ann.type === 'text' || ann.type === 'textbox') {
+              if (ann.isPdfTextReplacement) {
+                e.stopPropagation()
+                openActionBox({
+                  id: ann.id,
+                  str: ann.text || '',
+                  x: ann.x,
+                  y: ann.y,
+                  width: ann.width,
+                  height: ann.height,
+                  fontSize: ann.fontSize || 14,
+                  fontName: ann.fontName,
+                  fontFamily: ann.fontFamily,
+                  color: ann.color,
+                  backgroundColor: ann.backgroundColor,
+                  isBold: ann.isBold,
+                  isItalic: ann.isItalic,
+                  isMonospace: ann.isMonospace,
+                  isSerif: ann.isSerif,
+                  pdfX: ann.pdfX,
+                  pdfY: ann.pdfY,
+                  pdfWidth: ann.pdfWidth,
+                  pdfHeight: ann.pdfHeight,
+                })
+                onSelectAnnotation(ann.id)
+              } else if (ann.type === 'text' || ann.type === 'textbox') {
                 e.stopPropagation()
                 setEditingTextId(ann.id)
                 setEditingTextVal(ann.text || '')
@@ -662,17 +955,23 @@ export const AnnotationLayer: React.FC<AnnotationLayerProps> = ({
               />
             )}
 
-            {(ann.type === 'text' || ann.type === 'textbox') && (
+            {(ann.isPdfTextReplacement || ann.type === 'text' || ann.type === 'textbox') && (
               <div
-                className="w-full h-full p-1 rounded"
+                className="w-full h-full p-0.5 rounded-xs"
                 style={{
                   backgroundColor: ann.backgroundColor || 'transparent',
                   color: ann.color || '#0f172a',
-                  fontSize: `${(ann.fontSize || 16) * scale}px`,
-                  fontWeight: 'bold',
-                  lineHeight: '1.25',
+                  fontSize: `${(ann.fontSize || 14) * scale}px`,
+                  fontWeight: ann.isPdfTextReplacement ? (ann.isBold ? 'bold' : 'normal') : 'bold',
+                  fontStyle: ann.isItalic ? 'italic' : 'normal',
+                  fontFamily: ann.isMonospace
+                    ? '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace'
+                    : ann.isSerif
+                    ? 'Georgia, Cambria, "Times New Roman", Times, serif'
+                    : 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                  lineHeight: '1.15',
                   border:
-                    ann.type === 'textbox' && ann.strokeWidth && ann.strokeWidth > 0
+                    ann.type === 'textbox' && !ann.isPdfTextReplacement && ann.strokeWidth && ann.strokeWidth > 0
                       ? '1px solid #cbd5e1'
                       : 'none',
                 }}

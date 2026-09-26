@@ -158,8 +158,27 @@ export const PDFEditor: React.FC = () => {
       setZoom(1.0)
       setDetectedTextItems([])
     } catch (err: unknown) {
-      console.error('Failed to load PDF:', err)
-      setErrorMessage('Could not open the selected PDF. The file may be password-protected or corrupted.')
+      console.error('[PDF ERROR] Failed to load PDF in handleLoadFile:', err)
+      const errName = (err as { name?: string })?.name || ''
+      const errMsg = (err as { message?: string })?.message || ''
+
+      if (errName === 'PasswordException' || errMsg.toLowerCase().includes('password')) {
+        setErrorMessage('This PDF is password-protected. Please unlock it before editing.')
+      } else if (
+        errName === 'InvalidPDFException' ||
+        errMsg.toLowerCase().includes('invalid pdf') ||
+        errMsg.toLowerCase().includes('corrupted')
+      ) {
+        setErrorMessage('This file is corrupted or is not a valid PDF.')
+      } else if (import.meta.env.DEV) {
+        setErrorMessage(`Could not open PDF: ${errName ? `${errName} - ` : ''}${errMsg || 'Unknown error'}`)
+      } else {
+        setErrorMessage(
+          errMsg
+            ? `Could not open PDF: ${errMsg}`
+            : 'Unable to open this PDF document. Please check the file and try again.'
+        )
+      }
     } finally {
       setIsLoading(false)
     }
@@ -245,7 +264,7 @@ export const PDFEditor: React.FC = () => {
       }
     })
 
-    extractPageTextItems(loadedPdf.pdfDoc, page.originalIndex, page.rotation)
+    extractPageTextItems(loadedPdf.pdfDoc, page.originalIndex, page.rotation, canvasRef.current)
       .then((items) => {
         if (!cancelled) {
           setDetectedTextItems(items)

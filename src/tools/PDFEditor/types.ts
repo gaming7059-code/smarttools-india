@@ -18,6 +18,20 @@ export interface DetectedTextItem {
   width: number // normalized [0, 1] relative to visible page width
   height: number // normalized [0, 1] relative to visible page height
   fontSize: number // estimated px font size
+  fontName?: string
+  fontFamily?: string
+  color?: string
+  backgroundColor?: string
+  isBold?: boolean
+  isItalic?: boolean
+  isMonospace?: boolean
+  isSerif?: boolean
+  rotation?: number
+  transform?: number[]
+  pdfX?: number
+  pdfY?: number
+  pdfWidth?: number
+  pdfHeight?: number
 }
 
 export interface Point {
@@ -42,6 +56,21 @@ export interface Annotation {
   fillColor?: string
   opacity?: number
   points?: Point[] // For freehand pen and highlighter
+  // Vector PDF text replacement metadata
+  isPdfTextReplacement?: boolean
+  originalText?: string
+  pdfX?: number
+  pdfY?: number
+  pdfWidth?: number
+  pdfHeight?: number
+  fontName?: string
+  fontFamily?: string
+  isBold?: boolean
+  isItalic?: boolean
+  isMonospace?: boolean
+  isSerif?: boolean
+  autoFit?: boolean
+  rotation?: number
 }
 
 export interface PDFPageItem {
