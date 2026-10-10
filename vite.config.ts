@@ -18,21 +18,6 @@ function pdfjsAssetsPlugin(): Plugin {
         fs.cpSync(path.join(sourceDir, 'standard_fonts'), path.join(targetDir, 'standard_fonts'), { recursive: true })
       }
     },
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const url = req.url ? req.url.split('?')[0] : ''
-        if (url === '/assets/pdf.worker.min.mjs') {
-          const workerPath = path.resolve(process.cwd(), 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs')
-          if (fs.existsSync(workerPath)) {
-            res.setHeader('Content-Type', 'text/javascript; charset=utf-8')
-            res.setHeader('Access-Control-Allow-Origin', '*')
-            fs.createReadStream(workerPath).pipe(res)
-            return
-          }
-        }
-        next()
-      })
-    },
   }
 }
 
