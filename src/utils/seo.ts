@@ -20,7 +20,7 @@ export interface PageSEOMetadata {
 }
 
 // Configurable base domain template - easy to swap in production
-export const SITE_DOMAIN = 'https://smarttools.in'
+export const SITE_DOMAIN = 'https://smarttools-india.pages.dev'
 
 export function getFullUrl(path: string = '/'): string {
   if (typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1')) {

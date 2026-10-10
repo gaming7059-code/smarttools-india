@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /404
 
-Sitemap: https://smarttools.in/sitemap.xml
+Sitemap: https://smarttools-india.pages.dev/sitemap.xml
