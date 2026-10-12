@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react'
-import { useSearchParams, useOutletContext } from 'react-router-dom'
-import { Search, Filter } from 'lucide-react'
+import { useSearchParams, useOutletContext, useNavigate, Link } from 'react-router-dom'
+import { Search, Filter, ArrowRight } from 'lucide-react'
 import { ALL_TOOLS } from '../data/toolsData'
 import { CATEGORIES } from '../data/categoriesData'
+import { GAMES_LIST } from '../games/types'
+import { GameIcon } from '../games/GameIcon'
 import { ToolCard } from '../components/common/ToolCard'
 import { usePageSEO, createBreadcrumbSchema } from '../utils/seo'
 import type { LayoutContextType } from '../layouts/MainLayout'
@@ -11,6 +13,7 @@ import type { CategoryId, Tool } from '../types/tools'
 export const ToolsPage: React.FC = () => {
   const { openToolPreview } = useOutletContext<LayoutContextType>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const categoryParam = searchParams.get('category') as CategoryId | null
 
   usePageSEO({
@@ -32,7 +35,19 @@ export const ToolsPage: React.FC = () => {
     return ALL_TOOLS.filter((t) => t.id !== 'date-calculator')
   }, [])
 
+  // Check if a tool belongs to a given category
+  const isToolInCategory = (tool: Tool, catId: string): boolean => {
+    if (catId === 'all') return true
+    if (tool.categoryId === catId) return true
+    if (tool.categoryIds && tool.categoryIds.includes(catId as CategoryId)) return true
+    return false
+  }
+
   const handleSelectCategory = (catId: string) => {
+    if (catId === 'games') {
+      navigate('/games')
+      return
+    }
     if (catId === 'all') {
       searchParams.delete('category')
       setSearchParams(searchParams)
@@ -41,10 +56,13 @@ export const ToolsPage: React.FC = () => {
     }
   }
 
+  const currentCategoryObj = useMemo(() => {
+    return CATEGORIES.find((c) => c.id === activeCategory)
+  }, [activeCategory])
+
   const filteredTools = useMemo(() => {
     return uniqueTools.filter((tool) => {
-      const matchCategory =
-        activeCategory === 'all' || tool.categoryId === activeCategory
+      const matchCategory = isToolInCategory(tool, activeCategory)
       const query = searchQuery.trim().toLowerCase()
       if (!query) return matchCategory
 
@@ -59,16 +77,18 @@ export const ToolsPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
-      {/* Header */}
+      {/* Dynamic Header */}
       <div className="animate-fade-in-up">
         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-          Directory
+          {activeCategory === 'all' ? 'Directory' : 'Category'}
         </span>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
-          All Online Tools
+          {currentCategoryObj && activeCategory !== 'all' ? currentCategoryObj.name : 'All Online Tools'}
         </h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-          Browse our complete catalog of calculators, converters, and digital utilities. Free and ready to use in your browser.
+          {currentCategoryObj && activeCategory !== 'all'
+            ? currentCategoryObj.description
+            : 'Browse our complete catalog of calculators, converters, and digital utilities. Free and ready to use in your browser.'}
         </p>
       </div>
 
@@ -99,15 +119,20 @@ export const ToolsPage: React.FC = () => {
           >
             All ({uniqueTools.length})
           </button>
-          {CATEGORIES.map((cat) => {
-            const count = uniqueTools.filter((t) => t.categoryId === cat.id).length
+          {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => {
+            const count =
+              cat.id === 'games'
+                ? 5
+                : uniqueTools.filter((t) => isToolInCategory(t, cat.id)).length
+
+            const isActive = activeCategory === cat.id
             return (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => handleSelectCategory(cat.id)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 active:scale-95 ${
-                  activeCategory === cat.id
+                  isActive
                     ? 'bg-blue-600 text-white font-semibold shadow-2xs'
                     : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
@@ -119,8 +144,63 @@ export const ToolsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Special Games Banner if activeCategory === 'games' */}
+      {activeCategory === 'games' && (
+        <div className="rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/30 p-6 sm:p-8 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                Play in Browser
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                Free Online Browser Games
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                All 5 games are 100% free with custom vector icons and responsive touch controls.
+              </p>
+            </div>
+            <Link
+              to="/games"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-colors shrink-0"
+            >
+              <span>Open Dedicated Games Page</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {GAMES_LIST.map((game) => (
+              <Link
+                key={game.id}
+                to={`/games?play=${game.id}`}
+                className="group flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xs hover:-translate-y-1 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <GameIcon gameId={game.id} size="sm" withContainer />
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+                      {game.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {game.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {game.description}
+                  </p>
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400">
+                  <span>Play</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Tools Grid */}
-      {filteredTools.length === 0 ? (
+      {filteredTools.length === 0 && activeCategory !== 'games' ? (
         <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center bg-white dark:bg-slate-900 animate-fade-in">
           <Filter className="h-8 w-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
           <p className="text-slate-700 dark:text-slate-300 font-medium">No tools match your criteria</p>

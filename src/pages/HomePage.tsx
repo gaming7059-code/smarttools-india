@@ -23,14 +23,16 @@ export const HomePage: React.FC = () => {
     schema: createWebSiteSchema(),
   })
 
-  // Category shortcuts
+  // Category shortcuts for hero quick access
   const categoryShortcuts = [
-    { label: 'Finance', id: 'finance' },
-    { label: 'Calculators', id: 'calculators' },
-    { label: 'Converters', id: 'converters' },
-    { label: 'Date & Time', id: 'date-time' },
-    { label: 'Education', id: 'education' },
-    { label: 'Creator Tools', id: 'creator-tools' },
+    { label: 'Calculators', id: 'calculators', path: '/tools?category=calculators' },
+    { label: 'Finance', id: 'finance', path: '/tools?category=finance' },
+    { label: 'Games', id: 'games', path: '/games' },
+    { label: 'Math', id: 'math', path: '/tools?category=math' },
+    { label: 'Converters', id: 'converters', path: '/tools?category=converters' },
+    { label: 'PDF Tools', id: 'pdf-tools', path: '/tools?category=pdf-tools' },
+    { label: 'Date & Time', id: 'date-time', path: '/tools?category=date-time' },
+    { label: 'All Tools', id: 'all', path: '/tools' },
   ]
 
   // Filter tools if user types in the hero search box
@@ -66,7 +68,7 @@ export const HomePage: React.FC = () => {
             +
           </div>
           <div className="absolute top-16 left-12 sm:left-32 w-3.5 h-3.5 rounded-full border border-blue-400/35 dark:border-blue-500/20 animate-float-reverse" />
-          <div className="absolute bottom-20 right-16 sm:right-36 w-3 h-3 rotate-45 border border-sky-400/35 dark:border-cyan-500/20 animate-float-gentle" />
+          <div className="absolute bottom-20 right-16 sm:right-36 w-3 h-3 rotate-45 border border-sky-400/35 dark:cyan-500/20 animate-float-gentle" />
         </div>
 
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -111,7 +113,7 @@ export const HomePage: React.FC = () => {
               {categoryShortcuts.map((cat) => (
                 <Link
                   key={cat.id}
-                  to={`/tools?category=${cat.id}`}
+                  to={cat.path}
                   className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 shadow-2xs hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   {cat.label}
@@ -122,7 +124,42 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. POPULAR TOOLS SECTION */}
+      {/* 2. EXPLORE ALL CATEGORIES SECTION (PROMINENT NEAR THE TOP) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                Browse Directory
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Explore All Categories
+              </h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
+                Choose from our complete catalog of specialized calculators, unit converters, digital helpers, and browser games.
+              </p>
+            </div>
+
+            <Link
+              to="/categories"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors group"
+            >
+              <span>View All Categories</span>
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal delay={100}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {CATEGORIES.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* 3. POPULAR TOOLS SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <ScrollReveal>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
@@ -172,31 +209,6 @@ export const HomePage: React.FC = () => {
             </div>
           </ScrollReveal>
         )}
-      </section>
-
-      {/* 3. CATEGORY SECTION */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <ScrollReveal>
-          <div className="mb-8">
-            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-              Browse
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Explore Tools by Category
-            </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              Choose from specialized collections suited for your daily calculation needs.
-            </p>
-          </div>
-        </ScrollReveal>
-
-        <ScrollReveal delay={100}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {CATEGORIES.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
-        </ScrollReveal>
       </section>
 
       {/* 3.5 FREE ONLINE GAMES SECTION */}

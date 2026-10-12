@@ -1,44 +1,52 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import type { Category } from '../../types/tools'
+import { CategoryIcon } from './CategoryIcon'
 
 interface CategoryCardProps {
   category: Category
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
+  const targetPath = category.path || `/tools?category=${category.id}`
+  const countLabel = category.itemLabel || `${category.toolCount} Tools`
+
   return (
     <Link
-      to={`/tools?category=${category.id}`}
-      className="group relative flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-blue-400/80 dark:hover:border-blue-500/80 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10"
+      to={targetPath}
+      className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10"
     >
       <div>
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 transition-all duration-300 ease-out group-hover:bg-blue-50 dark:group-hover:bg-blue-950/60 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:scale-105 group-hover:shadow-sm">
-            <span className="text-xl inline-block transition-transform duration-300 ease-out group-hover:scale-110" role="img" aria-label={category.name}>
-              {category.emoji}
-            </span>
+        <div className="flex items-start justify-between gap-3 mb-3.5">
+          {/* Custom Vector Category Icon Container */}
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60 p-2.5 shadow-2xs transition-all duration-300 ease-out group-hover:scale-110 group-hover:shadow-sm">
+            <CategoryIcon categoryId={category.id} size="lg" className="w-full h-full" />
           </div>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-800 transition-colors">
-            {category.toolCount} tools
+
+          <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 transition-colors">
+            {countLabel}
           </span>
         </div>
 
-        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
           {category.name}
         </h3>
-        <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+        
+        <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
           {category.tagline}
         </p>
-        <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+
+        <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
           {category.description}
         </p>
       </div>
 
-      <div className="mt-4 flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
-        <span>Browse {category.name} tools</span>
-        <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-200 ease-out group-hover:translate-x-1.5" />
+      <div className="mt-5 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+          Explore {category.name}
+        </span>
+        <ArrowRight className="h-4 w-4 text-blue-600 dark:text-blue-400 transition-transform duration-200 ease-out group-hover:translate-x-1" />
       </div>
     </Link>
   )

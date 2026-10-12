@@ -8,9 +8,9 @@ export const Footer: React.FC = () => {
     <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 transition-colors duration-200">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
             {/* Brand and Description */}
-            <div className="md:col-span-2 space-y-3">
+            <div className="col-span-2 md:col-span-2 space-y-3">
               <Link to="/" className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] inline-flex">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
                   <Wrench className="h-4 w-4" />
@@ -28,8 +28,47 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
+            {/* Category Navigation Links */}
+            <div className="col-span-1">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
+                Categories
+              </h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link to="/tools?category=calculators" className="hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1 inline-block transition-all duration-200">
+                    Calculators
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/tools?category=finance" className="hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1 inline-block transition-all duration-200">
+                    Finance Tools
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/tools?category=math" className="hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1 inline-block transition-all duration-200">
+                    Math Tools
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/games" className="hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1 inline-block transition-all duration-200">
+                    Games
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/tools?category=converters" className="hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1 inline-block transition-all duration-200">
+                    Converters
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/categories" className="text-blue-600 dark:text-blue-400 font-medium hover:underline inline-block transition-all duration-200">
+                    All Categories →
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
             {/* Quick Navigation Links */}
-            <div>
+            <div className="col-span-1">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
                 Explore
               </h4>

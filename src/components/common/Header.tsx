@@ -109,6 +109,34 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               {link.label}
             </NavLink>
           ))}
+
+          {/* Quick Categories in Mobile Menu */}
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <span className="block px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Browse Categories
+            </span>
+            <div className="mt-1 flex flex-wrap gap-1.5 px-3">
+              {[
+                { name: 'Calculators', path: '/tools?category=calculators' },
+                { name: 'Finance', path: '/tools?category=finance' },
+                { name: 'Games', path: '/games' },
+                { name: 'Math', path: '/tools?category=math' },
+                { name: 'Converters', path: '/tools?category=converters' },
+                { name: 'Date & Time', path: '/tools?category=date-time' },
+                { name: 'PDF Tools', path: '/tools?category=pdf-tools' },
+              ].map((c) => (
+                <Link
+                  key={c.name}
+                  to={c.path}
+                  onClick={closeMobileMenu}
+                  className="rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 px-2 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between px-3 py-1 text-sm text-slate-600 dark:text-slate-300">
             <span className="font-medium">Theme</span>
             <ThemeToggle showLabel />
