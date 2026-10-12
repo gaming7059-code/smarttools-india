@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react'
 import { useOutletContext, Link } from 'react-router-dom'
-import { Search, Zap, Shield, Gift, Smartphone, ArrowRight, Calculator, Landmark, CheckCircle2 } from 'lucide-react'
+import { Search, Zap, Shield, Gift, Smartphone, ArrowRight, Calculator, Landmark, CheckCircle2, Gamepad2 } from 'lucide-react'
 import { POPULAR_TOOLS } from '../data/toolsData'
 import { CATEGORIES } from '../data/categoriesData'
+import { GAMES_LIST } from '../games/types'
+import { GameIcon } from '../games/GameIcon'
 import { ToolCard } from '../components/common/ToolCard'
 import { CategoryCard } from '../components/common/CategoryCard'
 import { ScrollReveal } from '../components/common/ScrollReveal'
@@ -192,6 +194,65 @@ export const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {CATEGORIES.map((category) => (
               <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* 3.5 FREE ONLINE GAMES SECTION */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <Gamepad2 className="h-4 w-4" />
+                Play &amp; Relax
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Free Online Browser Games
+              </h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Play instant classic games directly in your browser. No downloads, no installs, no sign-up required.
+              </p>
+            </div>
+
+            <Link
+              to="/games"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors group"
+            >
+              <span>Explore All Games</span>
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal delay={100}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {GAMES_LIST.map((game) => (
+              <Link
+                key={game.id}
+                to={`/games?play=${game.id}`}
+                className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <GameIcon gameId={game.id} size="md" withContainer />
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/60">
+                      {game.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {game.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {game.description}
+                  </p>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400">
+                  <span>Play</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                </div>
+              </Link>
             ))}
           </div>
         </ScrollReveal>

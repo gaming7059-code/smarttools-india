@@ -13,6 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/tools', label: 'All Tools' },
+    { to: '/games', label: 'Games' },
     { to: '/categories', label: 'Categories' },
     { to: '/about', label: 'About' },
   ]
