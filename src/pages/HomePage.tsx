@@ -17,9 +17,10 @@ export const HomePage: React.FC = () => {
   const [heroSearchQuery, setHeroSearchQuery] = useState('')
 
   usePageSEO({
-    title: 'SmartTools India — Free Online Tools for Everyday Life',
-    description: 'Free online calculators and everyday digital tools for Indian users. Calculate EMI, GST, salary, percentage, age, discounts, dates, units, and word count instantly without login.',
+    title: 'SmartTools India — Free Online Calculators & Everyday Web Tools',
+    description: 'Free online calculators, unit converters, PDF tools, and browser games for Indian users. Calculate EMI, GST, salary, percentage, age, discounts, and dates with zero sign-up.',
     canonicalPath: '/',
+    keywords: 'smarttools india, free online tools, online calculators, emi calculator, gst calculator india, salary calculator, percentage calculator, unit converter, free browser games',
     schema: createWebSiteSchema(),
   })
 
@@ -474,9 +475,21 @@ export const HomePage: React.FC = () => {
                     </Link>
                     <span className="text-xs text-slate-500 dark:text-slate-400 block">Live word count, character count, and reading time analyzer</span>
                   </li>
+                  <li>
+                    <Link to="/tools/pdf-editor" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
+                      PDF Editor
+                    </Link>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block">Edit, annotate, draw, sign, and organize PDF documents in browser</span>
+                  </li>
+                  <li>
+                    <Link to="/tools/text-to-speech" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
+                      Text to Speech Converter
+                    </Link>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block">Convert typed or pasted text into clear spoken audio in browser</span>
+                  </li>
                   <li className="pt-2">
                     <Link to="/tools" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                      Explore all 10 tools <ArrowRight className="h-3.5 w-3.5" />
+                      Explore all 12 tools <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </li>
                 </ul>

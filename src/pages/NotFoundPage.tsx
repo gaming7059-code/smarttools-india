@@ -47,7 +47,13 @@ export const NotFoundPage: React.FC = () => {
           to="/tools"
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <span>Browse All 10 Tools</span>
+          <span>Browse All 12 Tools</span>
+        </Link>
+        <Link
+          to="/games"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        >
+          <span>Play Free Games</span>
         </Link>
       </div>
 

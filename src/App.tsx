@@ -20,6 +20,7 @@ import { DateDifferenceCalculatorPage } from './pages/tools/DateDifferenceCalcul
 import { UnitConverterPage } from './pages/tools/UnitConverterPage'
 import { WordCounterPage } from './pages/tools/WordCounterPage'
 import { PDFEditorPage } from './pages/tools/PDFEditorPage'
+import { TextToSpeechPage } from './pages/tools/TextToSpeechPage'
 import { GamesPage } from './pages/GamesPage'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -44,6 +45,7 @@ export const App: React.FC = () => {
           <Route path="tools/unit-converter" element={<UnitConverterPage />} />
           <Route path="tools/word-counter" element={<WordCounterPage />} />
           <Route path="tools/pdf-editor" element={<PDFEditorPage />} />
+          <Route path="tools/text-to-speech" element={<TextToSpeechPage />} />
           <Route path="games" element={<GamesPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="about" element={<AboutPage />} />

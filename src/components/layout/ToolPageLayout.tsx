@@ -35,6 +35,7 @@ export interface ToolPageLayoutProps {
   tool: Tool
   seoTitle: string
   seoDescription: string
+  keywords?: string
   howToUseSteps: string[]
   formulas: FormulaItem[]
   examples: ExampleItem[]
@@ -47,6 +48,7 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
   tool,
   seoTitle,
   seoDescription,
+  keywords,
   howToUseSteps,
   formulas,
   examples,
@@ -75,6 +77,7 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
     description: seoDescription,
     canonicalPath: tool.path,
     schema: schemas,
+    keywords: keywords || (tool.keywords ? tool.keywords.join(', ') : undefined),
   })
 
   const { openToolPreview } = useOutletContext<LayoutContextType>()

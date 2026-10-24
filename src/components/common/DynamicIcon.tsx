@@ -27,6 +27,8 @@ import {
   HelpCircle,
   CheckCircle2,
   FileEdit,
+  Volume2,
+  AudioLines,
   type LucideProps
 } from 'lucide-react'
 
@@ -58,6 +60,8 @@ const iconMap: Record<string, React.ComponentType<LucideProps>> = {
   HelpCircle,
   CheckCircle2,
   FileEdit,
+  Volume2,
+  AudioLines,
 }
 
 interface DynamicIconProps extends LucideProps {

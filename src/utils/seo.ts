@@ -17,6 +17,8 @@ export interface PageSEOMetadata {
   noindex?: boolean
   ogType?: 'website' | 'article'
   schema?: Record<string, unknown> | Array<Record<string, unknown>>
+  keywords?: string
+  ogImage?: string
 }
 
 // Configurable base domain template - easy to swap in production
@@ -76,6 +78,8 @@ export function usePageSEO({
   noindex = false,
   ogType = 'website',
   schema,
+  keywords,
+  ogImage = '/favicon.svg',
 }: PageSEOMetadata) {
   useEffect(() => {
     // 1. Title
@@ -84,25 +88,39 @@ export function usePageSEO({
     // 2. Meta description
     setMetaTag('meta[name="description"]', 'content', description, { name: 'description' })
 
-    // 3. Robots
+    // 3. Keywords (if provided)
+    if (keywords) {
+      setMetaTag('meta[name="keywords"]', 'content', keywords, { name: 'keywords' })
+    }
+
+    // 4. Robots
     setRobots(noindex)
 
-    // 4. Canonical URL
+    // 5. Canonical URL
     const fullCanonicalUrl = getFullUrl(canonicalPath)
     setCanonicalUrl(fullCanonicalUrl)
 
-    // 5. Open Graph
+    // 6. Open Graph
     setMetaTag('meta[property="og:title"]', 'content', title, { property: 'og:title' })
     setMetaTag('meta[property="og:description"]', 'content', description, { property: 'og:description' })
     setMetaTag('meta[property="og:url"]', 'content', fullCanonicalUrl, { property: 'og:url' })
     setMetaTag('meta[property="og:type"]', 'content', ogType, { property: 'og:type' })
+    setMetaTag('meta[property="og:site_name"]', 'content', 'SmartTools India', { property: 'og:site_name' })
+    if (ogImage) {
+      const fullImageUrl = ogImage.startsWith('http') ? ogImage : getFullUrl(ogImage)
+      setMetaTag('meta[property="og:image"]', 'content', fullImageUrl, { property: 'og:image' })
+    }
 
-    // 6. Twitter Card
+    // 7. Twitter Card
     setMetaTag('meta[name="twitter:card"]', 'content', 'summary', { name: 'twitter:card' })
     setMetaTag('meta[name="twitter:title"]', 'content', title, { name: 'twitter:title' })
     setMetaTag('meta[name="twitter:description"]', 'content', description, { name: 'twitter:description' })
+    if (ogImage) {
+      const fullImageUrl = ogImage.startsWith('http') ? ogImage : getFullUrl(ogImage)
+      setMetaTag('meta[name="twitter:image"]', 'content', fullImageUrl, { name: 'twitter:image' })
+    }
 
-    // 7. Inject JSON-LD Structured Data
+    // 8. Inject JSON-LD Structured Data
     injectStructuredData(schema)
 
     // Scroll to top on navigation
@@ -113,7 +131,7 @@ export function usePageSEO({
       const script = document.getElementById('structured-data')
       if (script) script.remove()
     }
-  }, [title, description, canonicalPath, noindex, ogType, schema])
+  }, [title, description, canonicalPath, noindex, ogType, schema, keywords, ogImage])
 }
 
 /**
