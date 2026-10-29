@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Wrench, ShieldCheck, Heart } from 'lucide-react'
+import { ShieldCheck, Heart } from 'lucide-react'
 import { ScrollReveal } from './ScrollReveal'
 
 export const Footer: React.FC = () => {
@@ -11,10 +11,20 @@ export const Footer: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
             {/* Brand and Description */}
             <div className="col-span-2 md:col-span-2 space-y-3">
-              <Link to="/" className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] inline-flex">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
-                  <Wrench className="h-4 w-4" />
-                </div>
+              <Link
+                to="/"
+                className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] inline-flex"
+                aria-label="SmartTools India Homepage"
+              >
+                <img
+                  src="/smarttools-logo.png"
+                  alt="SmartTools India logo"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 object-contain rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-white shadow-2xs shrink-0"
+                  loading="lazy"
+                  decoding="async"
+                />
                 <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                   SmartTools India
                 </span>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Search, Menu, X, Wrench } from 'lucide-react'
+import { Search, Menu, X } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 
 interface HeaderProps {
@@ -27,10 +27,17 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         <Link 
           to="/" 
           className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          aria-label="SmartTools India Homepage"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs transition-transform duration-200 hover:rotate-3">
-            <Wrench className="h-5 w-5" />
-          </div>
+          <img
+            src="/smarttools-logo.png"
+            alt="SmartTools India logo"
+            width={40}
+            height={40}
+            className="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-white shadow-2xs transition-transform duration-200 hover:rotate-3 shrink-0"
+            loading="eager"
+            decoding="async"
+          />
           <div className="flex flex-col">
             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
               SmartTools<span className="text-blue-600 dark:text-blue-400">.in</span>
