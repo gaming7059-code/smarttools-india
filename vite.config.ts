@@ -23,10 +23,14 @@ function pdfjsAssetsPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [pdfjsAssetsPlugin(), react(), tailwindcss()],
   resolve: {
     // Keep ONNX Runtime's large WebAssembly binary external. Transformers.js
     // loads the version-matched runtime from its CDN at first neural-TTS use.
     conditions: ['onnxruntime-web-use-extern-wasm', 'module', 'browser', 'development|production'],
+  },
+  build: {
+    outDir: 'dist',
   },
 })

@@ -1,0 +1,26 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.js
+  Content-Type: text/javascript; charset=utf-8
+
+/assets/*.mjs
+  Content-Type: text/javascript; charset=utf-8
+
+/assets/*.css
+  Content-Type: text/css; charset=utf-8
+
+/pdfjs/*.mjs
+  Content-Type: text/javascript; charset=utf-8
+
+/*.mjs
+  Content-Type: text/javascript; charset=utf-8
+
+/*.wasm
+  Content-Type: application/wasm
