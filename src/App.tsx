@@ -24,6 +24,8 @@ import { TextToSpeechPage } from './pages/tools/TextToSpeechPage'
 import { VideoPromptGeneratorPage } from './pages/tools/VideoPromptGeneratorPage'
 import { AudioStudioPage } from './pages/tools/AudioStudioPage'
 import { AudioTranscriberPage } from './pages/tools/AudioTranscriberPage'
+import { JpgToPdfPage } from './pages/tools/JpgToPdfPage'
+import { ImageQualityIncreaserPage } from './pages/tools/ImageQualityIncreaserPage'
 import { GamesPage } from './pages/GamesPage'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -52,6 +54,8 @@ export const App: React.FC = () => {
           <Route path="tools/video-prompt-generator" element={<VideoPromptGeneratorPage />} />
           <Route path="tools/audio-studio" element={<AudioStudioPage />} />
           <Route path="tools/audio-transcriber" element={<AudioTranscriberPage />} />
+          <Route path="tools/jpg-to-pdf" element={<JpgToPdfPage />} />
+          <Route path="tools/image-quality-increaser" element={<ImageQualityIncreaserPage />} />
           <Route path="games" element={<GamesPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="about" element={<AboutPage />} />

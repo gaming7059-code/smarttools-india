@@ -10,6 +10,7 @@ import {
   SlidersHorizontal,
   Volume2,
   FileEdit,
+  FileImage,
   Zap,
   Shield,
   Gift,
@@ -65,17 +66,17 @@ export const HomePage: React.FC = () => {
     })
   }, [heroSearchQuery])
 
-  // Popular calculators & converters for the discovery section (avoiding direct duplication of featured category tools)
+  // Popular utilities & converters for discovery (including our new flagship image & PDF tools)
   const popularUtilityTools = useMemo(() => {
     const selectedIds = [
+      'jpg-to-pdf',
+      'image-quality-increaser',
       'emi-calculator',
       'gst-calculator',
       'salary-calculator',
       'percentage-calculator',
       'age-calculator',
       'discount-calculator',
-      'profit-and-loss-calculator',
-      'unit-converter',
     ]
     return POPULAR_TOOLS.filter((tool) => selectedIds.includes(tool.id))
   }, [])
@@ -309,7 +310,7 @@ export const HomePage: React.FC = () => {
                     <FileText className="h-6 w-6" />
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                    100% Private
+                    2 PDF Tools
                   </span>
                 </div>
 
@@ -330,10 +331,20 @@ export const HomePage: React.FC = () => {
                       <FileEdit className="h-3.5 w-3.5 text-rose-500" />
                       PDF Editor &amp; Annotator
                     </span>
-                    <span className="text-[10px] text-slate-400 font-semibold">Active</span>
+                    <span className="text-[10px] text-slate-400 font-semibold">Annotate</span>
+                  </Link>
+                  <Link
+                    to="/tools/jpg-to-pdf"
+                    className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <FileImage className="h-3.5 w-3.5 text-rose-500" />
+                      JPG to PDF Converter
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-semibold">Multi-Image</span>
                   </Link>
                   <div className="p-2.5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                    ✏️ Annotate, draw, insert signatures, highlight text, and modify PDF pages client-side with zero data leak.
+                    ✏️ Convert photos into PDF books and annotate or sign documents 100% locally.
                   </div>
                 </div>
               </div>
@@ -485,7 +496,7 @@ export const HomePage: React.FC = () => {
               to="/tools"
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors group"
             >
-              <span>View All 15 Tools</span>
+              <span>View All 17 Tools</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </div>
@@ -510,7 +521,7 @@ export const HomePage: React.FC = () => {
             className="inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 shadow-xs hover:shadow-md transition-all duration-200"
           >
             <Layers className="h-4 w-4" />
-            <span>Browse Complete Directory of All 15 Tools</span>
+            <span>Browse Complete Directory of All 17 Tools</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

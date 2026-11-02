@@ -34,6 +34,10 @@ import {
   Mic,
   Headphones,
   Wand2,
+  Image,
+  Images,
+  FileImage,
+  Maximize2,
   type LucideProps
 } from 'lucide-react'
 
@@ -72,6 +76,10 @@ const iconMap: Record<string, React.ComponentType<LucideProps>> = {
   Mic,
   Headphones,
   Wand2,
+  Image,
+  Images,
+  FileImage,
+  Maximize2,
 }
 
 interface DynamicIconProps extends LucideProps {
