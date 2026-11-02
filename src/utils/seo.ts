@@ -21,8 +21,8 @@ export interface PageSEOMetadata {
   ogImage?: string
 }
 
-// Configurable base domain template - easy to swap in production
-export const SITE_DOMAIN = 'https://smarttools-india.pages.dev'
+// Configurable base domain template - aligned with live Netlify deployment
+export const SITE_DOMAIN = 'https://sparkly-alfajores-5f53fa.netlify.app'
 
 export function getFullUrl(path: string = '/'): string {
   if (typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1')) {
