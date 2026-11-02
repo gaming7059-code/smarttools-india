@@ -16,19 +16,39 @@ export const ToolsPage: React.FC = () => {
   const navigate = useNavigate()
   const categoryParam = searchParams.get('category') as CategoryId | null
 
+  const activeCategory = categoryParam || 'all'
+
+  const currentCategoryObj = useMemo(() => {
+    return CATEGORIES.find((c) => c.id === activeCategory)
+  }, [activeCategory])
+
+  const dynamicTitle = currentCategoryObj && activeCategory !== 'all'
+    ? `${currentCategoryObj.name} — Free Online Tools | SmartTools India`
+    : 'All Online Tools & Calculators — SmartTools India'
+
+  const dynamicDescription = currentCategoryObj && activeCategory !== 'all'
+    ? `Browse free ${currentCategoryObj.name.toLowerCase()} on SmartTools India. ${currentCategoryObj.description}`
+    : 'Browse our complete catalog of free online calculators, unit converters, and digital utilities. Free, private, and fast in your browser with zero sign-up.'
+
+  const dynamicKeywords = currentCategoryObj && activeCategory !== 'all'
+    ? `${currentCategoryObj.name.toLowerCase()}, free ${currentCategoryObj.name.toLowerCase()}, online calculators, smarttools india`
+    : 'all online tools, free calculators, web utilities, unit converters, smarttools india directory, browser tools'
+
   usePageSEO({
-    title: 'All Online Tools & Calculators — SmartTools India',
-    description: 'Browse the complete directory of free online calculators, unit converters, and digital tools. Fast, browser-based, and mobile-friendly.',
-    canonicalPath: '/tools',
+    title: dynamicTitle,
+    description: dynamicDescription,
+    keywords: dynamicKeywords,
+    canonicalPath: activeCategory !== 'all' ? `/tools?category=${activeCategory}` : '/tools',
     schema: createBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Tools', path: '/tools' },
+      ...(currentCategoryObj && activeCategory !== 'all'
+        ? [{ name: currentCategoryObj.name, path: `/tools?category=${activeCategory}` }]
+        : []),
     ]),
   })
 
   const [searchQuery, setSearchQuery] = useState('')
-
-  const activeCategory = categoryParam || 'all'
 
   // Deduplicate alias entries so only unique tools appear
   const uniqueTools = useMemo(() => {
@@ -55,10 +75,6 @@ export const ToolsPage: React.FC = () => {
       setSearchParams({ category: catId })
     }
   }
-
-  const currentCategoryObj = useMemo(() => {
-    return CATEGORIES.find((c) => c.id === activeCategory)
-  }, [activeCategory])
 
   const filteredTools = useMemo(() => {
     return uniqueTools.filter((tool) => {

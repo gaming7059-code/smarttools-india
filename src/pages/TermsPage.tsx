@@ -3,9 +3,10 @@ import { usePageSEO, createBreadcrumbSchema } from '../utils/seo'
 
 export const TermsPage: React.FC = () => {
   usePageSEO({
-    title: 'Terms of Service — SmartTools India',
-    description: 'Read the SmartTools India terms of service. Understand the terms, disclaimer of warranties, and educational purpose of our free online calculation utilities.',
+    title: 'Terms of Service — Disclaimer & Usage Guidelines | SmartTools India',
+    description: 'Read the SmartTools India terms of service. Understand our educational utility guidelines, terms of use, and computational disclaimer.',
     canonicalPath: '/terms',
+    keywords: 'terms of service, smarttools terms, disclaimer, acceptable use, online tool guidelines',
     schema: createBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Terms of Service', path: '/terms' },

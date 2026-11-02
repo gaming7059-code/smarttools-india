@@ -4,9 +4,10 @@ import { usePageSEO, createBreadcrumbSchema } from '../utils/seo'
 
 export const AboutPage: React.FC = () => {
   usePageSEO({
-    title: 'About Us — SmartTools India',
-    description: 'Learn about SmartTools India, our mission to provide fast, private, free online calculators and everyday digital tools for Indian users.',
+    title: 'About Us — Fast, Private & Free Online Utilities | SmartTools India',
+    description: 'Learn about SmartTools India, our mission to build fast, ad-light, client-side digital calculators and utility tools designed for everyday life in India.',
     canonicalPath: '/about',
+    keywords: 'about smarttools india, free online utilities, client-side calculators, indian everyday tools, private web calculators',
     schema: createBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'About Us', path: '/about' },

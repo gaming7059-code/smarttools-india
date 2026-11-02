@@ -4,9 +4,10 @@ import { usePageSEO, createBreadcrumbSchema } from '../utils/seo'
 
 export const ContactPage: React.FC = () => {
   usePageSEO({
-    title: 'Contact Us — SmartTools India',
-    description: 'Get in touch with the SmartTools India team. Suggest new calculators, report issues, or provide feedback.',
+    title: 'Contact Us — Support, Suggestions & Feedback | SmartTools India',
+    description: 'Contact the SmartTools India team to suggest new calculators, report issues, or provide feedback on our suite of free online utilities.',
     canonicalPath: '/contact',
+    keywords: 'contact smarttools india, suggest calculator, report bug, tool feedback, smarttools support',
     schema: createBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Contact', path: '/contact' },

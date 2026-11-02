@@ -3,9 +3,10 @@ import { usePageSEO, createBreadcrumbSchema } from '../utils/seo'
 
 export const PrivacyPage: React.FC = () => {
   usePageSEO({
-    title: 'Privacy Policy — SmartTools India',
-    description: 'Read the SmartTools India privacy policy. Learn how our browser-based client-side architecture safeguards your data without user registration or central databases.',
+    title: 'Privacy Policy — Client-Side Security & Data Protection | SmartTools India',
+    description: 'Read the SmartTools India privacy policy. Learn how our browser-first architecture safeguards your personal data without logins, tracking, or central databases.',
     canonicalPath: '/privacy',
+    keywords: 'privacy policy, smarttools privacy, client-side data protection, no login tools, private calculations',
     schema: createBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Privacy Policy', path: '/privacy' },

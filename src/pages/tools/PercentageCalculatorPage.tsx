@@ -85,8 +85,9 @@ export const PercentageCalculatorPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="Percentage Calculator — Quick Percent, Ratio & Growth Math | SmartTools India"
-      seoDescription="Calculate percentages, percentage increases, decreases, ratios, and original amounts quickly and accurately. Free browser calculator with step-by-step formulas."
+      seoTitle="Percentage Calculator — Fast Percent, Growth & Ratio Calculations | SmartTools India"
+      seoDescription="Calculate percentages, percentage increases, decreases, ratios, exam marks, and reverse percentages instantly. Free online calculator with step-by-step formulas."
+      keywords="percentage calculator, calculate percentage, percentage increase calculator, percentage decrease, marks percentage, reverse percentage, percentage difference, math tools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

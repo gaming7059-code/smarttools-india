@@ -86,8 +86,9 @@ export const UnitConverterPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="Unit Converter — Convert Length, Weight, Area & Temperature | SmartTools India"
-      seoDescription="Convert units across length, weight, area, temperature, volume, and digital storage instantly. Free online metric and imperial unit converter."
+      seoTitle="Unit Converter — Length, Weight, Area, Volume & Temperature | SmartTools India"
+      seoDescription="Convert measurements across length, weight, area, temperature, volume, and digital storage instantly. Accurate online metric and imperial conversion utility."
+      keywords="unit converter, convert length, kg to lbs, celsius to fahrenheit, area converter, meters to feet, digital storage converter, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

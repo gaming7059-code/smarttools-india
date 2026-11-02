@@ -29,6 +29,11 @@ import {
   FileEdit,
   Volume2,
   AudioLines,
+  Clapperboard,
+  SlidersHorizontal,
+  Mic,
+  Headphones,
+  Wand2,
   type LucideProps
 } from 'lucide-react'
 
@@ -62,6 +67,11 @@ const iconMap: Record<string, React.ComponentType<LucideProps>> = {
   FileEdit,
   Volume2,
   AudioLines,
+  Clapperboard,
+  SlidersHorizontal,
+  Mic,
+  Headphones,
+  Wand2,
 }
 
 interface DynamicIconProps extends LucideProps {

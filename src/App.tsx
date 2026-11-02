@@ -21,6 +21,9 @@ import { UnitConverterPage } from './pages/tools/UnitConverterPage'
 import { WordCounterPage } from './pages/tools/WordCounterPage'
 import { PDFEditorPage } from './pages/tools/PDFEditorPage'
 import { TextToSpeechPage } from './pages/tools/TextToSpeechPage'
+import { VideoPromptGeneratorPage } from './pages/tools/VideoPromptGeneratorPage'
+import { AudioStudioPage } from './pages/tools/AudioStudioPage'
+import { AudioTranscriberPage } from './pages/tools/AudioTranscriberPage'
 import { GamesPage } from './pages/GamesPage'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -46,6 +49,9 @@ export const App: React.FC = () => {
           <Route path="tools/word-counter" element={<WordCounterPage />} />
           <Route path="tools/pdf-editor" element={<PDFEditorPage />} />
           <Route path="tools/text-to-speech" element={<TextToSpeechPage />} />
+          <Route path="tools/video-prompt-generator" element={<VideoPromptGeneratorPage />} />
+          <Route path="tools/audio-studio" element={<AudioStudioPage />} />
+          <Route path="tools/audio-transcriber" element={<AudioTranscriberPage />} />
           <Route path="games" element={<GamesPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="about" element={<AboutPage />} />

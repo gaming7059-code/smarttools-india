@@ -80,8 +80,9 @@ export const GSTCalculatorPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="GST Calculator — Calculate GST, CGST, SGST & Reverse Tax | SmartTools India"
-      seoDescription="Add or remove GST with standard Indian tax slabs (5%, 12%, 18%, 28%). Calculate CGST, SGST, IGST breakdowns and reverse inclusive tax instantly."
+      seoTitle="GST Calculator — Calculate 5%, 12%, 18%, 28% GST & Reverse Tax | SmartTools India"
+      seoDescription="Add or remove GST with standard Indian tax slabs (5%, 12%, 18%, 28%). Calculate CGST, SGST, and IGST breakdowns and reverse inclusive tax instantly."
+      keywords="gst calculator india, calculate gst, reverse gst calculator, cgst sgst calculator, 18 percent gst, add gst, remove gst, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

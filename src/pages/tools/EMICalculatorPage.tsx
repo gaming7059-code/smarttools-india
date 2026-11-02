@@ -80,8 +80,9 @@ export const EMICalculatorPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="EMI Calculator — Calculate Home, Car & Personal Loan EMI | SmartTools India"
-      seoDescription="Calculate equated monthly installments (EMI), total interest payable, and amortization splits for home, car, and personal loans in India accurately."
+      seoTitle="EMI Calculator — Calculate Home, Car & Personal Loan Monthly EMI | SmartTools India"
+      seoDescription="Calculate monthly EMI, total interest payable, and yearly amortization schedule for home, car, and personal loans in India. Plan prepayments and compare tenures."
+      keywords="emi calculator, home loan emi, car loan emi, personal loan emi calculator, monthly installment calculator, loan interest calculator india, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

@@ -22,6 +22,7 @@ import {
   Info,
   ShieldAlert
 } from 'lucide-react'
+import { WaveformVisualizer } from '../../components/common/WaveformVisualizer'
 import { chunkText } from '../../utils/speechChunker'
 import {
   generateSpeechWav,
@@ -51,6 +52,8 @@ export const TextToSpeech: React.FC = () => {
   const [rate, setRate] = useState<number>(1.0)
   const [pitch, setPitch] = useState<number>(1.0)
   const [volume, setVolume] = useState<number>(1.0)
+  const [selectedStyle, setSelectedStyle] = useState<'normal' | 'business' | 'promo' | 'explainer' | 'calm'>('normal')
+  const [isUrduRtl, setIsUrduRtl] = useState<boolean>(false)
 
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false)
   const [isPaused, setIsPaused] = useState<boolean>(false)
@@ -372,7 +375,7 @@ export const TextToSpeech: React.FC = () => {
     textareaRef.current?.focus()
   }
 
-  const handleInsertSample = (type: 'en' | 'hi' | 'story') => {
+  const handleInsertSample = (type: 'en' | 'hi' | 'bn' | 'ur' | 'story') => {
     handleStop()
     if (generatedAudioRef.current?.url) {
       revokeSpeechAudioUrl(generatedAudioRef.current.url)
@@ -384,18 +387,61 @@ export const TextToSpeech: React.FC = () => {
         'SmartTools India provides lightning-fast, privacy-first online tools for everyday calculations. All computation happens right here on your computer or phone.'
       )
       setNeuralLanguage('en')
+      setIsUrduRtl(false)
     } else if (type === 'hi') {
       setText(
         'नमस्ते! स्मार्टटूल्स इंडिया में आपका स्वागत है। यह टूल आपके लिखे हुए टेक्स्ट को स्पष्ट आवाज में बदलकर सुनाता है। आप स्पीड और पिच भी बदल सकते हैं।'
       )
       setNeuralLanguage('hi')
+      setIsUrduRtl(false)
+    } else if (type === 'bn') {
+      setText(
+        'স্মার্টটুলস ইন্ডিয়াতে আপনাকে স্বাগতম! এই টুলটি আপনার লিখিত টেক্সটকে অত্যন্ত নির্ভুল এবং প্রাকৃতিক কণ্ঠস্বরে রূপান্তর করতে পারে।'
+      )
+      setIsUrduRtl(false)
+      const bnVoice = voices.find((v) => v.lang.toLowerCase().startsWith('bn'))
+      if (bnVoice) setSelectedVoiceURI(bnVoice.voiceURI)
+    } else if (type === 'ur') {
+      setText(
+        'اسمارٹ ٹولز انڈیا میں خوش آمدید! یہ مفت اسٹوڈیو ٹول آپ کے تحریری الفاظ کو قدرتی اور معیاری آواز میں تبدیل کرتا ہے۔'
+      )
+      setIsUrduRtl(true)
+      const urVoice = voices.find((v) => v.lang.toLowerCase().startsWith('ur'))
+      if (urVoice) setSelectedVoiceURI(urVoice.voiceURI)
     } else {
       setText(
         'Once upon a time in ancient India, scholars invented the decimal numbering system and the concept of zero. Today, digital technology allows us to calculate, create, and communicate faster than ever before. Enjoy learning and exploring everyday tools on SmartTools India!'
       )
       setNeuralLanguage('en')
+      setIsUrduRtl(false)
     }
     setErrorMessage(null)
+  }
+
+  // Handle Delivery Style selection (rate, pitch, volume preset)
+  const handleSelectDeliveryStyle = (styleId: 'normal' | 'business' | 'promo' | 'explainer' | 'calm') => {
+    setSelectedStyle(styleId)
+    if (styleId === 'normal') {
+      setRate(1.0)
+      setPitch(1.0)
+      setVolume(1.0)
+    } else if (styleId === 'business') {
+      setRate(1.05)
+      setPitch(1.05)
+      setVolume(1.0)
+    } else if (styleId === 'promo') {
+      setRate(1.2)
+      setPitch(1.15)
+      setVolume(1.0)
+    } else if (styleId === 'explainer') {
+      setRate(0.92)
+      setPitch(1.0)
+      setVolume(1.0)
+    } else if (styleId === 'calm') {
+      setRate(0.82)
+      setPitch(0.9)
+      setVolume(0.95)
+    }
   }
 
   // Handle client-side audio generation and download
@@ -525,6 +571,20 @@ export const TextToSpeech: React.FC = () => {
             </button>
             <button
               type="button"
+              onClick={() => handleInsertSample('bn')}
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium"
+            >
+              বাংলা (Bengali)
+            </button>
+            <button
+              type="button"
+              onClick={() => handleInsertSample('ur')}
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium"
+            >
+              اردو (Urdu)
+            </button>
+            <button
+              type="button"
               onClick={() => handleInsertSample('story')}
               className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium hidden sm:inline-block"
             >
@@ -543,6 +603,19 @@ export const TextToSpeech: React.FC = () => {
               </span>
 
               <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsUrduRtl(!isUrduRtl)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-colors ${
+                    isUrduRtl
+                      ? 'bg-blue-600 text-white shadow-2xs'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                  }`}
+                  title="Toggle Right-to-Left (RTL) Nastaliq script"
+                >
+                  <span>{isUrduRtl ? 'RTL: On' : 'اردو / RTL'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={handlePaste}
@@ -580,6 +653,10 @@ export const TextToSpeech: React.FC = () => {
             {/* Main Text Input */}
             <textarea
               ref={textareaRef}
+              dir={isUrduRtl ? 'rtl' : 'ltr'}
+              style={{
+                fontFamily: isUrduRtl ? "'Noto Nastaliq Urdu', 'Urdu Typesetting', Arial, sans-serif" : undefined,
+              }}
               value={text}
               onChange={(e) => {
                 setText(e.target.value.slice(0, MAX_CHARACTERS))
@@ -638,6 +715,47 @@ export const TextToSpeech: React.FC = () => {
               <RotateCcw className="h-3 w-3" />
               <span>Reset Settings</span>
             </button>
+          </div>
+
+          {/* Vocal Delivery Tone (Studio Presets) */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                Vocal Delivery Tone (Studio Presets)
+              </span>
+              <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                Harmonized pace, pitch &amp; volume
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {[
+                { id: 'normal' as const, label: 'Normal', desc: 'Natural Narration' },
+                { id: 'business' as const, label: 'Business', desc: 'Corporate & Crisp' },
+                { id: 'promo' as const, label: 'Promo', desc: 'Fast & Punchy' },
+                { id: 'explainer' as const, label: 'Explainer', desc: 'Friendly & Clear' },
+                { id: 'calm' as const, label: 'Calm', desc: 'Slow & Soothing' },
+              ].map((style) => (
+                <button
+                  key={style.id}
+                  type="button"
+                  onClick={() => handleSelectDeliveryStyle(style.id)}
+                  className={`p-2 rounded-xl border text-left transition-all ${
+                    selectedStyle === style.id
+                      ? 'border-blue-600 bg-blue-50/80 dark:bg-blue-950/60 shadow-xs ring-2 ring-blue-500/20'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className={`text-xs font-bold ${selectedStyle === style.id ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-slate-200'}`}>
+                    {style.label}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    {style.desc}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Voice & Language Dropdowns */}
@@ -895,6 +1013,20 @@ export const TextToSpeech: React.FC = () => {
               </span>
             </div>
           )}
+        </div>
+
+        {/* Realtime Waveform Visualizer */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <span className="flex items-center gap-1.5">
+              <AudioLines className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              Studio Voice Output Visualizer
+            </span>
+            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+              {isSpeaking ? (isPaused ? 'Paused' : 'Playing live audio...') : 'Ready'}
+            </span>
+          </div>
+          <WaveformVisualizer isPlaying={isSpeaking || isGeneratingAudio} height={48} />
         </div>
 
         {/* Primary Playback Action Controls Bar */}

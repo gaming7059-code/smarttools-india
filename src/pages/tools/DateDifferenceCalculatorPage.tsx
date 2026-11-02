@@ -80,8 +80,9 @@ export const DateDifferenceCalculatorPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="Date Difference Calculator — Days Between Dates & Add Days | SmartTools India"
-      seoDescription="Calculate exact days, weeks, and months between any two dates or add and subtract days to find target deadlines. Free online calendar calculator."
+      seoTitle="Date Difference Calculator — Days Between Dates & Milestone Counter | SmartTools India"
+      seoDescription="Calculate exact calendar days, weeks, and months between any two dates or add/subtract days to find future target deadlines. Handles leap years accurately."
+      keywords="date difference calculator, days between dates, calculate duration between dates, add days to date, business days counter, milestone calculator, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

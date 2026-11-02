@@ -60,9 +60,12 @@ export const GamesPage: React.FC = () => {
   ]
 
   usePageSEO({
-    title: `${activeGame.title} — Free Online Browser Games | SmartTools India`,
-    description: `Play free online browser games on SmartTools India. Enjoy ${activeGame.title}, Snake, Tic-Tac-Toe, Memory Match, Rock Paper Scissors, and Number Guessing with zero ads, downloads or login.`,
+    title: playParam
+      ? `Play ${activeGame.title} Online Free — Browser Games | SmartTools India`
+      : 'Free Online Browser Games — Play Tic-Tac-Toe, Snake & More | SmartTools India',
+    description: `Play free online browser games on SmartTools India: ${activeGame.title}, Snake, Tic-Tac-Toe, Memory Match, Rock Paper Scissors, and Number Guessing. 100% free with touch controls and zero downloads.`,
     canonicalPath: '/games',
+    keywords: 'free online games, browser games, play snake game, tic tac toe online, memory match game, rock paper scissors, number guessing game, free mini games, smarttools india',
     schema: [
       createWebApplicationSchema(
         'Free Online Games',

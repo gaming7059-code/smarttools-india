@@ -89,8 +89,9 @@ export const PDFEditorPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="Free Online PDF Editor | Edit, Annotate & Organize PDF in Browser"
-      seoDescription="Edit and annotate PDF files directly in your web browser with 100% client-side privacy. Add text, freehand draw, highlight, draw shapes, rotate pages, and download without signup."
+      seoTitle="PDF Editor — Free Online PDF Annotator, Signer & Page Organizer | SmartTools India"
+      seoDescription="Edit, annotate, draw, sign, highlight, rotate, and organize PDF documents directly in your web browser with 100% client-side privacy. No file upload to servers."
+      keywords="pdf editor, free online pdf editor, annotate pdf, sign pdf online, draw on pdf, rotate pdf pages, private pdf editor browser, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

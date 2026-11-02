@@ -80,8 +80,9 @@ export const ProfitLossCalculatorPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="Profit & Loss Calculator — Calculate Profit Margin, Loss & Markup | SmartTools India"
-      seoDescription="Determine profit margin percentages, markup rates, and net gain or loss on goods sold. Free online calculator for Indian business owners and retailers."
+      seoTitle="Profit and Loss Calculator — Profit Margin, Loss & Markup Rates | SmartTools India"
+      seoDescription="Calculate net profit, loss amount, profit margin percentages, and cost price markup instantly. Free online commercial calculation tool for Indian retailers and businesses."
+      keywords="profit and loss calculator, calculate profit margin, markup calculator, cost price selling price, gross profit calculator, business margin, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

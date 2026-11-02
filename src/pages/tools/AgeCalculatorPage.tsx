@@ -81,7 +81,8 @@ export const AgeCalculatorPage: React.FC = () => {
     <ToolPageLayout
       tool={tool}
       seoTitle="Age Calculator — Calculate Exact Age in Years, Months & Days | SmartTools India"
-      seoDescription="Find your exact age in years, months, days, and total hours instantly. Calculate age eligibility for exams and upcoming birthday countdowns accurately."
+      seoDescription="Find your exact chronological age in years, months, days, hours, and minutes. Check exam age eligibility, leap year milestones, and upcoming birthday countdowns accurately."
+      keywords="age calculator, calculate age from date of birth, exact age in days, chronological age calculator, birthday countdown, exam age eligibility, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

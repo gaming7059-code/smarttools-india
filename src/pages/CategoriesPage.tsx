@@ -16,9 +16,10 @@ export const CategoriesPage: React.FC = () => {
   const { openToolPreview } = useOutletContext<LayoutContextType>()
 
   usePageSEO({
-    title: 'Browse Tools by Category — SmartTools India',
-    description: 'Explore free online calculators and digital utilities organized by category: finance, mathematical calculations, date & time, unit converters, and creator tools.',
+    title: 'Browse All Categories — Calculators, Finance, Math & Games | SmartTools India',
+    description: 'Explore SmartTools India tool collections: finance calculators, math helpers, date & time tools, measurement converters, creator utilities, and free online games.',
     canonicalPath: '/categories',
+    keywords: 'tool categories, online calculators directory, finance tools, math tools, measurement converters, creator utilities, free online games, smarttools india',
     schema: createBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Categories', path: '/categories' },
