@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Search, Menu, X } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -9,14 +9,26 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const location = useLocation()
+  const pathname = location.pathname
 
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/tools', label: 'All Tools' },
-    { to: '/games', label: 'Games' },
-    { to: '/categories', label: 'Categories' },
-    { to: '/about', label: 'About' },
+    { to: '/tools/text-to-speech', label: 'Voice Tools', matchPrefixes: ['/tools/text-to-speech', '/tools/audio-studio', '/tools/audio-transcriber'] },
+    { to: '/tools/pdf-editor', label: 'PDF Tools', matchPrefixes: ['/tools/pdf-editor'] },
+    { to: '/games', label: 'Games', matchPrefixes: ['/games'] },
+    { to: '/tools/video-prompt-generator', label: 'AI Prompts', matchPrefixes: ['/tools/video-prompt-generator'] },
+    { to: '/tools', label: 'All Tools', exact: true },
   ]
+
+  const isLinkActive = (link: typeof navLinks[0]) => {
+    if (link.to === '/') return pathname === '/'
+    if (link.matchPrefixes) {
+      return link.matchPrefixes.some((p) => pathname === p || pathname.startsWith(p + '/'))
+    }
+    if (link.exact) return pathname === link.to
+    return pathname.startsWith(link.to)
+  }
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
@@ -49,22 +61,23 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 ease-out ${
-                  isActive
+        <nav className="hidden lg:flex items-center gap-1">
+          {navLinks.map((link) => {
+            const active = isLinkActive(link)
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-out ${
+                  active
                     ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold shadow-2xs'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
+                }`}
+              >
+                {link.label}
+              </NavLink>
+            )
+          })}
         </nav>
 
         {/* Right Actions: Search + Theme Toggle */}
@@ -77,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           >
             <Search className="h-4 w-4 text-slate-400 dark:text-slate-400 transition-colors" />
             <span className="hidden sm:inline">Search tools...</span>
-            <kbd className="hidden lg:inline-block rounded bg-white dark:bg-slate-700 px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+            <kbd className="hidden xl:inline-block rounded bg-white dark:bg-slate-700 px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
               Ctrl K
             </kbd>
           </button>
@@ -89,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden rounded-lg p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95"
+            className="lg:hidden rounded-lg p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95"
             aria-label="Toggle navigation menu"
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -99,38 +112,39 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
       {/* Mobile navigation drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-2 shadow-lg animate-fade-in">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              onClick={closeMobileMenu}
-              className={({ isActive }) =>
-                `block rounded-lg px-3 py-2 text-base font-medium transition-all duration-200 ${
-                  isActive
+        <div className="lg:hidden border-b border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-2 shadow-lg animate-fade-in">
+          {navLinks.map((link) => {
+            const active = isLinkActive(link)
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                onClick={closeMobileMenu}
+                className={`block rounded-lg px-3 py-2 text-base font-medium transition-all duration-200 ${
+                  active
                     ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
+                }`}
+              >
+                {link.label}
+              </NavLink>
+            )
+          })}
 
           {/* Quick Categories in Mobile Menu */}
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
             <span className="block px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Browse Categories
+              More Categories
             </span>
             <div className="mt-1 flex flex-wrap gap-1.5 px-3">
               {[
                 { name: 'Calculators', path: '/tools?category=calculators' },
                 { name: 'Finance', path: '/tools?category=finance' },
-                { name: 'Games', path: '/games' },
                 { name: 'Math', path: '/tools?category=math' },
                 { name: 'Converters', path: '/tools?category=converters' },
                 { name: 'Date & Time', path: '/tools?category=date-time' },
-                { name: 'PDF Tools', path: '/tools?category=pdf-tools' },
+                { name: 'All Categories', path: '/categories' },
+                { name: 'About Us', path: '/about' },
               ].map((c) => (
                 <Link
                   key={c.name}
