@@ -87,9 +87,19 @@ export const HomePage: React.FC = () => {
       <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-slate-50 to-slate-50 dark:from-slate-900/50 dark:via-slate-950 dark:to-slate-950 pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-slate-200/60 dark:border-slate-800">
         {/* Subtle Ambient Moving Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10" aria-hidden="true">
-          <div className="absolute -top-24 -left-20 w-80 sm:w-96 h-80 sm:h-96 rounded-full bg-gradient-to-tr from-blue-400/25 to-indigo-400/20 dark:from-blue-600/15 dark:to-cyan-500/15 blur-3xl animate-blob-1" />
-          <div className="absolute top-10 -right-20 w-72 sm:w-88 h-72 sm:h-88 rounded-full bg-gradient-to-br from-indigo-300/25 to-sky-300/25 dark:from-indigo-600/15 dark:to-blue-700/15 blur-3xl animate-blob-2" />
-          <div className="absolute -bottom-20 left-1/3 w-64 sm:w-80 h-64 sm:h-80 rounded-full bg-gradient-to-r from-cyan-300/20 to-blue-300/20 dark:from-blue-900/15 dark:to-indigo-950/20 blur-3xl animate-blob-3" />
+          <div className="absolute -top-20 -left-16 w-80 sm:w-96 h-80 sm:h-96 rounded-full bg-gradient-to-tr from-blue-400/35 to-indigo-400/30 dark:from-blue-600/25 dark:to-cyan-500/25 blur-2xl animate-blob-1" />
+          <div className="absolute top-10 -right-16 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-gradient-to-br from-indigo-300/35 to-sky-300/30 dark:from-indigo-600/25 dark:to-blue-700/25 blur-2xl animate-blob-2" />
+          <div className="absolute -bottom-20 left-1/3 w-64 sm:w-80 h-64 sm:h-80 rounded-full bg-gradient-to-r from-cyan-300/25 to-blue-300/25 dark:from-blue-900/20 dark:to-indigo-950/25 blur-2xl animate-blob-3" />
+        </div>
+
+        {/* Ambient Floating Glass Accents */}
+        <div className="hidden xl:flex absolute top-16 left-8 items-center gap-2 rounded-full border border-blue-200/80 dark:border-blue-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 py-2 shadow-sm animate-float-slow text-xs font-semibold text-blue-700 dark:text-blue-300 pointer-events-none">
+          <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          <span>🎙️ AI Audio &amp; Voice Studio</span>
+        </div>
+        <div className="hidden xl:flex absolute top-32 right-8 items-center gap-2 rounded-full border border-purple-200/80 dark:border-purple-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 py-2 shadow-sm animate-float-reverse text-xs font-semibold text-purple-700 dark:text-purple-300 pointer-events-none">
+          <span className="h-2 w-2 rounded-full bg-purple-500 animate-pulse" />
+          <span>⚡ 100% Client-Side &amp; Private</span>
         </div>
 
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -102,7 +112,7 @@ export const HomePage: React.FC = () => {
           {/* Main Headline */}
           <h1 className="animate-fade-in-up animation-delay-100 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
             Everything You Need,{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-300 dark:to-purple-400 animate-gradient-text">
+            <span className="animate-gradient-text">
               All in One Place
             </span>
           </h1>
@@ -231,14 +241,14 @@ export const HomePage: React.FC = () => {
         <ScrollReveal delay={100}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* CARD 1 — VOICE TOOLS */}
-            <div className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:shadow-2xl dark:hover:shadow-blue-950/30 transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+            <div className="card-lift group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/25 transition-all duration-300 overflow-hidden cursor-pointer">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500" />
-              <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-blue-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div>
                 {/* Header Icon + Badge */}
                 <div className="flex items-center justify-between mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 group-hover:scale-115 group-hover:-rotate-3 group-hover:shadow-lg group-hover:shadow-blue-500/40 transition-all duration-300">
                     <Mic className="h-6 w-6" />
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
@@ -301,14 +311,14 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* CARD 2 — PDF TOOLS */}
-            <div className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:shadow-2xl dark:hover:shadow-rose-950/30 transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+            <div className="card-lift group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:border-rose-500 dark:hover:border-rose-400 hover:shadow-2xl hover:shadow-rose-500/20 dark:hover:shadow-rose-500/25 transition-all duration-300 overflow-hidden cursor-pointer">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-500 via-red-500 to-amber-500" />
-              <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-rose-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-rose-500/20 via-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div>
                 {/* Header Icon + Badge */}
                 <div className="flex items-center justify-between mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-rose-600 to-red-600 text-white shadow-md shadow-rose-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-rose-600 to-red-600 text-white shadow-md shadow-rose-500/30 group-hover:scale-115 group-hover:-rotate-3 group-hover:shadow-lg group-hover:shadow-rose-500/40 transition-all duration-300">
                     <FileText className="h-6 w-6" />
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
@@ -364,14 +374,14 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* CARD 3 — GAMES */}
-            <div className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:shadow-2xl dark:hover:shadow-emerald-950/30 transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+            <div className="card-lift group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:border-emerald-500 dark:hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/25 transition-all duration-300 overflow-hidden cursor-pointer">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
-              <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/20 via-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div>
                 {/* Header Icon + Badge */}
                 <div className="flex items-center justify-between mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/30 group-hover:scale-115 group-hover:-rotate-3 group-hover:shadow-lg group-hover:shadow-emerald-500/40 transition-all duration-300">
                     <Gamepad2 className="h-6 w-6" />
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
@@ -425,14 +435,14 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* CARD 4 — AI PROMPT GENERATOR */}
-            <div className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:shadow-2xl dark:hover:shadow-purple-950/30 transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+            <div className="card-lift group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-md hover:border-purple-500 dark:hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 dark:hover:shadow-purple-500/25 transition-all duration-300 overflow-hidden cursor-pointer">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500" />
-              <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-500/20 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div>
                 {/* Header Icon + Badge */}
                 <div className="flex items-center justify-between mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-500/30 group-hover:scale-115 group-hover:-rotate-3 group-hover:shadow-lg group-hover:shadow-purple-500/40 transition-all duration-300">
                     <Sparkles className="h-6 w-6" />
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
@@ -508,7 +518,7 @@ export const HomePage: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {popularUtilityTools.map((tool: Tool, index: number) => (
-            <ScrollReveal key={tool.id} delay={index * 40} direction="up">
+            <ScrollReveal key={tool.id} delay={index * 45} direction="up" className="h-full flex flex-col">
               <ToolCard
                 tool={tool}
                 onOpenPreview={openToolPreview}
@@ -558,7 +568,7 @@ export const HomePage: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {CATEGORIES.map((category, index) => (
-            <ScrollReveal key={category.id} delay={index * 35} direction="up">
+            <ScrollReveal key={category.id} delay={index * 35} direction="up" className="h-full flex flex-col">
               <CategoryCard category={category} />
             </ScrollReveal>
           ))}

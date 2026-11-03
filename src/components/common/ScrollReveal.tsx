@@ -13,7 +13,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   className = '',
   delay = 0,
   direction = 'up',
-  threshold = 0.1,
+  threshold = 0.08,
 }) => {
   const [isRevealed, setIsRevealed] = useState(() => {
     if (typeof window === 'undefined') return true
@@ -36,7 +36,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
       },
       {
         threshold,
-        rootMargin: '0px 0px -40px 0px',
+        rootMargin: '0px 0px -20px 0px',
       }
     )
 
@@ -50,28 +50,21 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     }
   }, [isRevealed, threshold])
 
-  const getTransformClasses = () => {
-    if (isRevealed) {
-      return 'opacity-100 translate-y-0 scale-100'
+  const getRevealClass = () => {
+    if (direction === 'scale') {
+      return isRevealed ? 'scroll-reveal-scale is-revealed' : 'scroll-reveal-scale'
     }
-    switch (direction) {
-      case 'up':
-        return 'opacity-0 translate-y-6 scale-100'
-      case 'scale':
-        return 'opacity-0 translate-y-2 scale-[0.97]'
-      case 'none':
-      default:
-        return 'opacity-0'
+    if (direction === 'none') {
+      return isRevealed ? 'scroll-reveal-fade is-revealed' : 'scroll-reveal-fade'
     }
+    return isRevealed ? 'scroll-reveal is-revealed' : 'scroll-reveal'
   }
 
   return (
     <div
       ref={elementRef}
-      className={`transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[opacity,transform] ${getTransformClasses()} ${className}`}
-      style={{
-        transitionDelay: `${delay}ms`,
-      }}
+      className={`${getRevealClass()} ${className}`}
+      style={delay > 0 ? { transitionDelay: `${delay}ms` } : undefined}
     >
       {children}
     </div>

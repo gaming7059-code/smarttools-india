@@ -13,10 +13,13 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenPreview }) => {
   const isReady = tool.isFunctional
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-blue-400/80 dark:hover:border-blue-500/80 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10 active:scale-[0.99] will-change-transform">
+    <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-2 hover:border-blue-500/80 dark:hover:border-blue-400/80 hover:shadow-xl hover:shadow-blue-500/15 dark:hover:shadow-blue-500/20 active:scale-95 will-change-transform cursor-pointer overflow-hidden">
+      {/* Sleek top glowing border accent */}
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 transition-all duration-300 ease-out group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-2 group-hover:shadow-md group-hover:shadow-blue-500/25">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 transition-all duration-300 ease-out group-hover:bg-blue-600 group-hover:text-white group-hover:scale-115 group-hover:-rotate-3 group-hover:shadow-md group-hover:shadow-blue-500/30">
             <DynamicIcon name={tool.icon} className="h-5 w-5 transition-transform duration-300 ease-out group-hover:scale-105" />
           </div>
           <div className="flex items-center gap-1.5">
@@ -62,7 +65,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenPreview }) => {
             title={`Open ${tool.name}`}
           >
             <span>Open Tool</span>
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1.5" />
           </Link>
         ) : (
           <button
@@ -72,7 +75,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenPreview }) => {
             title={`Preview ${tool.name}`}
           >
             <span>Open Tool</span>
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1.5" />
           </button>
         )}
       </div>
