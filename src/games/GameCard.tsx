@@ -13,10 +13,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isActive = false, onSe
   return (
     <div
       onClick={() => onSelect?.(game)}
-      className={`group relative flex flex-col justify-between rounded-2xl border p-5 transition-all duration-300 ease-out cursor-pointer ${
+      className={`group relative flex flex-col justify-between rounded-2xl border p-5 transition-all duration-300 ease-out cursor-pointer active:scale-[0.98] ${
         isActive
           ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-blue-500/20 shadow-lg'
-          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:-translate-y-1 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10'
+          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:-translate-y-1.5 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10'
       }`}
     >
       <div>

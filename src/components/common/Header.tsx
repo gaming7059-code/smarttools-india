@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Search, Menu, X } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
@@ -9,8 +9,18 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
   const pathname = location.pathname
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 12)
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -33,12 +43,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md transition-colors duration-200">
+    <header
+      className={`sticky top-0 z-40 w-full transition-all duration-300 ${
+        isScrolled
+          ? 'border-b border-slate-200/90 dark:border-slate-800/90 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl shadow-xs'
+          : 'border-b border-slate-200/60 dark:border-slate-800/60 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-none'
+      }`}
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand / Logo */}
         <Link 
           to="/" 
-          className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="group flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
           aria-label="SmartTools India Homepage"
         >
           <img
@@ -46,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
             alt="SmartTools India logo"
             width={40}
             height={40}
-            className="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-white shadow-2xs transition-transform duration-200 hover:rotate-3 shrink-0"
+            className="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-white shadow-2xs transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105 shrink-0"
             loading="eager"
             decoding="async"
           />
@@ -112,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
       {/* Mobile navigation drawer */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-b border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-2 shadow-lg animate-fade-in">
+        <div className="lg:hidden border-b border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl px-4 pt-2 pb-4 space-y-2 shadow-xl animate-drawer-down">
           {navLinks.map((link) => {
             const active = isLinkActive(link)
             return (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { Header } from '../components/common/Header'
 import { Footer } from '../components/common/Footer'
 import { SearchModal } from '../components/common/SearchModal'
@@ -13,6 +13,7 @@ export interface LayoutContextType {
 
 export const MainLayout: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [previewTool, setPreviewTool] = useState<Tool | null>(null)
 
@@ -44,7 +45,7 @@ export const MainLayout: React.FC = () => {
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-100 dark:selection:bg-blue-900/60 selection:text-blue-900 dark:selection:text-blue-200 transition-colors duration-200">
       <Header onOpenSearch={handleOpenSearch} />
 
-      <main className="flex-1">
+      <main key={location.pathname} className="flex-1 animate-page-enter">
         <Outlet
           context={{
             openSearch: handleOpenSearch,

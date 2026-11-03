@@ -114,7 +114,7 @@ export const CategoriesPage: React.FC = () => {
                       <Link
                         key={game.id}
                         to={`/games?play=${game.id}`}
-                        className="group flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xs hover:-translate-y-1 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200"
+                        className="group flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xs hover:-translate-y-1.5 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 active:scale-[0.98]"
                       >
                         <div>
                           <div className="flex items-center justify-between mb-2.5">

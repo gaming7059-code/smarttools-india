@@ -13,11 +13,11 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenPreview }) => {
   const isReady = tool.isFunctional
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-blue-400/80 dark:hover:border-blue-500/80 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10">
+    <div className="group relative flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-blue-400/80 dark:hover:border-blue-500/80 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10 active:scale-[0.99] will-change-transform">
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 transition-all duration-300 ease-out group-hover:bg-blue-600 group-hover:text-white group-hover:scale-105 group-hover:shadow-sm group-hover:shadow-blue-500/30">
-            <DynamicIcon name={tool.icon} className="h-5 w-5 transition-transform duration-300 ease-out group-hover:scale-105 group-hover:rotate-2" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 transition-all duration-300 ease-out group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-2 group-hover:shadow-md group-hover:shadow-blue-500/25">
+            <DynamicIcon name={tool.icon} className="h-5 w-5 transition-transform duration-300 ease-out group-hover:scale-105" />
           </div>
           <div className="flex items-center gap-1.5">
             {!isReady && (

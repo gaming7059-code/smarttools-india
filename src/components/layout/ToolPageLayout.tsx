@@ -256,7 +256,7 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({
                 to="/tools"
                 className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1"
               >
-                Browse all 10 tools →
+                Browse all tools →
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
