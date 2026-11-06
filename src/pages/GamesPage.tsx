@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Gamepad2, Volume2, VolumeX, Sparkles, Shield, Zap, Smartphone, HelpCircle, CheckCircle2 } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Gamepad2, Volume2, VolumeX, Sparkles, Shield, Zap, Smartphone, HelpCircle, CheckCircle2, ArrowRight } from 'lucide-react'
 import { GAMES_LIST, type GameId, type GameInfo } from '../games/types'
 import { GameIcon } from '../games/GameIcon'
 import { GameCard } from '../games/GameCard'
@@ -19,7 +19,7 @@ export const GamesPage: React.FC = () => {
   const activeGameId: GameId =
     playParam && GAMES_LIST.some((g) => g.id === playParam)
       ? playParam
-      : 'tic-tac-toe'
+      : 'hex-drift'
 
   const [isMuted, setIsMuted] = useState<boolean>(gameAudio.getMuted())
 
@@ -63,13 +63,13 @@ export const GamesPage: React.FC = () => {
     title: playParam
       ? `Play ${activeGame.title} Online Free — Browser Games | SmartTools India`
       : 'Free Online Browser Games — Play Tic-Tac-Toe, Snake & More | SmartTools India',
-    description: `Play free online browser games on SmartTools India: ${activeGame.title}, Snake, Tic-Tac-Toe, Memory Match, Rock Paper Scissors, and Number Guessing. 100% free with touch controls and zero downloads.`,
+    description: `Play free online browser games on SmartTools India: HEX DRIFT Neon Runner, Snake, Tic-Tac-Toe, Memory Match, Rock Paper Scissors, and Number Guessing. 100% free with touch controls and zero downloads.`,
     canonicalPath: '/games',
     keywords: 'free online games, browser games, play snake game, tic tac toe online, memory match game, rock paper scissors, number guessing game, free mini games, smarttools india',
     schema: [
       createWebApplicationSchema(
         'Free Online Games',
-        'Free online browser games including Tic-Tac-Toe, Snake, Memory Match, Rock Paper Scissors, and Number Guessing on SmartTools India.',
+        'Free online browser games including HEX DRIFT Neon Runner, Tic-Tac-Toe, Snake, Memory Match, Rock Paper Scissors, and Number Guessing on SmartTools India.',
         '/games'
       ),
       createFAQSchema(faqs) || {},
@@ -163,6 +163,30 @@ export const GamesPage: React.FC = () => {
 
           {/* Active Game Component Viewport */}
           <div className="min-h-[420px] flex flex-col justify-center">
+            {activeGameId === 'hex-drift' && (
+              <div className="space-y-4">
+                <div className="relative w-full h-[520px] sm:h-[620px] rounded-2xl overflow-hidden border border-cyan-500/30 bg-[#060310] shadow-xl shadow-cyan-500/5">
+                  <iframe
+                    src="/games/hex-drift/game.html"
+                    title="HEX DRIFT — Neon Void Runner"
+                    allow="fullscreen; autoplay"
+                    className="w-full h-full border-0 select-none bg-[#060310]"
+                  />
+                </div>
+                <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Auto-fire is engaged • WASD or Arrows to steer • Touch-drag on mobile
+                  </span>
+                  <Link
+                    to="/games/hex-drift"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-fuchsia-600 hover:from-cyan-500 hover:via-indigo-500 hover:to-fuchsia-500 text-white px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs"
+                  >
+                    <span>Dedicated Fullscreen Route</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+            )}
             {activeGameId === 'tic-tac-toe' && <TicTacToeGame />}
             {activeGameId === 'snake' && <SnakeGame />}
             {activeGameId === 'memory-match' && <MemoryMatchGame />}
@@ -202,7 +226,7 @@ export const GamesPage: React.FC = () => {
                 Browse Games Collection
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                All 5 Free Browser Games
+                All 6 Free Browser Games
               </h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                 Pick another classic game anytime without losing your active scores.

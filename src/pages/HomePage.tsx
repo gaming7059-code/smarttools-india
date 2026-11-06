@@ -385,7 +385,7 @@ export const HomePage: React.FC = () => {
                     <Gamepad2 className="h-6 w-6" />
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                    5 Free Games
+                    6 Free Games
                   </span>
                 </div>
 
@@ -398,6 +398,16 @@ export const HomePage: React.FC = () => {
 
                 {/* Available Tools List */}
                 <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                  <Link
+                    to="/games/hex-drift"
+                    className="flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-cyan-50/80 to-indigo-50/80 dark:from-cyan-950/50 dark:to-indigo-950/50 hover:from-cyan-100 hover:to-indigo-100 dark:hover:from-cyan-900/60 dark:hover:to-indigo-900/60 text-xs font-semibold text-cyan-800 dark:text-cyan-300 transition-all border border-cyan-200/70 dark:border-cyan-800/70"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                      HEX DRIFT (Neon Runner)
+                    </span>
+                    <span className="text-[10px] text-cyan-700 dark:text-cyan-300 font-bold uppercase">New</span>
+                  </Link>
                   <Link
                     to="/games?play=tic-tac-toe"
                     className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"

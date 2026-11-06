@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0118" />
+<title>HEX DRIFT — Neon Void Runner</title>
+
+<!-- Fonts: Orbitron for display / arcade HUD feel, Rajdhani for readable techy body text -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       APP ROOT — everything lives inside one fixed-size stage so
+       the game scales cleanly across phones, tablets and desktops
+       ============================================================ -->
+  <div id="stage">
+
+    <!-- Ambient animated grid + vignette behind the canvas -->
+    <div id="bg-grid" aria-hidden="true"></div>
+    <div id="bg-vignette" aria-hidden="true"></div>
+
+    <!-- Game canvas: all gameplay is drawn here procedurally -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- ============================================================
+         HUD — score / lives / wave, visible only during play
+         ============================================================ -->
+    <div id="hud" class="hidden">
+      <div class="hud-cluster hud-left">
+        <div class="hud-label">SCORE</div>
+        <div id="hud-score" class="hud-value">0</div>
+      </div>
+
+      <div class="hud-cluster hud-center">
+        <div id="hud-wave-badge">WAVE <span id="hud-wave">1</span></div>
+      </div>
+
+      <div class="hud-cluster hud-right">
+        <div class="hud-label">HULL</div>
+        <div id="hud-lives" class="hud-lives"></div>
+      </div>
+
+      <!-- Pause button, top-right, always reachable on touch -->
+      <button id="btn-pause" class="icon-btn" aria-label="Pause game">
+        <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+      </button>
+
+      <!-- Mute button, top-right -->
+      <button id="btn-mute" class="icon-btn" aria-label="Toggle sound">
+        <svg id="icon-sound-on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><path d="M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+        <svg id="icon-sound-off" viewBox="0 0 24 24" class="hidden"><path d="M4 9v6h4l5 5V4L8 9H4z"></path><path d="M16 9l5 5M21 9l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+      </button>
+    </div>
+
+    <!-- Floating score-gain toasts (e.g. "+50") spawn here via JS -->
+    <div id="toast-layer" aria-hidden="true"></div>
+
+    <!-- Mobile drag hint, fades after first touch -->
+    <div id="touch-hint" class="hidden">DRAG TO STEER · AUTO-FIRE ENGAGED</div>
+
+    <!-- ============================================================
+         START MENU
+         ============================================================ -->
+    <section id="screen-start" class="screen">
+      <div class="screen-panel start-panel">
+        <div class="logo-block">
+          <h1 class="game-title">
+            <span class="title-hex">HEX</span><span class="title-drift">DRIFT</span>
+          </h1>
+          <p class="game-subtitle">NEON VOID RUNNER</p>
+        </div>
+
+        <div class="hex-signature" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <polygon id="sig-hex" points="100,10 173,55 173,145 100,190 27,145 27,55" />
+          </svg>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-box">
+            <span class="stat-label">HIGH SCORE</span>
+            <span id="start-highscore" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <button id="btn-start" class="btn-primary">
+          <span>LAUNCH</span>
+        </button>
+
+        <button id="btn-howto" class="btn-secondary">HOW TO PLAY</button>
+
+        <div class="control-hints">
+          <div class="hint-item"><span class="hint-key">WASD / ARROWS</span> steer</div>
+          <div class="hint-item"><span class="hint-key">DRAG</span> steer on touch</div>
+          <div class="hint-item"><span class="hint-key">AUTO-FIRE</span> always on</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         HOW TO PLAY OVERLAY
+         ============================================================ -->
+    <section id="screen-howto" class="screen hidden">
+      <div class="screen-panel">
+        <h2 class="panel-title">FLIGHT MANUAL</h2>
+        <ul class="howto-list">
+          <li><span class="howto-icon">◈</span> Steer your hex-core through the drift field. Your ship follows your cursor, finger, or keys.</li>
+          <li><span class="howto-icon">◈</span> Your core fires automatically — just focus on staying alive.</li>
+          <li><span class="howto-icon">◈</span> Colliding with an asteroid costs one hull point. Lose all three and it's over.</li>
+          <li><span class="howto-icon">◈</span> Grab glowing pickups: <span class="pill pill-shield">SHIELD</span> <span class="pill pill-rapid">RAPID</span> <span class="pill pill-multi">MULTI</span></li>
+          <li><span class="howto-icon">◈</span> Waves accelerate the longer you survive. Score climbs with every kill and every second airborne.</li>
+        </ul>
+        <button id="btn-howto-close" class="btn-primary"><span>GOT IT</span></button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PAUSE MENU
+         ============================================================ -->
+    <section id="screen-pause" class="screen hidden">
+      <div class="screen-panel">
+        <h2 class="panel-title">PAUSED</h2>
+        <button id="btn-resume" class="btn-primary"><span>RESUME</span></button>
+        <button id="btn-restart-pause" class="btn-secondary">RESTART</button>
+        <button id="btn-menu-pause" class="btn-secondary">MAIN MENU</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GAME OVER SCREEN
+         ============================================================ -->
+    <section id="screen-gameover" class="screen hidden">
+      <div class="screen-panel gameover-panel">
+        <h2 class="panel-title panel-title-danger">HULL BREACHED</h2>
+
+        <div id="newrecord-badge" class="newrecord-badge hidden">★ NEW RECORD ★</div>
+
+        <div class="stat-row stat-row-double">
+          <div class="stat-box">
+            <span class="stat-label">SCORE</span>
+            <span id="final-score" class="stat-value">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">BEST</span>
+            <span id="final-highscore" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="btn-primary"><span>RESTART</span></button>
+        <button id="btn-menu-gameover" class="btn-secondary">MAIN MENU</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

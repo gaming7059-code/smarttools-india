@@ -1,4 +1,4 @@
-export type GameId = 'tic-tac-toe' | 'snake' | 'memory-match' | 'rock-paper-scissors' | 'number-guess'
+export type GameId = 'tic-tac-toe' | 'snake' | 'memory-match' | 'rock-paper-scissors' | 'number-guess' | 'hex-drift'
 
 export interface GameInfo {
   id: GameId
@@ -13,6 +13,21 @@ export interface GameInfo {
 }
 
 export const GAMES_LIST: GameInfo[] = [
+  {
+    id: 'hex-drift',
+    title: 'HEX DRIFT',
+    subtitle: 'NEON VOID RUNNER',
+    description: 'Dodge geometric enemies, collect power-ups, survive waves, and beat your high score.',
+    category: 'Arcade',
+    emoji: '🔷⚡',
+    accentColor: 'from-cyan-500 via-indigo-500 to-fuchsia-500',
+    tag: 'Action',
+    instructions: [
+      'WASD or Arrow keys to steer your ship on desktop; drag directly on screen on mobile.',
+      'Auto-fire is continuously engaged — dodge incoming asteroids and blast enemies to clear waves.',
+      'Collect glowing pickups: Shield for protection, Rapid-Fire for speed, and Multi-Shot for spread cannon.',
+    ],
+  },
   {
     id: 'tic-tac-toe',
     title: 'Tic-Tac-Toe',

@@ -34,11 +34,16 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isActive = false, onSe
 
         <div className="space-y-1">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            {game.category}
+            {game.category} {game.tag ? `• ${game.tag}` : ''}
           </span>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             {game.title}
           </h3>
+          {game.subtitle && (
+            <p className="text-xs font-semibold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
+              {game.subtitle}
+            </p>
+          )}
         </div>
 
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
@@ -51,7 +56,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, isActive = false, onSe
           Instant Browser Play
         </span>
         <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-          <span>{isActive ? 'Playing' : 'Play Now'}</span>
+          <span>{isActive ? 'PLAYING' : 'PLAY NOW'}</span>
           <Play className="h-3.5 w-3.5 fill-current group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>

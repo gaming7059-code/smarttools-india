@@ -27,6 +27,7 @@ import { AudioTranscriberPage } from './pages/tools/AudioTranscriberPage'
 import { JpgToPdfPage } from './pages/tools/JpgToPdfPage'
 import { ImageQualityIncreaserPage } from './pages/tools/ImageQualityIncreaserPage'
 import { GamesPage } from './pages/GamesPage'
+import { HexDriftPage } from './pages/games/HexDriftPage'
 import { ThemeProvider } from './context/ThemeContext'
 
 export const App: React.FC = () => {
@@ -57,6 +58,7 @@ export const App: React.FC = () => {
           <Route path="tools/jpg-to-pdf" element={<JpgToPdfPage />} />
           <Route path="tools/image-quality-increaser" element={<ImageQualityIncreaserPage />} />
           <Route path="games" element={<GamesPage />} />
+          <Route path="games/hex-drift" element={<HexDriftPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="contact" element={<ContactPage />} />

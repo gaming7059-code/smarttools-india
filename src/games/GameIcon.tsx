@@ -26,6 +26,7 @@ const CONTAINER_SIZE_MAP = {
 }
 
 const CONTAINER_BG_MAP: Record<GameId, string> = {
+  'hex-drift': 'bg-gradient-to-tr from-cyan-500/20 via-indigo-500/20 to-fuchsia-500/20 border-cyan-400/40 dark:border-cyan-500/40 text-cyan-500 dark:text-cyan-400',
   'tic-tac-toe': 'bg-gradient-to-tr from-blue-500/15 via-indigo-500/15 to-blue-600/25 border-blue-200/80 dark:border-blue-800/80 text-blue-600 dark:text-blue-400',
   snake: 'bg-gradient-to-tr from-emerald-500/15 via-teal-500/15 to-emerald-600/25 border-emerald-200/80 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-400',
   'memory-match': 'bg-gradient-to-tr from-purple-500/15 via-pink-500/15 to-purple-600/25 border-purple-200/80 dark:border-purple-800/80 text-purple-600 dark:text-purple-400',
@@ -393,6 +394,72 @@ const NumberGuessIconSvg: React.FC<{ className?: string }> = ({ className = 'w-f
 )
 
 /**
+ * 6. Hex Drift: Neon Void Runner spacecraft with glowing cyan/magenta aura
+ */
+const HexDriftIconSvg: React.FC<{ className?: string }> = ({ className = 'w-full h-full' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="hex-drift-grad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#00f0ff" />
+        <stop offset="0.5" stopColor="#6366f1" />
+        <stop offset="1" stopColor="#ff2fd0" />
+      </linearGradient>
+      <linearGradient id="hex-core-grad" x1="20" y1="16" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ffffff" />
+        <stop offset="1" stopColor="#00f0ff" />
+      </linearGradient>
+      <linearGradient id="hex-flame-grad" x1="24" y1="34" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ffb020" />
+        <stop offset="0.6" stopColor="#ff2fd0" />
+        <stop offset="1" stopColor="#00f0ff" stopOpacity="0" />
+      </linearGradient>
+      <filter id="hex-drift-glow" x="4" y="4" width="40" height="40" filterUnits="userSpaceOnUse">
+        <feGaussianBlur stdDeviation="1.5" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+
+    {/* Ambient Thruster Plume */}
+    <path
+      d="M21 34L24 43L27 34"
+      stroke="url(#hex-flame-grad)"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="24" cy="38" r="1.5" fill="#00f0ff" opacity="0.8" />
+
+    {/* Outer Hexagonal Shield / Hull */}
+    <polygon
+      points="24,6 38,14 38,30 24,38 10,30 10,14"
+      stroke="url(#hex-drift-grad)"
+      strokeWidth="2.25"
+      strokeLinejoin="round"
+      fill="rgba(10, 1, 24, 0.45)"
+      filter="url(#hex-drift-glow)"
+    />
+
+    {/* Wing Plasma Cannons */}
+    <line x1="10" y1="18" x2="6" y2="20" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" />
+    <line x1="38" y1="18" x2="42" y2="20" stroke="#ff2fd0" strokeWidth="2" strokeLinecap="round" />
+
+    {/* Inner Energy Core */}
+    <polygon
+      points="24,14 31,18.5 31,25.5 24,30 17,25.5 17,18.5"
+      fill="url(#hex-core-grad)"
+      opacity="0.9"
+    />
+    <circle cx="24" cy="22" r="2.2" fill="#ffffff" />
+  </svg>
+)
+
+/**
  * Universal GameIcon component
  */
 export const GameIcon: React.FC<GameIconProps> = ({
@@ -406,6 +473,8 @@ export const GameIcon: React.FC<GameIconProps> = ({
 
   const renderSvg = () => {
     switch (gameId) {
+      case 'hex-drift':
+        return <HexDriftIconSvg className={`${sizeClass} ${className}`} />
       case 'tic-tac-toe':
         return <TicTacToeIconSvg className={`${sizeClass} ${className}`} />
       case 'snake':
