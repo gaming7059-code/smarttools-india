@@ -18,9 +18,15 @@
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Games Security Headers - Allow Same-Origin Framing for Browser Games
+[[headers]]
+  for = "/games/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
 
 # Immutable caching for Vite hashed assets
 [[headers]]
