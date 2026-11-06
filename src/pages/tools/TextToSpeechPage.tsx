@@ -8,12 +8,13 @@ export const TextToSpeechPage: React.FC = () => {
 
   const howToUseSteps = [
     'Type or paste your text into the large workspace input area (supports up to 5,000 characters).',
-    'Choose your preferred language from the filter dropdown (such as English India, Hindi, Bengali, or US English).',
-    'Select a specific voice from the available system voices installed on your device or browser.',
-    'Fine-tune the speech speed (0.5x to 2x), pitch (low, normal, high), and volume using the sliders.',
-    'Click the large "Play Speech" button to listen with native device voices. You can pause, resume, or stop speech playback anytime.',
+    'Automatic script detection identifies English, Hindi, Bengali, or Urdu and suggests matching authentic voices.',
+    'Choose your preferred language filter (such as English India, Hindi, Bengali, Urdu, or US English).',
+    'Click the "Preview" button next to the voice selector to hear an instant sample of any voice before playing.',
+    'Fine-tune speech speed (0.5x to 2x), pitch (low, natural, high), volume, and vocal cadence presets.',
+    'Click the large "Play Speech" button to listen with native natural voices. You can pause, resume, or stop speech playback anytime.',
+    'Follow along with real-time sentence tracking and smooth progress visualization as each sentence is spoken.',
     'Click "Download Audio" to synthesize and save a real 16-bit PCM WAV audio file with your chosen speed, pitch, and volume directly to your device.',
-    'Use the "Copy" or "Clear" buttons to manage your text, or try the quick sample buttons to test different languages.',
   ]
 
   const formulas = [
