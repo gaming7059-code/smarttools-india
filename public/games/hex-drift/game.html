@@ -29,36 +29,105 @@
     <canvas id="game-canvas"></canvas>
 
     <!-- ============================================================
-         HUD — score / lives / wave, visible only during play
+         HUD — score / coins / level / wave / lives / boss bar
          ============================================================ -->
     <div id="hud" class="hidden">
-      <div class="hud-cluster hud-left">
-        <div class="hud-label">SCORE</div>
-        <div id="hud-score" class="hud-value">0</div>
+      <!-- Top Bar: Left Cluster (Score & Coins) -->
+      <div class="hud-top-row">
+        <div class="hud-left-group">
+          <div class="hud-cluster hud-left">
+            <div class="hud-label">SCORE</div>
+            <div id="hud-score" class="hud-value">0</div>
+          </div>
+
+          <div class="hud-cluster hud-coins-cluster">
+            <div class="hud-label">COINS</div>
+            <div class="hud-value hud-coins-val">
+              <span class="coin-gem">◈</span>
+              <span id="hud-coins">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Level & Wave Badge -->
+        <div class="hud-cluster hud-center">
+          <div class="hud-level-row">
+            <div id="hud-level-badge">LVL <span id="hud-level">1</span></div>
+            <div id="hud-wave-badge">WAVE <span id="hud-wave">1</span></div>
+          </div>
+          <!-- Level Progress Bar -->
+          <div id="level-progress-container" class="level-progress-container">
+            <div class="level-progress-bar">
+              <div id="hud-level-progress" class="level-progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="level-progress-text">
+              <span id="hud-level-target-label">NEXT:</span>
+              <span id="hud-level-target">0/12</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Cluster: Hull Lives & System Buttons -->
+        <div class="hud-right-group">
+          <div class="hud-cluster hud-right">
+            <div class="hud-label">HULL</div>
+            <div id="hud-lives" class="hud-lives"></div>
+          </div>
+
+          <!-- Controls: Pause & Mute -->
+          <div class="hud-controls">
+            <button id="btn-pause" class="icon-btn" aria-label="Pause game">
+              <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+            </button>
+            <button id="btn-mute" class="icon-btn" aria-label="Toggle sound">
+              <svg id="icon-sound-on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><path d="M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+              <svg id="icon-sound-off" viewBox="0 0 24 24" class="hidden"><path d="M4 9v6h4l5 5V4L8 9H4z"></path><path d="M16 9l5 5M21 9l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="hud-cluster hud-center">
-        <div id="hud-wave-badge">WAVE <span id="hud-wave">1</span></div>
+      <!-- Boss Health Bar (Appears only during boss fights) -->
+      <div id="hud-boss-bar" class="hud-boss-bar hidden">
+        <div class="boss-header">
+          <div class="boss-title-wrap">
+            <span class="boss-icon">☠</span>
+            <span id="boss-name" class="boss-name">DREADNOUGHT VEX-9</span>
+          </div>
+          <span id="boss-hp-pct" class="boss-hp-pct">100%</span>
+        </div>
+        <div class="boss-hp-track">
+          <div id="boss-hp-fill" class="boss-hp-fill" style="width: 100%"></div>
+        </div>
       </div>
-
-      <div class="hud-cluster hud-right">
-        <div class="hud-label">HULL</div>
-        <div id="hud-lives" class="hud-lives"></div>
-      </div>
-
-      <!-- Pause button, top-right, always reachable on touch -->
-      <button id="btn-pause" class="icon-btn" aria-label="Pause game">
-        <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
-      </button>
-
-      <!-- Mute button, top-right -->
-      <button id="btn-mute" class="icon-btn" aria-label="Toggle sound">
-        <svg id="icon-sound-on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><path d="M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
-        <svg id="icon-sound-off" viewBox="0 0 24 24" class="hidden"><path d="M4 9v6h4l5 5V4L8 9H4z"></path><path d="M16 9l5 5M21 9l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
-      </button>
     </div>
 
-    <!-- Floating score-gain toasts (e.g. "+50") spawn here via JS -->
+    <!-- Floating Level Up Notification Banner -->
+    <div id="banner-level-up" class="banner-popup banner-levelup hidden">
+      <div class="banner-inner">
+        <span class="banner-badge">LEVEL COMPLETE</span>
+        <h3 id="banner-level-title" class="banner-title">LEVEL 2 REACHED</h3>
+        <p id="banner-level-sub" class="banner-subtitle">+50 BONUS COINS EARNED!</p>
+      </div>
+    </div>
+
+    <!-- Floating Boss Warning Banner -->
+    <div id="banner-boss-warning" class="banner-popup banner-boss hidden">
+      <div class="banner-inner">
+        <div class="warning-lights">
+          <span class="warning-flasher">⚠️</span>
+          <span class="warning-tag">CRITICAL ALERT</span>
+          <span class="warning-flasher">⚠️</span>
+        </div>
+        <h3 class="banner-title boss-warning-title">DREADNOUGHT DETECTED</h3>
+        <p class="banner-subtitle">PREPARE FOR HEAVY WEAPONS ENGAGEMENT</p>
+      </div>
+    </div>
+
+    <!-- Achievement Toast Notification Area -->
+    <div id="achievement-toast-container" class="achievement-toast-container"></div>
+
+    <!-- Floating score-gain toasts spawn here via JS -->
     <div id="toast-layer" aria-hidden="true"></div>
 
     <!-- Mobile drag hint, fades after first touch -->
@@ -82,24 +151,134 @@
           </svg>
         </div>
 
-        <div class="stat-row">
+        <!-- Coin Bank & High Score Bar -->
+        <div class="stat-row stat-row-double">
           <div class="stat-box">
             <span class="stat-label">HIGH SCORE</span>
             <span id="start-highscore" class="stat-value">0</span>
           </div>
+          <div class="stat-box stat-box-coins">
+            <span class="stat-label">COIN BANK</span>
+            <span class="stat-value"><span class="coin-gem">◈</span> <span id="start-coins">0</span></span>
+          </div>
         </div>
 
+        <!-- Active Equipped Ship Preview Badge -->
+        <div class="equipped-ship-badge">
+          <span class="badge-label">SHIP:</span>
+          <span id="start-ship-name" class="badge-val">VIPER ALPHA</span>
+          <button id="btn-quick-hangar" class="badge-edit-btn" title="Change Ship">EDIT</button>
+        </div>
+
+        <!-- Main Action Buttons -->
         <button id="btn-start" class="btn-primary">
-          <span>LAUNCH</span>
+          <span>LAUNCH MISSION</span>
         </button>
 
-        <button id="btn-howto" class="btn-secondary">HOW TO PLAY</button>
+        <div class="menu-action-grid">
+          <button id="btn-shop" class="btn-secondary btn-neon-cyan">
+            <span>⚡ HANGAR &amp; UPGRADES</span>
+          </button>
+          <button id="btn-missions" class="btn-secondary btn-neon-amber">
+            <span>🏆 MISSIONS &amp; TROPHIES</span>
+          </button>
+        </div>
+
+        <button id="btn-howto" class="btn-secondary btn-small">HOW TO PLAY &amp; MANUAL</button>
 
         <div class="control-hints">
-          <div class="hint-item"><span class="hint-key">WASD / ARROWS</span> steer</div>
-          <div class="hint-item"><span class="hint-key">DRAG</span> steer on touch</div>
-          <div class="hint-item"><span class="hint-key">AUTO-FIRE</span> always on</div>
+          <div class="hint-item"><span class="hint-key">WASD / ARROWS</span> steer ship</div>
+          <div class="hint-item"><span class="hint-key">TOUCH / DRAG</span> smooth mobile steering</div>
+          <div class="hint-item"><span class="hint-key">AUTO-FIRE</span> always engaged</div>
+          <div class="hint-item"><span class="hint-key">P / ESC</span> pause mission</div>
         </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SPACESHIP SHOP & UPGRADES MODAL
+         ============================================================ -->
+    <section id="screen-shop" class="screen hidden">
+      <div class="screen-panel shop-panel">
+        <div class="shop-header">
+          <div class="shop-title-wrap">
+            <h2 class="panel-title">STAR HANGAR</h2>
+            <div class="shop-coins-badge">
+              <span class="coin-gem">◈</span>
+              <span id="shop-coins">0</span>
+            </div>
+          </div>
+          <!-- Tabs: Spaceships / Upgrades -->
+          <div class="modal-tab-strip">
+            <button id="tab-ships" class="modal-tab active">SPACESHIPS</button>
+            <button id="tab-upgrades" class="modal-tab">SYSTEM UPGRADES</button>
+          </div>
+        </div>
+
+        <!-- TAB 1: SPACESHIPS CATALOG -->
+        <div id="shop-tab-ships-content" class="shop-tab-content">
+          <div id="ships-grid" class="cards-grid">
+            <!-- Dynamically populated via JS: Viper, Phantom, Titan, Pulsar, Reaver -->
+          </div>
+        </div>
+
+        <!-- TAB 2: SYSTEM UPGRADES -->
+        <div id="shop-tab-upgrades-content" class="shop-tab-content hidden">
+          <div id="upgrades-grid" class="cards-grid">
+            <!-- Dynamically populated via JS: Fire Rate, Plasma Overcharge, Shield Gen, Coin Magnet -->
+          </div>
+        </div>
+
+        <button id="btn-shop-close" class="btn-primary">
+          <span>SAVE &amp; RETURN</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         DAILY MISSIONS & ACHIEVEMENTS MODAL
+         ============================================================ -->
+    <section id="screen-missions" class="screen hidden">
+      <div class="screen-panel missions-panel">
+        <div class="shop-header">
+          <div class="shop-title-wrap">
+            <h2 class="panel-title">MISSION COMMAND</h2>
+            <div class="shop-coins-badge">
+              <span class="coin-gem">◈</span>
+              <span id="missions-coins">0</span>
+            </div>
+          </div>
+          <!-- Tabs: Daily Missions / Achievements -->
+          <div class="modal-tab-strip">
+            <button id="tab-daily" class="modal-tab active">DAILY MISSIONS</button>
+            <button id="tab-trophies" class="modal-tab">ACHIEVEMENTS</button>
+          </div>
+        </div>
+
+        <!-- TAB 1: DAILY MISSIONS -->
+        <div id="missions-tab-daily-content" class="shop-tab-content">
+          <div class="missions-meta-row">
+            <span class="missions-reset-hint">Resets automatically every midnight</span>
+            <span id="missions-date-badge" class="date-badge">TODAY</span>
+          </div>
+          <div id="daily-missions-list" class="missions-list">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- TAB 2: ACHIEVEMENTS TROPHIES -->
+        <div id="missions-tab-trophies-content" class="shop-tab-content hidden">
+          <div class="achievements-summary-row">
+            <span id="achievements-progress-text">0/10 ACHIEVEMENTS UNLOCKED</span>
+          </div>
+          <div id="achievements-list" class="achievements-grid">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <button id="btn-missions-close" class="btn-primary">
+          <span>RETURN TO MENU</span>
+        </button>
       </div>
     </section>
 
@@ -110,11 +289,13 @@
       <div class="screen-panel">
         <h2 class="panel-title">FLIGHT MANUAL</h2>
         <ul class="howto-list">
-          <li><span class="howto-icon">◈</span> Steer your hex-core through the drift field. Your ship follows your cursor, finger, or keys.</li>
-          <li><span class="howto-icon">◈</span> Your core fires automatically — just focus on staying alive.</li>
-          <li><span class="howto-icon">◈</span> Colliding with an asteroid costs one hull point. Lose all three and it's over.</li>
-          <li><span class="howto-icon">◈</span> Grab glowing pickups: <span class="pill pill-shield">SHIELD</span> <span class="pill pill-rapid">RAPID</span> <span class="pill pill-multi">MULTI</span></li>
-          <li><span class="howto-icon">◈</span> Waves accelerate the longer you survive. Score climbs with every kill and every second airborne.</li>
+          <li><span class="howto-icon">◈</span> <strong>Steering:</strong> Move your ship with WASD, Arrow Keys, or touch-drag anywhere on the canvas.</li>
+          <li><span class="howto-icon">◈</span> <strong>Auto-Fire:</strong> Your plasma cannons fire automatically — prioritize evasive maneuvers.</li>
+          <li><span class="howto-icon">◈</span> <strong>Coins &amp; Crystals:</strong> Destroy enemies and bosses to collect glowing energy coins.</li>
+          <li><span class="howto-icon">◈</span> <strong>Level Progression:</strong> Defeat enemies to fill the Level Progress Bar and advance through the void.</li>
+          <li><span class="howto-icon">◈</span> <strong>Boss Battles:</strong> Level 5 triggers a Dreadnought Boss! Dodge laser spirals and target the core.</li>
+          <li><span class="howto-icon">◈</span> <strong>Pickups:</strong> <span class="pill pill-shield">SHIELD</span> absorbs collisions, <span class="pill pill-rapid">RAPID</span> overclocks cannon, <span class="pill pill-multi">MULTI</span> fires triple spread arc.</li>
+          <li><span class="howto-icon">◈</span> <strong>Hangar:</strong> Unlock 5 specialized ships and upgrade 4 weapon systems with your earned coins.</li>
         </ul>
         <button id="btn-howto-close" class="btn-primary"><span>GOT IT</span></button>
       </div>
@@ -125,9 +306,9 @@
          ============================================================ -->
     <section id="screen-pause" class="screen hidden">
       <div class="screen-panel">
-        <h2 class="panel-title">PAUSED</h2>
-        <button id="btn-resume" class="btn-primary"><span>RESUME</span></button>
-        <button id="btn-restart-pause" class="btn-secondary">RESTART</button>
+        <h2 class="panel-title">MISSION PAUSED</h2>
+        <button id="btn-resume" class="btn-primary"><span>RESUME FLIGHT</span></button>
+        <button id="btn-restart-pause" class="btn-secondary">RESTART MISSION</button>
         <button id="btn-menu-pause" class="btn-secondary">MAIN MENU</button>
       </div>
     </section>
@@ -139,20 +320,41 @@
       <div class="screen-panel gameover-panel">
         <h2 class="panel-title panel-title-danger">HULL BREACHED</h2>
 
-        <div id="newrecord-badge" class="newrecord-badge hidden">★ NEW RECORD ★</div>
+        <div id="newrecord-badge" class="newrecord-badge hidden">★ NEW HIGH SCORE RECORD ★</div>
 
+        <!-- Comprehensive Run Summary Stats -->
         <div class="stat-row stat-row-double">
           <div class="stat-box">
             <span class="stat-label">SCORE</span>
             <span id="final-score" class="stat-value">0</span>
           </div>
           <div class="stat-box">
-            <span class="stat-label">BEST</span>
+            <span class="stat-label">BEST SCORE</span>
             <span id="final-highscore" class="stat-value">0</span>
           </div>
         </div>
 
-        <button id="btn-restart" class="btn-primary"><span>RESTART</span></button>
+        <div class="run-stats-grid">
+          <div class="mini-stat-card">
+            <span class="mini-stat-label">LEVEL REACHED</span>
+            <span id="final-level" class="mini-stat-val text-cyan">LVL 1</span>
+          </div>
+          <div class="mini-stat-card">
+            <span class="mini-stat-label">ENEMIES DESTROYED</span>
+            <span id="final-kills" class="mini-stat-val text-magenta">0</span>
+          </div>
+          <div class="mini-stat-card">
+            <span class="mini-stat-label">COINS EARNED</span>
+            <span id="final-run-coins" class="mini-stat-val text-amber">+0 ◈</span>
+          </div>
+          <div class="mini-stat-card">
+            <span class="mini-stat-label">BOSSES DEFEATED</span>
+            <span id="final-bosses" class="mini-stat-val text-green">0</span>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="btn-primary"><span>LAUNCH AGAIN</span></button>
+        <button id="btn-shop-gameover" class="btn-secondary btn-neon-cyan"><span>⚡ HANGAR &amp; UPGRADES</span></button>
         <button id="btn-menu-gameover" class="btn-secondary">MAIN MENU</button>
       </div>
     </section>

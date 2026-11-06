@@ -6,15 +6,16 @@ import {
   Minimize2,
   ArrowLeft,
   Sparkles,
-  Shield,
-  Zap,
-  Crosshair,
   Volume2,
   Keyboard,
   Smartphone,
-  Trophy,
   RotateCcw,
   CheckCircle2,
+  Coins,
+  Rocket,
+  Wrench,
+  Award,
+  Flame,
 } from 'lucide-react'
 import { GAMES_LIST } from '../../games/types'
 import { GameCard } from '../../games/GameCard'
@@ -80,38 +81,38 @@ export const HexDriftPage: React.FC = () => {
 
   const faqs = [
     {
-      question: 'How do I steer my spacecraft in HEX DRIFT?',
+      question: 'How does the Boss Fight system work in HEX DRIFT?',
       answer:
-        'On desktop computers and laptops, use WASD or the Arrow keys. On touchscreens, smartphones, and tablets, simply touch and drag anywhere on the canvas to steer smoothly.',
+        'As you defeat enemies and fill your level progress bar, Level 5 unleashes a massive Dreadnought Boss! The boss has a visible multi-phase health bar, targeted plasma volleys, radial geometric rings, and drone escorts. Defeating the boss awards bonus score, a large crystal coin drop, and unlocks the next difficulty tier.',
     },
     {
-      question: 'Do I need to press a key to shoot?',
+      question: 'How do I earn and spend in-game energy coins?',
       answer:
-        'No, your ship has auto-fire continuously engaged! Your primary objective is evasive steering, weaving through asteroids, blasting enemies, and grabbing glowing power-up orbs.',
+        'Destroying enemies and bosses drops glowing energy crystals (coins). Coins are saved automatically in your browser localStorage. You can spend them in the Star Hangar to unlock 5 unique spaceships (Viper, Phantom, Titan, Pulsar, and Reaver) and upgrade 4 weapon systems.',
     },
     {
-      question: 'What do the glowing power-ups do?',
+      question: 'How do Daily Missions and Achievements work?',
       answer:
-        'The Cyan Shield absorbs one asteroid collision safely. The Amber Rapid-Fire increases your firing rate by 2.5x for 8 seconds. The Magenta Multi-Shot equips a triple-spread plasma cannon.',
+        'Every day at midnight, 4 fresh date-based missions are generated with coin rewards. Additionally, 10 permanent achievements (such as First Blood, Void Hunter, Boss Slayer, and Overclocked) grant instant coin bounties upon completion.',
     },
     {
-      question: 'Is my high score saved?',
+      question: 'Can I play HEX DRIFT on mobile touchscreens without lag?',
       answer:
-        'Yes! Your high score is stored automatically in your browser localStorage, allowing you to return anytime and beat your personal record.',
+        'Yes! HEX DRIFT features fluid 1:1 capacitive touch drag controls with scroll-lock protection. Simply drag your finger anywhere on the canvas to steer your ship. Auto-fire is continuously engaged.',
     },
   ]
 
   usePageSEO({
-    title: 'HEX DRIFT — Neon Void Runner Online | Free Arcade Game | SmartTools India',
+    title: 'HEX DRIFT — Neon Void Runner Online | Boss Fights, Upgrades & Ships | SmartTools India',
     description:
-      'Play HEX DRIFT: Neon Void Runner free online. Dodge geometric asteroids, collect Shield, Rapid, and Multi-Shot power-ups, defeat enemy waves, and set new high scores. 100% free with zero downloads.',
+      'Play HEX DRIFT: Neon Void Runner with Boss Battles, Level Progression, Star Hangar Spaceships, Weapon Upgrades, and Daily Missions. 100% free client-side browser arcade game.',
     canonicalPath: '/games/hex-drift',
     keywords:
-      'hex drift, neon void runner, free online arcade game, space runner game, browser shooting game, dodge game, smarttools india games',
+      'hex drift, neon void runner, boss fight arcade game, spaceship shop game, browser shooter, space runner game, smarttools india games',
     schema: [
       createWebApplicationSchema(
         'HEX DRIFT — Neon Void Runner',
-        'Free online neon arcade dodger and shooter game with procedural audio, smooth touch drag, and local high score tracking.',
+        'Enhanced futuristic arcade void runner featuring Dreadnought Boss fights, Level Progression, 5 unlockable spaceships, weapon upgrade trees, daily missions, and local high score tracking.',
         '/games/hex-drift'
       ),
       createBreadcrumbSchema([
@@ -160,11 +161,14 @@ export const HexDriftPage: React.FC = () => {
                 <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800 px-2.5 py-0.5 text-[11px] font-bold text-cyan-700 dark:text-cyan-300">
                   <Sparkles className="h-2.5 w-2.5" /> ARCADE / ACTION
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-300">
-                  ⚡ 60 FPS PROCEDURAL
-                </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-200 dark:border-fuchsia-800 px-2.5 py-0.5 text-[11px] font-bold text-fuchsia-700 dark:text-fuchsia-300">
-                  <Volume2 className="h-2.5 w-2.5" /> LIVE SYNTH AUDIO
+                  <Flame className="h-2.5 w-2.5" /> BOSS FIGHTS
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                  <Coins className="h-2.5 w-2.5" /> STAR HANGAR &amp; UPGRADES
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-300">
+                  <Volume2 className="h-2.5 w-2.5" /> SYNTH AUDIO
                 </span>
               </div>
 
@@ -175,7 +179,7 @@ export const HexDriftPage: React.FC = () => {
                 </span>
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-                Dodge geometric enemies, collect power-ups, survive endless waves, and beat your high score.
+                Survive level waves, take down massive Dreadnought Bosses, earn energy coins, and customize your starships.
               </p>
             </div>
 
@@ -245,7 +249,7 @@ export const HexDriftPage: React.FC = () => {
               className="w-full h-full border-0 select-none bg-[#060310]"
             />
 
-            {/* Floating In-Arena Fullscreen Button (Visible in normal mode) */}
+            {/* Floating In-Arena Fullscreen Button */}
             {!isFullscreen && (
               <button
                 type="button"
@@ -258,7 +262,7 @@ export const HexDriftPage: React.FC = () => {
               </button>
             )}
 
-            {/* Floating Exit Fullscreen Button (Visible in fullscreen mode) */}
+            {/* Floating Exit Fullscreen Button */}
             {isFullscreen && (
               <button
                 type="button"
@@ -287,7 +291,7 @@ export const HexDriftPage: React.FC = () => {
                   Flight Manual &amp; Control Guide
                 </h2>
                 <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                  Master the void runner dynamics to survive high-speed asteroid fields and achieve top rank.
+                  Master void runner dynamics, dreadnought boss fights, and hangar ship loadouts.
                 </p>
               </div>
 
@@ -328,7 +332,7 @@ export const HexDriftPage: React.FC = () => {
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-xs">
                     <span className="font-semibold text-slate-700 dark:text-slate-300">Pause / Resume Game</span>
                     <span className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 font-mono font-bold text-slate-900 dark:text-white text-[11px]">
-                      P or Top-Right Button
+                      P or ESC
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-xs">
@@ -381,62 +385,104 @@ export const HexDriftPage: React.FC = () => {
               </div>
             </div>
 
-            {/* POWER-UPS EXPLANATION */}
+            {/* BOSS FIGHT & LEVEL PROGRESSION */}
             <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                Orb Pickups &amp; Tactical Upgrades
+                <Flame className="h-4 w-4 text-rose-500" />
+                Boss Battles &amp; Level Progression
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl border border-cyan-500/30 bg-cyan-50/50 dark:bg-cyan-950/20 space-y-2">
-                  <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-bold text-xs uppercase tracking-wider">
-                    <Shield className="h-4 w-4" />
-                    <span>CYAN SHIELD</span>
+                <div className="p-4 rounded-2xl border border-rose-500/30 bg-rose-50/50 dark:bg-rose-950/20 space-y-2">
+                  <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-xs uppercase tracking-wider">
+                    <Flame className="h-4 w-4" />
+                    <span>DREADNOUGHT VEX-9</span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Surrounds your ship with a glowing kinetic barrier. Absorbs 1 asteroid or enemy collision completely unharmed.
+                    Spawns at Level 5 with a visible multi-segment health bar. Fires targeted plasma volleys, 12-point bullet rings, and launches escort drones.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 space-y-2">
                   <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-wider">
-                    <Zap className="h-4 w-4" />
-                    <span>RAPID FIRE</span>
+                    <Coins className="h-4 w-4" />
+                    <span>ENERGY COINS &amp; BOUNTIES</span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Overclocks your plasma cannons by 2.5x firing speed for 8 seconds. Melts through dense asteroid clusters.
+                    Destroying enemies and bosses drops glowing energy crystals (coins). Defeating a boss awards a massive +100 coin bounty!
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl border border-fuchsia-500/30 bg-fuchsia-50/50 dark:bg-fuchsia-950/20 space-y-2">
-                  <div className="flex items-center gap-2 text-fuchsia-600 dark:text-fuchsia-400 font-bold text-xs uppercase tracking-wider">
-                    <Crosshair className="h-4 w-4" />
-                    <span>MULTI-SHOT</span>
+                <div className="p-4 rounded-2xl border border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/20 space-y-2">
+                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <Sparkles className="h-4 w-4" />
+                    <span>INFINITE LEVEL SYSTEM</span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Deploys a 3-way divergent plasma arc. Covers the entire screen corridor and clears multiple incoming threats simultaneously.
+                    Level 1 (Beginner), Level 2 (Splitters), Level 3 (Chasers), Level 4 (Orbitals), Level 5 (Boss). Progress seamlessly to higher tier sectors.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* SCORING & WAVE MULTIPLIERS */}
+            {/* STAR HANGAR & UPGRADE LAB */}
+            <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Rocket className="h-4 w-4 text-cyan-500" />
+                Star Hangar Ships &amp; Upgrade Lab
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/30 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
+                    <Rocket className="h-4 w-4" />
+                    <span>5 UNLOCKABLE SPACESHIPS</span>
+                  </div>
+                  <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2">
+                    <li><strong className="text-slate-900 dark:text-white">Viper Alpha:</strong> Balanced interceptor with standard plasma cannons (Default).</li>
+                    <li><strong className="text-slate-900 dark:text-white">Neon Phantom:</strong> +20% movement speed and extended rapid-fire duration (150 ◈).</li>
+                    <li><strong className="text-slate-900 dark:text-white">Aegis Titan:</strong> Starts with +1 extra hull point and prolonged kinetic shields (300 ◈).</li>
+                    <li><strong className="text-slate-900 dark:text-white">Vortex Pulsar:</strong> +25% cannon rate of fire and high-velocity projectiles (500 ◈).</li>
+                    <li><strong className="text-slate-900 dark:text-white">Void Reaver:</strong> Permanent dual plasma cannons and built-in magnetic pull (1000 ◈).</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/30 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                    <Wrench className="h-4 w-4" />
+                    <span>4 SYSTEM UPGRADE TIERS (LVL 1-5)</span>
+                  </div>
+                  <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2">
+                    <li><strong className="text-slate-900 dark:text-white">Laser Capacitor:</strong> Reduces cannon firing interval for rapid bursts.</li>
+                    <li><strong className="text-slate-900 dark:text-white">Plasma Overcharge:</strong> Boosts projectile velocity and destructive hit damage.</li>
+                    <li><strong className="text-slate-900 dark:text-white">Kinetic Barrier Matrix:</strong> Increases shield duration up to 14 seconds.</li>
+                    <li><strong className="text-slate-900 dark:text-white">Flux Grav-Magnet:</strong> Expands coin suction radius across the canvas corridor.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* DAILY MISSIONS & ACHIEVEMENTS */}
             <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
-                  <Trophy className="h-5 w-5" />
+                  <Award className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Continuous Scoring &amp; Wave Progression</h4>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Daily Missions &amp; 10 Achievements</span>
+                    <span className="text-[10px] bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-bold px-2 py-0.5 rounded-full">
+                      Daily Reset
+                    </span>
+                  </h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Score increases every second your ship stays intact plus bonus points for asteroid demolitions. Wave difficulty accelerates every 15 seconds.
+                    Complete 4 fresh date-based missions every day and unlock 10 permanent trophies for bonus coin rewards.
                   </p>
                 </div>
               </div>
               <div className="shrink-0 text-right">
                 <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Storage</span>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Local High Score Auto-Saved</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Auto-Saved Locally</span>
               </div>
             </div>
           </div>
