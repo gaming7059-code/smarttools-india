@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Sparkles, Clock } from 'lucide-react'
+import { ArrowRight, Clock } from 'lucide-react'
 import type { Tool } from '../../types/tools'
 import { DynamicIcon } from './DynamicIcon'
 
@@ -51,17 +51,11 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenPreview }) => {
         </p>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-        {tool.isPopular && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-900/60 px-2 py-0.5 rounded transition-colors">
-            <Sparkles className="h-3 w-3" /> Popular
-          </span>
-        )}
-
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end">
         {isReady ? (
           <Link
             to={tool.path}
-            className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
             title={`Open ${tool.name}`}
           >
             <span>Open Tool</span>
@@ -71,7 +65,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenPreview }) => {
           <button
             type="button"
             onClick={() => onOpenPreview ? onOpenPreview(tool) : undefined}
-            className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title={`Preview ${tool.name}`}
           >
             <span>Open Tool</span>
