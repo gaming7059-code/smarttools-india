@@ -25,50 +25,51 @@ import {
   Ear,
   Languages,
   CheckCheck,
-  Wand2
+  Wand2,
 } from 'lucide-react'
 import { WaveformVisualizer } from '../../components/common/WaveformVisualizer'
-import {
-  createIntelligentSpeechChunks,
-  type SpeechChunk
-} from '../../utils/speechChunker'
+import { TTSManager } from './services/TTSManager'
+import { CloudNeuralTTSProvider } from './providers/CloudNeuralTTSProvider'
+import { EngineSelector } from './components/EngineSelector'
+import { CloudConfigModal } from './components/CloudConfigModal'
+import type {
+  TTSProviderId,
+  TTSVoice,
+  TTSProgressInfo,
+  GeneratedAudioOutput,
+} from './types'
 import {
   detectLanguageFromText,
-  categorizeVoice,
-  findBestVoiceForLanguage,
   estimateSpeechDurationSeconds,
   formatSpeechDuration,
-  NATIVE_PREVIEWS,
   type DetectedLanguage,
-  type EnhancedVoiceInfo
-} from '../../utils/languageDetector'
-import {
-  generateSpeechWav,
-  revokeSpeechAudioUrl,
-  type GeneratedAudioResult
-} from '../../utils/wavAudioGenerator'
-import {
-  generateNeuralSpeech,
-  type NeuralLanguage,
-  type NeuralProgressInfo
-} from '../../utils/neuralSpeechService'
+} from './services/VoiceDiscovery'
+import { revokeSpeechAudioUrl } from '../../utils/wavAudioGenerator'
 
 export const TextToSpeech: React.FC = () => {
   const [text, setText] = useState<string>(
     'Welcome to SmartTools India! This advanced text-to-speech studio turns your typed or pasted text into clear, natural spoken audio directly inside your web browser. Try adjusting the voice, playback speed, pitch, and volume controls below.'
   )
-  const isSupported =
+
+  const isBrowserTtsSupported =
     typeof window !== 'undefined' &&
     'speechSynthesis' in window &&
     'SpeechSynthesisUtterance' in window
 
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      return window.speechSynthesis.getVoices()
-    }
-    return []
+  // TTS Manager singleton instance
+  const ttsManager = useMemo(() => new TTSManager(), [])
+
+  // Engine & Provider state
+  const [activeEngine, setActiveEngine] = useState<TTSProviderId>('browser')
+  const [isCloudConfigOpen, setIsCloudConfigOpen] = useState(false)
+  const [isCloudConfigured, setIsCloudConfigured] = useState<boolean>(() => {
+    const config = CloudNeuralTTSProvider.getConfig()
+    return !!(config && config.apiKey.trim())
   })
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>('')
+
+  // Voice & Language state
+  const [voices, setVoices] = useState<TTSVoice[]>([])
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>('')
   const [selectedLanguage, setSelectedLanguage] = useState<string>('all')
   const [rate, setRate] = useState<number>(1.0)
   const [pitch, setPitch] = useState<number>(1.0)
@@ -79,34 +80,17 @@ export const TextToSpeech: React.FC = () => {
   // Playback state
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false)
   const [isPaused, setIsPaused] = useState<boolean>(false)
-  const [activeChunkIndex, setActiveChunkIndex] = useState<number>(0)
-  const [totalChunks, setTotalChunks] = useState<number>(0)
-  const [currentChunkText, setCurrentChunkText] = useState<string>('')
-  const [isPreviewingVoice, setIsPreviewingVoice] = useState<boolean>(false)
+  const [isPreviewing, setIsPreviewing] = useState<boolean>(false)
+  const [progressInfo, setProgressInfo] = useState<TTSProgressInfo | null>(null)
 
-  // Utility feedback state
+  // Feedback & Audio generation state
   const [copied, setCopied] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [pasteSuccess, setPasteSuccess] = useState<boolean>(false)
-
-  // Client-side audio generation & download state
   const [isGeneratingAudio, setIsGeneratingAudio] = useState<boolean>(false)
-  const [generatedAudio, setGeneratedAudio] = useState<GeneratedAudioResult | null>(null)
-  const [downloadEngine, setDownloadEngine] = useState<'neural' | 'fast'>('neural')
-  const [neuralLanguage, setNeuralLanguage] = useState<NeuralLanguage>('en')
-  const [neuralProgress, setNeuralProgress] = useState<NeuralProgressInfo | null>(null)
-  const [audioModelUsed, setAudioModelUsed] = useState<string>('')
-  const generatedAudioRef = useRef<GeneratedAudioResult | null>(null)
-
-  // Refs for tracking playback without closure staleness
-  const intelligentChunksRef = useRef<SpeechChunk[]>([])
-  const chunkIndexRef = useRef<number>(0)
-  const isCancelledRef = useRef<boolean>(false)
-  const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
-  const previewUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
-  const keepAliveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [generatedAudio, setGeneratedAudio] = useState<GeneratedAudioOutput | null>(null)
+  const [neuralProgress, setNeuralProgress] = useState<{ stage: string; percent: number; detail?: string } | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const speakNextChunkRef = useRef<() => void>(() => {})
 
   const MAX_CHARACTERS = 5000
 
@@ -115,53 +99,49 @@ export const TextToSpeech: React.FC = () => {
     return detectLanguageFromText(text)
   }, [text])
 
-  const hasDevanagari = useMemo(() => /[\u0900-\u097F]/.test(text), [text])
-  const hasBengali = useMemo(() => /[\u0980-\u09FF]/.test(text), [text])
-  const hasUrdu = useMemo(() => /[\u0600-\u06FF]/.test(text), [text])
+  // Load voices whenever active engine or browser voices change
+  const refreshVoices = useCallback(() => {
+    ttsManager.getAllVoices(selectedLanguage).then((available) => {
+      setVoices(available)
+    }).catch((err) => {
+      console.warn('Failed to load TTS voices', err)
+    })
+  }, [ttsManager, selectedLanguage])
 
-  // Clean up keep-alive timers and audio URLs
   useEffect(() => {
-    return () => {
-      if (keepAliveTimerRef.current) clearInterval(keepAliveTimerRef.current)
-      if (generatedAudioRef.current?.url) {
-        revokeSpeechAudioUrl(generatedAudioRef.current.url)
-      }
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel()
-      }
-    }
-  }, [])
-
-  // Listen to browser voices event & sort by quality
-  useEffect(() => {
-    if (!isSupported) return
-
-    const updateVoices = () => {
-      const available = window.speechSynthesis.getVoices()
-      if (!available || available.length === 0) return
-
-      // Categorize and sort voices: Natural Online & Cloud first, then regional Indian voices
-      const categorized = available.map((v) => categorizeVoice(v))
-      categorized.sort((a, b) => {
-        // First sort by quality score
-        if (b.score !== a.score) return b.score - a.score
-        // Then sort by language name
-        return a.voice.lang.localeCompare(b.voice.lang)
+    let mounted = true
+    const update = () => {
+      ttsManager.getAllVoices(selectedLanguage).then((available) => {
+        if (mounted) setVoices(available)
+      }).catch((err) => {
+        console.warn('Failed to load TTS voices', err)
       })
-
-      setVoices(categorized.map((c) => c.voice))
     }
 
-    updateVoices()
-    window.speechSynthesis.addEventListener('voiceschanged', updateVoices)
-    const timer = setTimeout(updateVoices, 350)
-
+    const timer = setTimeout(update, 0)
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.addEventListener('voiceschanged', update)
+      const delayedTimer = setTimeout(update, 350)
+      return () => {
+        mounted = false
+        clearTimeout(timer)
+        clearTimeout(delayedTimer)
+        window.speechSynthesis.removeEventListener('voiceschanged', update)
+      }
+    }
     return () => {
+      mounted = false
       clearTimeout(timer)
-      window.speechSynthesis.removeEventListener('voiceschanged', updateVoices)
-      window.speechSynthesis.cancel()
     }
-  }, [isSupported])
+  }, [ttsManager, selectedLanguage, activeEngine])
+
+  // Handle engine switch
+  const handleSelectEngine = (engineId: TTSProviderId) => {
+    handleStop()
+    setActiveEngine(engineId)
+    ttsManager.setActiveProvider(engineId)
+    refreshVoices()
+  }
 
   // Language options for filter dropdown
   const languageOptions = useMemo(() => {
@@ -241,34 +221,24 @@ export const TextToSpeech: React.FC = () => {
     })
   }, [voices, selectedLanguage])
 
-  // Enhanced voice representations with quality tiers
-  const enhancedVoices: EnhancedVoiceInfo[] = useMemo(() => {
-    return filteredVoices.map((v) => categorizeVoice(v))
-  }, [filteredVoices])
-
   // Compute effective voice URI without cascading effects
-  const effectiveVoiceURI = useMemo(() => {
-    if (selectedVoiceURI && filteredVoices.some((v) => v.voiceURI === selectedVoiceURI)) {
-      return selectedVoiceURI
+  const effectiveVoiceId = useMemo(() => {
+    if (selectedVoiceId && filteredVoices.some((v) => v.id === selectedVoiceId)) {
+      return selectedVoiceId
     }
     if (filteredVoices.length > 0) {
       const preferred =
         filteredVoices.find((v) => v.lang.toLowerCase().startsWith('en-in')) ||
         filteredVoices.find((v) => v.lang.toLowerCase().startsWith('hi')) ||
-        filteredVoices.find((v) => v.default) ||
         filteredVoices[0]
-      return preferred ? preferred.voiceURI : filteredVoices[0].voiceURI
+      return preferred ? preferred.id : filteredVoices[0].id
     }
     return ''
-  }, [filteredVoices, selectedVoiceURI])
+  }, [filteredVoices, selectedVoiceId])
 
   const selectedVoice = useMemo(() => {
-    return voices.find((v) => v.voiceURI === effectiveVoiceURI) || null
-  }, [voices, effectiveVoiceURI])
-
-  const selectedVoiceInfo = useMemo(() => {
-    return selectedVoice ? categorizeVoice(selectedVoice) : null
-  }, [selectedVoice])
+    return voices.find((v) => v.id === effectiveVoiceId) || null
+  }, [voices, effectiveVoiceId])
 
   // Check if detected text language differs from selected voice language
   const isLanguageMismatch = useMemo(() => {
@@ -284,123 +254,22 @@ export const TextToSpeech: React.FC = () => {
   // Handle switching to detected language voice
   const handleSwitchToDetectedVoice = () => {
     if (!detectedLang) return
-    const match = findBestVoiceForLanguage(voices, detectedLang.code)
+    const match = voices.find((v) => {
+      const l = v.lang.toLowerCase()
+      if (detectedLang.code === 'en') return l.startsWith('en')
+      return l.startsWith(detectedLang.code.toLowerCase())
+    })
     if (match) {
       setSelectedLanguage(detectedLang.code)
-      setSelectedVoiceURI(match.voiceURI)
+      setSelectedVoiceId(match.id)
       if (detectedLang.isRtl) setIsUrduRtl(true)
     } else {
       setSelectedLanguage(detectedLang.code)
     }
   }
 
-  // Clear keep-alive heartbeat interval
-  const clearKeepAlive = () => {
-    if (keepAliveTimerRef.current) {
-      clearInterval(keepAliveTimerRef.current)
-      keepAliveTimerRef.current = null
-    }
-  }
-
-  // Core speech engine with intelligent sentence chunking & natural pauses
-  const speakCurrentChunk = useCallback(() => {
-    if (!isSupported) return
-    if (isCancelledRef.current) return
-
-    const chunks = intelligentChunksRef.current
-    const index = chunkIndexRef.current
-
-    if (index >= chunks.length) {
-      clearKeepAlive()
-      setIsSpeaking(false)
-      setIsPaused(false)
-      setActiveChunkIndex(0)
-      setCurrentChunkText('')
-      activeUtteranceRef.current = null
-      return
-    }
-
-    const chunk = chunks[index]
-    const utterance = new SpeechSynthesisUtterance(chunk.cleanText)
-
-    if (selectedVoice) {
-      utterance.voice = selectedVoice
-      utterance.lang = selectedVoice.lang
-    }
-
-    utterance.rate = rate
-    utterance.pitch = pitch
-    utterance.volume = volume
-
-    utterance.onstart = () => {
-      if (!isCancelledRef.current) {
-        setIsSpeaking(true)
-        setIsPaused(false)
-        setActiveChunkIndex(index)
-        setCurrentChunkText(chunk.text)
-
-        // Heartbeat to prevent Chromium / Safari 15-second speech queue freeze
-        clearKeepAlive()
-        keepAliveTimerRef.current = setInterval(() => {
-          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-            window.speechSynthesis.pause()
-            window.speechSynthesis.resume()
-          }
-        }, 9000)
-      }
-    }
-
-    utterance.onpause = () => {
-      setIsPaused(true)
-    }
-
-    utterance.onresume = () => {
-      setIsPaused(false)
-    }
-
-    utterance.onend = () => {
-      clearKeepAlive()
-      if (isCancelledRef.current) return
-
-      chunkIndexRef.current += 1
-      if (chunkIndexRef.current < chunks.length) {
-        // Natural human breathing pause determined by punctuation structure
-        const pauseDuration = chunk.pauseAfterMs || 100
-        setTimeout(() => {
-          speakNextChunkRef.current()
-        }, pauseDuration)
-      } else {
-        setIsSpeaking(false)
-        setIsPaused(false)
-        setActiveChunkIndex(0)
-        setCurrentChunkText('')
-        activeUtteranceRef.current = null
-      }
-    }
-
-    utterance.onerror = (event) => {
-      clearKeepAlive()
-      // Ignore user-induced cancel errors
-      if (event.error === 'canceled' || event.error === 'interrupted') {
-        return
-      }
-      setErrorMessage(`Speech playback interrupted: ${event.error || 'Playback stopped'}`)
-      setIsSpeaking(false)
-      setIsPaused(false)
-      activeUtteranceRef.current = null
-    }
-
-    // Keep reference alive to avoid browser garbage collection bug
-    activeUtteranceRef.current = utterance
-    window.speechSynthesis.speak(utterance)
-  }, [isSupported, selectedVoice, rate, pitch, volume])
-
-  useEffect(() => {
-    speakNextChunkRef.current = speakCurrentChunk
-  }, [speakCurrentChunk])
-
   // Play handler
-  const handlePlay = () => {
+  const handlePlay = async () => {
     setErrorMessage(null)
     const trimmed = text.trim()
     if (!trimmed) {
@@ -409,97 +278,91 @@ export const TextToSpeech: React.FC = () => {
       return
     }
 
-    if (!isSupported) {
-      setErrorMessage('Speech Synthesis is not supported in this browser. Please try Chrome, Edge, Safari, or Firefox.')
-      return
+    try {
+      setIsSpeaking(true)
+      setIsPaused(false)
+      setIsPreviewing(false)
+
+      await ttsManager.speak(
+        trimmed,
+        {
+          voiceId: effectiveVoiceId,
+          rate,
+          pitch,
+          volume,
+        },
+        {
+          onStart: () => {
+            setIsSpeaking(true)
+            setIsPaused(false)
+          },
+          onProgress: (prog) => {
+            setProgressInfo(prog)
+          },
+          onPause: () => setIsPaused(true),
+          onResume: () => setIsPaused(false),
+          onEnd: () => {
+            setIsSpeaking(false)
+            setIsPaused(false)
+            setProgressInfo(null)
+          },
+          onError: (err) => {
+            setErrorMessage(err.message || 'Speech playback failed.')
+            setIsSpeaking(false)
+            setIsPaused(false)
+            setProgressInfo(null)
+          },
+        }
+      )
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Speech playback failed.'
+      setErrorMessage(msg)
+      setIsSpeaking(false)
+      setIsPaused(false)
+      setProgressInfo(null)
     }
-
-    // Stop ongoing speech and voice preview
-    clearKeepAlive()
-    window.speechSynthesis.cancel()
-    isCancelledRef.current = false
-    setIsPreviewingVoice(false)
-
-    // Generate intelligent speech chunks (~160 chars per sentence boundary)
-    const chunks = createIntelligentSpeechChunks(trimmed, 160)
-    intelligentChunksRef.current = chunks
-    chunkIndexRef.current = 0
-    setTotalChunks(chunks.length)
-    setActiveChunkIndex(0)
-    setCurrentChunkText(chunks[0]?.text || '')
-
-    speakCurrentChunk()
   }
 
   // Voice Preview Handler
-  const handlePreviewVoice = () => {
-    if (!isSupported || !selectedVoice) return
+  const handlePreviewVoice = async () => {
+    if (!selectedVoice) return
 
-    if (isPreviewingVoice) {
-      window.speechSynthesis.cancel()
-      setIsPreviewingVoice(false)
+    if (isPreviewing) {
+      ttsManager.stop()
+      setIsPreviewing(false)
       return
     }
 
-    // Stop any main speech
     handleStop()
-
-    const previewPhrase =
-      selectedVoiceInfo?.nativePreviewText ||
-      NATIVE_PREVIEWS[selectedVoice.lang.toLowerCase()] ||
-      NATIVE_PREVIEWS.en
-
-    const previewUtterance = new SpeechSynthesisUtterance(previewPhrase)
-    previewUtterance.voice = selectedVoice
-    previewUtterance.lang = selectedVoice.lang
-    previewUtterance.rate = rate
-    previewUtterance.pitch = pitch
-    previewUtterance.volume = volume
-
-    previewUtterance.onstart = () => {
-      setIsPreviewingVoice(true)
+    setIsPreviewing(true)
+    try {
+      await ttsManager.preview(selectedVoice.id, { rate, pitch, volume })
+    } catch {
+      // Ignore preview errors
+    } finally {
+      setTimeout(() => setIsPreviewing(false), 2500)
     }
-
-    previewUtterance.onend = () => {
-      setIsPreviewingVoice(false)
-      previewUtteranceRef.current = null
-    }
-
-    previewUtterance.onerror = () => {
-      setIsPreviewingVoice(false)
-      previewUtteranceRef.current = null
-    }
-
-    previewUtteranceRef.current = previewUtterance
-    window.speechSynthesis.speak(previewUtterance)
   }
 
-  // Pause handler
+  // Pause / Resume / Stop handlers
   const handlePause = () => {
     if (!isSpeaking || isPaused) return
-    window.speechSynthesis.pause()
+    ttsManager.pause()
     setIsPaused(true)
   }
 
-  // Resume handler
   const handleResume = () => {
     if (!isSpeaking || !isPaused) return
-    window.speechSynthesis.resume()
+    ttsManager.resume()
     setIsPaused(false)
   }
 
-  // Stop handler
   const handleStop = () => {
-    isCancelledRef.current = true
-    clearKeepAlive()
-    window.speechSynthesis.cancel()
+    ttsManager.stop()
     setIsSpeaking(false)
     setIsPaused(false)
-    setIsPreviewingVoice(false)
-    setActiveChunkIndex(0)
-    setTotalChunks(0)
-    setCurrentChunkText('')
-    activeUtteranceRef.current = null
+    setIsPreviewing(false)
+    setProgressInfo(null)
   }
 
   // Text management handlers
@@ -529,9 +392,8 @@ export const TextToSpeech: React.FC = () => {
 
   const handleClear = () => {
     handleStop()
-    if (generatedAudioRef.current?.url) {
-      revokeSpeechAudioUrl(generatedAudioRef.current.url)
-      generatedAudioRef.current = null
+    if (generatedAudio?.url) {
+      revokeSpeechAudioUrl(generatedAudio.url)
     }
     setGeneratedAudio(null)
     setText('')
@@ -541,9 +403,8 @@ export const TextToSpeech: React.FC = () => {
 
   const handleInsertSample = (type: 'en' | 'hi' | 'bn' | 'ur' | 'story') => {
     handleStop()
-    if (generatedAudioRef.current?.url) {
-      revokeSpeechAudioUrl(generatedAudioRef.current.url)
-      generatedAudioRef.current = null
+    if (generatedAudio?.url) {
+      revokeSpeechAudioUrl(generatedAudio.url)
     }
     setGeneratedAudio(null)
 
@@ -551,49 +412,46 @@ export const TextToSpeech: React.FC = () => {
       setText(
         'SmartTools India provides lightning-fast, privacy-first online tools for everyday calculations. All computation happens right here on your computer or phone.'
       )
-      setNeuralLanguage('en')
       setIsUrduRtl(false)
-      const enVoice = findBestVoiceForLanguage(voices, 'en-in') || findBestVoiceForLanguage(voices, 'en')
+      const enVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en-in')) || voices.find((v) => v.lang.toLowerCase().startsWith('en'))
       if (enVoice) {
         setSelectedLanguage('en-in')
-        setSelectedVoiceURI(enVoice.voiceURI)
+        setSelectedVoiceId(enVoice.id)
       }
     } else if (type === 'hi') {
       setText(
         'नमस्ते! स्मार्टटूल्स इंडिया में आपका स्वागत है। यह टूल आपके लिखे हुए टेक्स्ट को प्राकृतिक और स्पष्ट आवाज में बदलकर सुनाता है।'
       )
-      setNeuralLanguage('hi')
       setIsUrduRtl(false)
-      const hiVoice = findBestVoiceForLanguage(voices, 'hi')
+      const hiVoice = voices.find((v) => v.lang.toLowerCase().startsWith('hi'))
       if (hiVoice) {
         setSelectedLanguage('hi')
-        setSelectedVoiceURI(hiVoice.voiceURI)
+        setSelectedVoiceId(hiVoice.id)
       }
     } else if (type === 'bn') {
       setText(
         'স্মার্টটুলস ইন্ডিয়াতে আপনাকে স্বাগতম! এই টুলটি আপনার লিখিত টেক্সটকে অত্যন্ত নির্ভুল এবং প্রাকৃতিক কণ্ঠস্বরে রূপান্তর করতে পারে।'
       )
       setIsUrduRtl(false)
-      const bnVoice = findBestVoiceForLanguage(voices, 'bn')
+      const bnVoice = voices.find((v) => v.lang.toLowerCase().startsWith('bn'))
       if (bnVoice) {
         setSelectedLanguage('bn')
-        setSelectedVoiceURI(bnVoice.voiceURI)
+        setSelectedVoiceId(bnVoice.id)
       }
     } else if (type === 'ur') {
       setText(
         'اسمارٹ ٹولز انڈیا میں خوش آمدید! یہ مفت اسٹوڈیو ٹول آپ کے تحریری الفاظ کو قدرتی اور معیاری آواز میں تبدیل کرتا ہے۔'
       )
       setIsUrduRtl(true)
-      const urVoice = findBestVoiceForLanguage(voices, 'ur')
+      const urVoice = voices.find((v) => v.lang.toLowerCase().startsWith('ur'))
       if (urVoice) {
         setSelectedLanguage('ur')
-        setSelectedVoiceURI(urVoice.voiceURI)
+        setSelectedVoiceId(urVoice.id)
       }
     } else {
       setText(
         'Once upon a time in ancient India, scholars invented the decimal numbering system and the concept of zero. Today, digital technology allows us to calculate, create, and communicate faster than ever before. Enjoy learning and exploring everyday tools on SmartTools India!'
       )
-      setNeuralLanguage('en')
       setIsUrduRtl(false)
     }
     setErrorMessage(null)
@@ -639,43 +497,25 @@ export const TextToSpeech: React.FC = () => {
       setIsGeneratingAudio(true)
       setNeuralProgress({ stage: 'Initializing audio synthesis...', percent: 5 })
 
-      // Clean up previous generated audio URL to prevent memory leaks
-      if (generatedAudioRef.current?.url) {
-        revokeSpeechAudioUrl(generatedAudioRef.current.url)
-        generatedAudioRef.current = null
+      if (generatedAudio?.url) {
+        revokeSpeechAudioUrl(generatedAudio.url)
+        setGeneratedAudio(null)
       }
 
-      let result: GeneratedAudioResult
-
-      if (downloadEngine === 'neural') {
-        const targetLang: NeuralLanguage = hasDevanagari ? 'hi' : neuralLanguage
-        const neuralResult = await generateNeuralSpeech(
-          trimmed,
-          targetLang,
-          (prog) => setNeuralProgress(prog)
-        )
-        result = {
-          blob: neuralResult.blob,
-          url: neuralResult.url,
-          filename: neuralResult.filename,
-          durationSeconds: neuralResult.durationSeconds,
-          sizeBytes: neuralResult.sizeBytes,
-          sampleRate: neuralResult.sampleRate,
-        }
-        setAudioModelUsed(`Meta MMS-TTS Neural (${targetLang === 'hi' ? 'Hindi' : 'English'})`)
-      } else {
-        result = await generateSpeechWav(trimmed, {
+      const result = await ttsManager.downloadAudio(
+        trimmed,
+        {
+          voiceId: effectiveVoiceId,
           rate,
           pitch,
           volume,
-        })
-        setAudioModelUsed('Fast Lightweight Synthesizer')
-      }
+        },
+        (prog) => setNeuralProgress(prog)
+      )
 
       setGeneratedAudio(result)
-      generatedAudioRef.current = result
 
-      // Automatically trigger client-side download of genuine .wav file
+      // Automatically trigger client-side download of genuine audio file
       const anchor = document.createElement('a')
       anchor.href = result.url
       anchor.download = result.filename
@@ -699,7 +539,7 @@ export const TextToSpeech: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Unsupported Browser Alert */}
-      {!isSupported && (
+      {!isBrowserTtsSupported && activeEngine === 'browser' && (
         <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-5 flex items-start gap-3.5 text-rose-800 dark:text-rose-200">
           <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           <div className="text-sm">
@@ -721,7 +561,7 @@ export const TextToSpeech: React.FC = () => {
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Text to Speech Studio
+                Hybrid Text to Speech Studio
                 {isSpeaking && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 animate-pulse">
                     <AudioLines className="h-3 w-3" />
@@ -730,7 +570,7 @@ export const TextToSpeech: React.FC = () => {
                 )}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                100% Client-Side • Smart Sentence Chunks &amp; Natural Pauses
+                Hybrid Voice Engine • Free Browser &amp; Optional Neural Models
               </p>
             </div>
           </div>
@@ -776,10 +616,18 @@ export const TextToSpeech: React.FC = () => {
           </div>
         </div>
 
+        {/* Engine Selection Bar */}
+        <EngineSelector
+          activeEngine={activeEngine}
+          onSelectEngine={handleSelectEngine}
+          onOpenCloudConfig={() => setIsCloudConfigOpen(true)}
+          isCloudConfigured={isCloudConfigured}
+        />
+
         {/* Text Area Card with Live Counter and Actions */}
         <div className="space-y-2">
           {/* Smart Language Detection Banner */}
-          {detectedLang && isLanguageMismatch && (
+          {detectedLang && isLanguageMismatch && activeEngine === 'browser' && (
             <div className="rounded-xl border border-amber-200 dark:border-amber-800/80 bg-amber-50/80 dark:bg-amber-950/40 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-fade-in text-xs">
               <div className="flex items-center gap-2 text-amber-900 dark:text-amber-100">
                 <Languages className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -893,10 +741,10 @@ export const TextToSpeech: React.FC = () => {
                 </span>
               </div>
 
-              {totalChunks > 0 && isSpeaking && (
+              {progressInfo && isSpeaking && (
                 <div className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
                   <span className="inline-block w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 animate-ping" />
-                  <span>Sentence {activeChunkIndex + 1} of {totalChunks}</span>
+                  <span>Sentence {progressInfo.activeSentenceIndex + 1} of {progressInfo.totalSentences}</span>
                 </div>
               )}
             </div>
@@ -911,25 +759,25 @@ export const TextToSpeech: React.FC = () => {
         </div>
 
         {/* Live Spoken Sentence Highlighter (Active when speaking) */}
-        {isSpeaking && currentChunkText && (
+        {isSpeaking && progressInfo?.currentSentenceText && (
           <div className="rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/40 p-3.5 space-y-1.5 animate-fade-in">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
                 <AudioLines className="h-3.5 w-3.5 animate-pulse" />
-                Speaking Sentence {activeChunkIndex + 1} of {totalChunks}:
+                Speaking Sentence {progressInfo.activeSentenceIndex + 1} of {progressInfo.totalSentences}:
               </span>
               <span className="font-mono text-[11px] text-blue-600 dark:text-blue-400">
-                {Math.round(((activeChunkIndex + 1) / totalChunks) * 100)}%
+                {progressInfo.percent}%
               </span>
             </div>
             <p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 italic leading-relaxed line-clamp-2">
-              &ldquo;{currentChunkText}&rdquo;
+              &ldquo;{progressInfo.currentSentenceText}&rdquo;
             </p>
             {/* Smooth sentence progress bar */}
             <div className="w-full bg-blue-200/70 dark:bg-blue-900/60 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-blue-600 dark:bg-blue-400 h-full transition-all duration-300 rounded-full"
-                style={{ width: `${Math.round(((activeChunkIndex + 1) / totalChunks) * 100)}%` }}
+                style={{ width: `${progressInfo.percent}%` }}
               />
             </div>
           </div>
@@ -1029,19 +877,23 @@ export const TextToSpeech: React.FC = () => {
                   Select Voice
                 </label>
                 <div className="flex items-center gap-2">
-                  {selectedVoiceInfo && (
+                  {selectedVoice && (
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                        selectedVoiceInfo.tier === 'natural'
+                        selectedVoice.tier === 'natural'
                           ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : selectedVoiceInfo.tier === 'cloud'
+                          : selectedVoice.tier === 'cloud'
                           ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
-                          : selectedVoiceInfo.tier === 'enhanced'
+                          : selectedVoice.tier === 'enhanced'
                           ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                          : selectedVoice.tier === 'local-neural'
+                          ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
+                          : selectedVoice.tier === 'cloud-neural'
+                          ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}
                     >
-                      {selectedVoiceInfo.tierLabel}
+                      {selectedVoice.tierLabel}
                     </span>
                   )}
                   <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
@@ -1053,17 +905,17 @@ export const TextToSpeech: React.FC = () => {
               <div className="flex items-center gap-2">
                 <select
                   id="tts-voice-select"
-                  value={effectiveVoiceURI}
-                  onChange={(e) => setSelectedVoiceURI(e.target.value)}
+                  value={effectiveVoiceId}
+                  onChange={(e) => setSelectedVoiceId(e.target.value)}
                   disabled={filteredVoices.length === 0}
                   className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-200 shadow-2xs focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 truncate"
                 >
                   {filteredVoices.length === 0 ? (
                     <option value="">No voices available for selected filter</option>
                   ) : (
-                    enhancedVoices.map((ev) => (
-                      <option key={ev.voice.voiceURI} value={ev.voice.voiceURI}>
-                        {ev.displayName} ({ev.voice.lang}) — [{ev.tierLabel}]
+                    filteredVoices.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.displayName} ({v.lang}) — [{v.tierLabel}]
                       </option>
                     ))
                   )}
@@ -1075,14 +927,14 @@ export const TextToSpeech: React.FC = () => {
                   onClick={handlePreviewVoice}
                   disabled={!selectedVoice}
                   className={`px-3 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-2xs shrink-0 ${
-                    isPreviewingVoice
+                    isPreviewing
                       ? 'bg-emerald-600 text-white animate-pulse'
                       : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400'
                   }`}
                   title="Listen to a quick sample of this voice"
                 >
                   <Ear className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{isPreviewingVoice ? 'Listening...' : 'Preview'}</span>
+                  <span className="hidden sm:inline">{isPreviewing ? 'Listening...' : 'Preview'}</span>
                 </button>
               </div>
             </div>
@@ -1216,10 +1068,10 @@ export const TextToSpeech: React.FC = () => {
               Real-Time Vocal Activity Visualizer
             </span>
             <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
-              {isSpeaking ? (isPaused ? 'Paused' : 'Playing live audio...') : isPreviewingVoice ? 'Voice Preview' : 'Ready'}
+              {isSpeaking ? (isPaused ? 'Paused' : 'Playing live audio...') : isPreviewing ? 'Voice Preview' : 'Ready'}
             </span>
           </div>
-          <WaveformVisualizer isPlaying={isSpeaking || isPreviewingVoice || isGeneratingAudio} height={48} />
+          <WaveformVisualizer isPlaying={isSpeaking || isPreviewing || isGeneratingAudio} height={48} />
         </div>
 
         {/* Primary Playback Action Controls Bar */}
@@ -1270,7 +1122,7 @@ export const TextToSpeech: React.FC = () => {
               onClick={handleDownloadAudio}
               disabled={isGeneratingAudio || !text.trim()}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 active:scale-95 px-5 py-3 text-sm sm:text-base font-bold shadow-md transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-              title={downloadEngine === 'neural' ? 'Synthesize natural neural speech and download .wav' : 'Generate lightweight audio file (.wav)'}
+              title="Download audio file (WAV / MP3)"
             >
               {isGeneratingAudio ? (
                 <>
@@ -1294,13 +1146,13 @@ export const TextToSpeech: React.FC = () => {
                 <span className="inline-block w-1.5 h-5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="inline-block w-1.5 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 <span className="inline-block w-1.5 h-4 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '100ms' }} />
-                <span className="ml-1 font-medium">Reading aloud with natural pauses</span>
+                <span className="ml-1 font-medium">Reading aloud</span>
               </div>
             ) : isPaused ? (
               <div className="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-medium">
                 Paused • Click Resume to continue
               </div>
-            ) : isPreviewingVoice ? (
+            ) : isPreviewing ? (
               <div className="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-medium animate-pulse">
                 Previewing voice sample...
               </div>
@@ -1339,103 +1191,6 @@ export const TextToSpeech: React.FC = () => {
           </div>
         )}
 
-        {/* Audio Download Engine & Language Configuration */}
-        <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/40 dark:bg-indigo-950/20 p-4 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 dark:border-indigo-900/40 pb-2.5">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                WAV Audio Download Engine
-              </span>
-            </div>
-
-            <div className="inline-flex rounded-lg p-0.5 bg-slate-200/70 dark:bg-slate-800 text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => setDownloadEngine('neural')}
-                className={`px-3 py-1 rounded-md transition-all ${
-                  downloadEngine === 'neural'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
-              >
-                Neural VITS (Natural)
-              </button>
-              <button
-                type="button"
-                onClick={() => setDownloadEngine('fast')}
-                className={`px-3 py-1 rounded-md transition-all ${
-                  downloadEngine === 'fast'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
-              >
-                Fast (Lightweight Formant)
-              </button>
-            </div>
-          </div>
-
-          {downloadEngine === 'neural' ? (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Neural Model Language:</span>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setNeuralLanguage('en')}
-                    className={`px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors ${
-                      neuralLanguage === 'en' && !hasDevanagari
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
-                    }`}
-                  >
-                    English (Global MMS)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNeuralLanguage('hi')}
-                    className={`px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors ${
-                      neuralLanguage === 'hi' || hasDevanagari
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
-                    }`}
-                  >
-                    हिंदी (Hindi MMS)
-                  </button>
-                </div>
-              </div>
-
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                Meta MMS-TTS Neural Model • ~38 MB cached offline • 100% Client-Side
-              </span>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Instant acoustic formant synthesizer running directly via Web Audio. Zero MB download, works 100% offline on any phone or computer.
-            </p>
-          )}
-
-          {/* Bengali Language Clarity Callout */}
-          {hasBengali && (
-            <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 p-2.5 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
-              <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-              <span>
-                <strong>Bengali Language Notice:</strong> Bengali speech is natively supported for real-time listening via the <strong>&quot;Play Speech&quot;</strong> button using your device&apos;s speech engine (Google বাংলা / Microsoft). For downloadable WAV audio, English and Hindi ONNX models are available.
-              </span>
-            </div>
-          )}
-
-          {/* Urdu Language Clarity Callout */}
-          {hasUrdu && (
-            <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 p-2.5 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
-              <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-              <span>
-                <strong>Urdu Language Notice:</strong> Urdu speech is natively supported for real-time listening via the <strong>&quot;Play Speech&quot;</strong> button using your device&apos;s speech engine (Google اردو / Microsoft Gul). For downloadable WAV audio, English and Hindi ONNX models are available.
-              </span>
-            </div>
-          )}
-        </div>
-
         {/* Generated Audio Download & Player Section */}
         {generatedAudio && (
           <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/30 p-4 sm:p-5 space-y-3">
@@ -1450,7 +1205,7 @@ export const TextToSpeech: React.FC = () => {
                     Audio Generated Successfully
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    {audioModelUsed || 'Natural Neural WAV'} • {Math.round(generatedAudio.sizeBytes / 1024)} KB • {generatedAudio.durationSeconds.toFixed(1)}s duration • {generatedAudio.sampleRate / 1000} kHz
+                    {generatedAudio.format.toUpperCase()} • {Math.round(generatedAudio.sizeBytes / 1024)} KB • {generatedAudio.durationSeconds > 0 ? `${generatedAudio.durationSeconds.toFixed(1)}s • ` : ''}{generatedAudio.sampleRate / 1000} kHz
                   </p>
                 </div>
               </div>
@@ -1462,7 +1217,7 @@ export const TextToSpeech: React.FC = () => {
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Save Audio File (.wav)</span>
+                  <span>Save Audio File</span>
                 </a>
               </div>
             </div>
@@ -1557,11 +1312,22 @@ export const TextToSpeech: React.FC = () => {
               Free &amp; Open Source Tech
             </p>
             <p className="leading-relaxed">
-              No paid API keys, logins, or hidden subscriptions are required. We rely purely on open web standards (W3C Web Speech, Web Audio) and open-source models (Meta MMS-TTS).
+              No mandatory API keys, logins, or hidden subscriptions. We rely purely on open web standards (W3C Web Speech, Web Audio) and open-source models (Meta MMS-TTS).
             </p>
           </div>
         </div>
       </div>
+
+      {/* Cloud BYOK Settings Modal */}
+      <CloudConfigModal
+        isOpen={isCloudConfigOpen}
+        onClose={() => setIsCloudConfigOpen(false)}
+        onSaved={() => {
+          const config = CloudNeuralTTSProvider.getConfig()
+          setIsCloudConfigured(!!(config && config.apiKey.trim()))
+          refreshVoices()
+        }}
+      />
     </div>
   )
 }
