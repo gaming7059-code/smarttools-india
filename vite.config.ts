@@ -25,11 +25,10 @@ function pdfjsAssetsPlugin(): Plugin {
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve'
   // When running dev server, use '/'
-  // When building for Netlify (NETLIFY=true), use '/'
-  // In GitHub Actions or by default for production build, use '/smarttools-india/'
+  // In production builds (GitHub Pages), default to '/smarttools-india/' unless overridden by VITE_BASE_PATH
   const base = isDev
     ? '/'
-    : process.env.VITE_BASE_PATH ?? (process.env.NETLIFY ? '/' : '/smarttools-india/')
+    : process.env.VITE_BASE_PATH ?? '/smarttools-india/'
 
   return {
     base,

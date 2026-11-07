@@ -21,14 +21,18 @@ export interface PageSEOMetadata {
   ogImage?: string
 }
 
-// Configurable base domain template - aligned with live Netlify deployment
-export const SITE_DOMAIN = 'https://sparkly-alfajores-5f53fa.netlify.app'
+// Canonical base domain and path for live GitHub Pages deployment
+export const SITE_DOMAIN = 'https://gaming7059-code.github.io/smarttools-india'
 
 export function getFullUrl(path: string = '/'): string {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
   if (typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1')) {
-    return `${window.location.origin}${path.startsWith('/') ? path : `/${path}`}`
+    const rawBase = import.meta.env.BASE_URL || '/'
+    const basePrefix = rawBase.endsWith('/') ? rawBase.slice(0, -1) : rawBase
+    const fullPath = normalizedPath.startsWith(basePrefix) ? normalizedPath : `${basePrefix}${normalizedPath}`
+    return `${window.location.origin}${fullPath === '' ? '/' : fullPath}`
   }
-  return `${SITE_DOMAIN}${path.startsWith('/') ? path : `/${path}`}`
+  return `${SITE_DOMAIN}${normalizedPath}`
 }
 
 export function setMetaTag(selector: string, attribute: string, value: string, createAttr: Record<string, string>) {

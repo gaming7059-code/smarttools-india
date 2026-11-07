@@ -28,7 +28,7 @@ app = FastAPI(
     description="Local high-fidelity neural speech synthesis companion service."
 )
 
-# Allow CORS for local development and Netlify production site
+# Allow CORS for local development and GitHub Pages production site
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -37,7 +37,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:4173",
-        "https://sparkly-alfajores-5f53fa.netlify.app"
+        "https://gaming7059-code.github.io"
     ],
     allow_credentials=True,
     allow_methods=["*"],
