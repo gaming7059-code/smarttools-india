@@ -167,7 +167,7 @@ export const GamesPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="relative w-full h-[520px] sm:h-[620px] rounded-2xl overflow-hidden border border-cyan-500/30 bg-[#060310] shadow-xl shadow-cyan-500/5">
                   <iframe
-                    src="/games/hex-drift/game.html"
+                    src={`${import.meta.env.BASE_URL}games/hex-drift/game.html`}
                     title="HEX DRIFT — Neon Void Runner"
                     allow="fullscreen; autoplay"
                     className="w-full h-full border-0 select-none bg-[#060310]"

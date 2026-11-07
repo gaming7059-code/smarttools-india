@@ -15,16 +15,31 @@
     <meta property="og:description" content="Free online calculators, converters and useful tools for everyday life in India." />
     <meta property="og:site_name" content="SmartTools India" />
     <meta property="og:locale" content="en_IN" />
-    <meta property="og:image" content="/smarttools-logo.png" />
+    <meta property="og:image" content="%BASE_URL%smarttools-logo.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="SmartTools India — Free Online Tools &amp; Calculators" />
     <meta name="twitter:description" content="Free online calculators, converters and useful tools for everyday life in India." />
-    <meta name="twitter:image" content="/smarttools-logo.png" />
+    <meta name="twitter:image" content="%BASE_URL%smarttools-logo.png" />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/smarttools-logo.png" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <link rel="apple-touch-icon" href="%BASE_URL%smarttools-logo.png" />
+
+    <!-- GitHub Pages Single Page App (SPA) Deep-Link & Refresh Redirect Handler -->
+    <script>
+      (function(l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function(s) {
+            return s.replace(/~and~/g, '&');
+          }).join('?');
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location));
+    </script>
+
     <script>
       (function() {
         try {

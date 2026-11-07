@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartTools India — Redirecting...</title>
+    <script>
+      // Single Page Apps for GitHub Pages
+      // MIT License - https://github.com/rafgraph/spa-github-pages
+      // Converts deep links and page refreshes on GitHub Pages into query parameters
+      // so index.html can restore the URL and let React Router handle client-side routing.
+      (function() {
+        var l = window.location;
+        var pathSegmentsToKeep = l.pathname.startsWith('/smarttools-india') ? 1 : 0;
+        l.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+          l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+        );
+      })();
+    </script>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f8fafc;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 20px;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 32px 24px;
+        max-width: 420px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+      }
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      h1 { font-size: 18px; margin: 0 0 8px; color: #0f172a; }
+      p { font-size: 13px; color: #64748b; margin: 0 0 16px; }
+      a { color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="spinner"></div>
+      <h1>Loading SmartTools India...</h1>
+      <p>Redirecting you to the requested page.</p>
+      <noscript>
+        <p>JavaScript is required to view this page.</p>
+        <a href="/smarttools-india/">Go to Homepage</a>
+      </noscript>
+    </div>
+  </body>
+</html>

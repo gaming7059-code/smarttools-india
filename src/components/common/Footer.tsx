@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
                 aria-label="SmartTools India Homepage"
               >
                 <img
-                  src="/smarttools-logo.png"
+                  src={`${import.meta.env.BASE_URL}smarttools-logo.png`}
                   alt="SmartTools India logo"
                   width={32}
                   height={32}

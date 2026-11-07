@@ -73,7 +73,7 @@ export const HexDriftPage: React.FC = () => {
   const reloadGame = () => {
     if (iframeRef.current) {
       setIsLoading(true)
-      iframeRef.current.src = '/games/hex-drift/game.html'
+      iframeRef.current.src = `${import.meta.env.BASE_URL}games/hex-drift/game.html`
     }
   }
 
@@ -241,7 +241,7 @@ export const HexDriftPage: React.FC = () => {
             {/* Embedded Isolated Game Frame */}
             <iframe
               ref={iframeRef}
-              src="/games/hex-drift/game.html"
+              src={`${import.meta.env.BASE_URL}games/hex-drift/game.html`}
               title="HEX DRIFT — Neon Void Runner"
               allow="fullscreen; autoplay"
               loading="eager"

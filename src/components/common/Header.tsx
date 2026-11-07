@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           aria-label="SmartTools India Homepage"
         >
           <img
-            src="/smarttools-logo.png"
+            src={`${import.meta.env.BASE_URL}smarttools-logo.png`}
             alt="SmartTools India logo"
             width={40}
             height={40}

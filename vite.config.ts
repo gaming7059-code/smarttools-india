@@ -22,15 +22,25 @@ function pdfjsAssetsPlugin(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: '/',
-  plugins: [pdfjsAssetsPlugin(), react(), tailwindcss()],
-  resolve: {
-    // Keep ONNX Runtime's large WebAssembly binary external. Transformers.js
-    // loads the version-matched runtime from its CDN at first neural-TTS use.
-    conditions: ['onnxruntime-web-use-extern-wasm', 'module', 'browser', 'development|production'],
-  },
-  build: {
-    outDir: 'dist',
-  },
+export default defineConfig(({ command }) => {
+  const isDev = command === 'serve'
+  // When running dev server, use '/'
+  // When building for Netlify (NETLIFY=true), use '/'
+  // In GitHub Actions or by default for production build, use '/smarttools-india/'
+  const base = isDev
+    ? '/'
+    : process.env.VITE_BASE_PATH ?? (process.env.NETLIFY ? '/' : '/smarttools-india/')
+
+  return {
+    base,
+    plugins: [pdfjsAssetsPlugin(), react(), tailwindcss()],
+    resolve: {
+      // Keep ONNX Runtime's large WebAssembly binary external. Transformers.js
+      // loads the version-matched runtime from its CDN at first neural-TTS use.
+      conditions: ['onnxruntime-web-use-extern-wasm', 'module', 'browser', 'development|production'],
+    },
+    build: {
+      outDir: 'dist',
+    },
+  }
 })

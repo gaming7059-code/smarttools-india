@@ -33,7 +33,7 @@ import { ThemeProvider } from './context/ThemeContext'
 export const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
