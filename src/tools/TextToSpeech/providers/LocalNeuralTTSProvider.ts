@@ -35,13 +35,13 @@ export class LocalNeuralTTSProvider implements TTSProvider {
     return isNeuralTtsSupported()
   }
 
-  async getVoices(): Promise<TTSVoice[]> {
-    return [
+  async getVoices(langFilter?: string): Promise<TTSVoice[]> {
+    const allVoices: TTSVoice[] = [
       {
         id: 'neural-en',
         name: 'Meta MMS Neural English',
-        displayName: 'Meta MMS-TTS English (Global)',
-        lang: 'en-US',
+        displayName: 'Meta MMS-TTS English (Global / Indian Accent)',
+        lang: 'en',
         providerId: 'local-neural',
         tier: 'local-neural',
         tierLabel: 'Neural ONNX',
@@ -52,7 +52,7 @@ export class LocalNeuralTTSProvider implements TTSProvider {
         id: 'neural-hi',
         name: 'Meta MMS Neural Hindi',
         displayName: 'Meta MMS-TTS Hindi (हिंदी)',
-        lang: 'hi-IN',
+        lang: 'hi',
         providerId: 'local-neural',
         tier: 'local-neural',
         tierLabel: 'Neural ONNX',
@@ -60,6 +60,26 @@ export class LocalNeuralTTSProvider implements TTSProvider {
         nativePreviewText: 'नमस्ते! यह लोकल न्यूरल स्पीच मॉडल का नमूना है।',
       },
     ]
+
+    if (!langFilter || langFilter === 'all') {
+      return allVoices
+    }
+
+    const filter = langFilter.toLowerCase()
+    return allVoices.filter((v) => {
+      const vLang = v.lang.toLowerCase()
+      if (filter.startsWith('en') && vLang.startsWith('en')) return true
+      if (filter.startsWith('hi') && vLang.startsWith('hi')) return true
+      return vLang.startsWith(filter) || filter.startsWith(vLang)
+    })
+  }
+
+  private resolveTargetLanguage(text: string, voiceId?: string): NeuralLanguage {
+    if (voiceId === 'neural-hi') return 'hi'
+    if (voiceId === 'neural-en') return 'en'
+    // Automatic fallback based on script
+    const hasDevanagari = /[\u0900-\u097F]/.test(text)
+    return hasDevanagari ? 'hi' : 'en'
   }
 
   async speak(
@@ -78,7 +98,7 @@ export class LocalNeuralTTSProvider implements TTSProvider {
       this.stop()
       callbacks.onStart?.()
 
-      const targetLang: NeuralLanguage = options.voiceId === 'neural-hi' ? 'hi' : 'en'
+      const targetLang = this.resolveTargetLanguage(text, options.voiceId)
 
       const result = await generateNeuralSpeech(text, targetLang, (p: NeuralProgressInfo) => {
         callbacks.onProgress?.({
@@ -154,7 +174,7 @@ export class LocalNeuralTTSProvider implements TTSProvider {
     options: TTSPlaybackOptions,
     onProgress?: (progress: { stage: string; percent: number; detail?: string }) => void
   ): Promise<GeneratedAudioOutput> {
-    const targetLang: NeuralLanguage = options.voiceId === 'neural-hi' ? 'hi' : 'en'
+    const targetLang = this.resolveTargetLanguage(text, options.voiceId)
     const result = await generateNeuralSpeech(text, targetLang, onProgress)
 
     return {

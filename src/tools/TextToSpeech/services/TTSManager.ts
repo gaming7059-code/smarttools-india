@@ -70,17 +70,10 @@ export class TTSManager {
   async getAllVoices(langFilter?: string): Promise<TTSVoice[]> {
     const active = this.getActiveProvider()
     try {
-      const voices = await active.getVoices(langFilter)
-      if (voices.length > 0) {
-        return voices
-      }
-      // If companion or neural returned no voices for this language, fallback to browser voices
-      const fallback = this.providers.get('browser')!
-      return await fallback.getVoices(langFilter)
-    } catch {
-      // Fallback to browser provider
-      const fallback = this.providers.get('browser')!
-      return await fallback.getVoices(langFilter)
+      return await active.getVoices(langFilter)
+    } catch (err) {
+      console.warn(`Error loading voices for provider ${this.activeProviderId}:`, err)
+      return []
     }
   }
 
@@ -100,14 +93,9 @@ export class TTSManager {
     try {
       await provider.speak(text, options, callbacks)
     } catch (err: unknown) {
-      // If neural engine fails, offer automatic fallback to Browser TTS
-      if (this.activeProviderId !== 'browser') {
-        console.warn(`Provider ${this.activeProviderId} failed. Falling back to Browser TTS.`, err)
-        const fallback = this.providers.get('browser')!
-        await fallback.speak(text, options, callbacks)
-      } else {
-        throw err
-      }
+      const error = err instanceof Error ? err : new Error(String(err))
+      callbacks.onError?.(error)
+      throw error
     }
   }
 

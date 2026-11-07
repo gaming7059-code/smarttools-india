@@ -113,6 +113,10 @@ export function normalizeTextForMms(input: string, lang: NeuralLanguage): string
     }
   }
 
+  // Strip emojis, pictographs, and non-printable control characters
+  text = text.replace(/[\p{Extended_Pictographic}]/gu, ' ')
+  text = text.replace(/\p{Cc}/gu, ' ')
+
   // Remove repeated punctuation and normalize spaces
   text = text.replace(/([.!?।])\1+/g, '$1')
   text = text.replace(/\s+/g, ' ')
@@ -137,6 +141,11 @@ export function splitIntoSentences(text: string): string[] {
     const s = match.trim()
     if (s.length === 0) continue
 
+    // A valid sentence must contain at least one letter or number
+    if (!/[\p{L}\p{N}]/u.test(s)) {
+      continue
+    }
+
     // If a single sentence is extraordinarily long (>350 characters without punctuation),
     // split gracefully at clause boundaries (comma, semicolon, dash)
     if (s.length > 350) {
@@ -144,16 +153,21 @@ export function splitIntoSentences(text: string): string[] {
       let current = ''
       for (const clause of clauses) {
         if ((current + ' ' + clause).trim().length > 300) {
-          if (current.trim()) sentences.push(current.trim())
+          if (current.trim() && /[\p{L}\p{N}]/u.test(current)) sentences.push(current.trim())
           current = clause
         } else {
           current = current ? `${current} ${clause}` : clause
         }
       }
-      if (current.trim()) sentences.push(current.trim())
+      if (current.trim() && /[\p{L}\p{N}]/u.test(current)) sentences.push(current.trim())
     } else {
       sentences.push(s)
     }
+  }
+
+  // Fallback: if regex filtered everything out but text contains letters or numbers, use clean directly
+  if (sentences.length === 0 && /[\p{L}\p{N}]/u.test(clean)) {
+    sentences.push(clean)
   }
 
   return sentences
@@ -296,7 +310,17 @@ export async function generateNeuralSpeech(
   })
 
   // Dynamically import @huggingface/transformers to keep initial page load lightweight
-  const { pipeline } = await import('@huggingface/transformers')
+  const { pipeline, env } = await import('@huggingface/transformers')
+
+  // Optimize for Cloudflare Pages and static CDN hosting:
+  // When cross-origin isolation (SharedArrayBuffer) is unavailable on static hosts,
+  // enforce single-threaded wasm to prevent worker allocation errors.
+  if (typeof window !== 'undefined' && !window.crossOriginIsolated) {
+    if (env?.backends?.onnx?.wasm) {
+      env.backends.onnx.wasm.numThreads = 1
+      env.backends.onnx.wasm.proxy = false
+    }
+  }
 
   let synthesizer = pipelineCache[language]
 
@@ -341,10 +365,37 @@ export async function generateNeuralSpeech(
   // Normalize text for clear pronunciation and numbers
   const normalized = normalizeTextForMms(trimmed, language)
 
+  // Verify that the text contains letters or numbers
+  if (!/[\p{L}\p{N}]/u.test(normalized)) {
+    throw new Error('Please enter text containing words or numbers to synthesize speech.')
+  }
+
+  // Pre-validate language compatibility to provide immediate, clear diagnostics
+  const isDevanagari = /[\u0900-\u097F]/.test(trimmed)
+  const isBengali = /[\u0980-\u09FF]/.test(trimmed)
+  const isUrdu = /[\u0600-\u06FF]/.test(trimmed)
+  const isLatin = /[a-zA-Z]/.test(trimmed)
+
+  if (language === 'en' && !isLatin && (isDevanagari || isBengali || isUrdu)) {
+    throw new Error(
+      'The English neural voice only speaks English text. For Hindi, please switch to the Hindi neural voice. For Bengali or Urdu, please switch to the Free Browser Voice engine.'
+    )
+  }
+  if (language === 'hi' && !isDevanagari && isLatin) {
+    throw new Error(
+      'The Hindi neural voice requires Hindi text in Devanagari script (e.g. नमस्ते). For English text, please switch to the English neural voice.'
+    )
+  }
+  if (isBengali || isUrdu) {
+    throw new Error(
+      `In-Browser Neural ONNX engine currently supports English and Hindi on-device. For ${isBengali ? 'Bengali (বাংলা)' : 'Urdu (اردو)'}, please switch to Free Browser Voice or Companion Neural Engine.`
+    )
+  }
+
   // Split ONLY on true sentence boundaries to preserve natural flow and vocal cadence
   const sentences = splitIntoSentences(normalized)
   if (sentences.length === 0) {
-    throw new Error('Unable to extract valid sentences from text.')
+    throw new Error('Unable to extract valid vocalizable sentences from text.')
   }
 
   const audioBuffers: Float32Array[] = []
@@ -359,6 +410,27 @@ export async function generateNeuralSpeech(
       detail: `"${sentences[i].slice(0, 45)}${sentences[i].length > 45 ? '...' : ''}"`,
     })
 
+    // Pre-validate tokenizer token count to prevent ONNX CalculateTensorStorageSize shape underflow
+    let tokenCount = 1
+    try {
+      if (synthesizer.tokenizer) {
+        const tokenized = synthesizer.tokenizer(sentences[i])
+        tokenCount = tokenized?.input_ids?.dims?.[1] ?? 0
+      }
+    } catch {
+      tokenCount = 1
+    }
+
+    if (tokenCount <= 0) {
+      // Chunk has no vocalizable tokens in this model's vocabulary (isolated punctuation or unsupported symbols).
+      // Insert natural breathing pause instead of invoking ONNX with an invalid 0-dimension tensor.
+      if (audioBuffers.length > 0 && i < sentences.length - 1) {
+        const pauseSamples = Math.round(sampleRate * 0.1)
+        audioBuffers.push(new Float32Array(pauseSamples))
+      }
+      continue
+    }
+
     try {
       const out = await synthesizer(sentences[i])
       if (out?.audio && out.audio.length > 0) {
@@ -368,7 +440,9 @@ export async function generateNeuralSpeech(
 
         // Trim the model's excessive leading and trailing dead silence buffers
         const trimmedAudio = trimSilence(out.audio, sampleRate)
-        audioBuffers.push(trimmedAudio)
+        if (trimmedAudio.length > 0) {
+          audioBuffers.push(trimmedAudio)
+        }
 
         // Insert a natural, crisp 100ms inter-sentence breathing pause between distinct sentences
         if (i < sentences.length - 1) {
@@ -377,7 +451,12 @@ export async function generateNeuralSpeech(
         }
       }
     } catch (chunkErr: unknown) {
-      const msg = chunkErr instanceof Error ? chunkErr.message : 'Error in speech sentence'
+      const msg = chunkErr instanceof Error ? chunkErr.message : String(chunkErr)
+      console.warn(`Neural chunk synthesis issue on sentence ${i + 1}:`, msg)
+      // If an ONNX shape error occurs on a malformed chunk, skip it gracefully instead of crashing
+      if (msg.includes('CalculateTensorStorageSize') || msg.includes('shape.Size()')) {
+        continue
+      }
       throw new Error(`Neural synthesis failed on sentence ${i + 1}: ${msg}`)
     }
   }

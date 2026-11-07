@@ -169,6 +169,12 @@ export const TextToSpeech: React.FC = () => {
     handleStop()
     setActiveEngine(engineId)
     ttsManager.setActiveProvider(engineId)
+    // If switching to local-neural, reset language filter if current language is not supported
+    if (engineId === 'local-neural') {
+      if (selectedLanguage !== 'all' && !selectedLanguage.startsWith('en') && !selectedLanguage.startsWith('hi')) {
+        setSelectedLanguage('all')
+      }
+    }
     refreshVoices()
   }
 
@@ -243,10 +249,18 @@ export const TextToSpeech: React.FC = () => {
   const filteredVoices = useMemo(() => {
     if (selectedLanguage === 'all') return voices
     return voices.filter((v) => {
-      if (selectedLanguage.startsWith('en-in') && v.lang.toLowerCase() === 'en-in') return true
-      if (selectedLanguage.startsWith('en-us') && v.lang.toLowerCase() === 'en-us') return true
-      if (selectedLanguage.startsWith('en-gb') && v.lang.toLowerCase() === 'en-gb') return true
-      return v.lang.toLowerCase().startsWith(selectedLanguage.toLowerCase())
+      const vLang = v.lang.toLowerCase()
+      const sLang = selectedLanguage.toLowerCase()
+      if (sLang.startsWith('en') && vLang.startsWith('en')) {
+        if (sLang === 'en-in' && vLang === 'en-in') return true
+        if (sLang === 'en-us' && vLang === 'en-us') return true
+        if (sLang === 'en-gb' && vLang === 'en-gb') return true
+        return sLang === 'en' || vLang.startsWith(sLang) || vLang === 'en'
+      }
+      if (sLang.startsWith('hi') && vLang.startsWith('hi')) return true
+      if (sLang.startsWith('bn') && vLang.startsWith('bn')) return true
+      if (sLang.startsWith('ur') && vLang.startsWith('ur')) return true
+      return vLang.startsWith(sLang) || sLang.startsWith(vLang)
     })
   }, [voices, selectedLanguage])
 
@@ -438,6 +452,11 @@ export const TextToSpeech: React.FC = () => {
     if (type === 'bn') {
       setText('আজকের দিনটা খুব সুন্দর। আমি তোমার সঙ্গে কথা বলতে পেরে আনন্দিত।')
       setIsUrduRtl(false)
+      if (activeEngine === 'local-neural') {
+        const nextEngine = companionStatus?.isAvailable ? 'companion' : 'browser'
+        setActiveEngine(nextEngine)
+        ttsManager.setActiveProvider(nextEngine)
+      }
       setSelectedLanguage('bn')
       const match = voices.find((v) => v.lang.toLowerCase().startsWith('bn'))
       if (match) setSelectedVoiceId(match.id)
@@ -450,12 +469,17 @@ export const TextToSpeech: React.FC = () => {
     } else if (type === 'en') {
       setText('Hello! Welcome to SmartTools India. I hope you are having a wonderful day.')
       setIsUrduRtl(false)
-      setSelectedLanguage('en-us')
-      const match = voices.find((v) => v.lang.toLowerCase().startsWith('en-us') || v.lang.toLowerCase().startsWith('en-in'))
+      setSelectedLanguage('en')
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith('en'))
       if (match) setSelectedVoiceId(match.id)
     } else if (type === 'ur') {
       setText('آج کا دن بہت خوبصورت ہے۔ آپ سے بات کرکے مجھے خوشی ہوئی۔')
       setIsUrduRtl(true)
+      if (activeEngine === 'local-neural') {
+        const nextEngine = companionStatus?.isAvailable ? 'companion' : 'browser'
+        setActiveEngine(nextEngine)
+        ttsManager.setActiveProvider(nextEngine)
+      }
       setSelectedLanguage('ur')
       const match = voices.find((v) => v.lang.toLowerCase().startsWith('ur'))
       if (match) setSelectedVoiceId(match.id)
@@ -963,6 +987,14 @@ export const TextToSpeech: React.FC = () => {
                   <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
                     {filteredVoices.length} available
                   </span>
+                  <button
+                    type="button"
+                    onClick={refreshVoices}
+                    className="p-1 rounded-md text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    title="Refresh available voices"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
 
@@ -1001,6 +1033,73 @@ export const TextToSpeech: React.FC = () => {
                   <span className="hidden sm:inline">{isPreviewing ? 'Listening...' : 'Preview'}</span>
                 </button>
               </div>
+
+              {filteredVoices.length === 0 && (
+                <div className="mt-2.5 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 space-y-1 animate-fade-in">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <Info className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                    <span>No voices match the current language &amp; engine filter</span>
+                  </div>
+                  {activeEngine === 'local-neural' ? (
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                      In-Browser Neural ONNX engine currently supports English and Hindi on-device.
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLanguage('all')}
+                        className="ml-1 underline font-bold hover:text-amber-900 dark:hover:text-amber-200"
+                      >
+                        Show All Neural Voices
+                      </button>
+                      {' or '}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectEngine('browser')}
+                        className="underline font-bold hover:text-amber-900 dark:hover:text-amber-200"
+                      >
+                        Switch to Free Browser Voice
+                      </button>.
+                    </p>
+                  ) : activeEngine === 'companion' && !companionStatus?.isAvailable ? (
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                      Companion server is offline. Run <code>server/run_tts.bat</code> locally on your PC, or
+                      <button
+                        type="button"
+                        onClick={() => handleSelectEngine('local-neural')}
+                        className="ml-1 underline font-bold hover:text-amber-900 dark:hover:text-amber-200"
+                      >
+                        Switch to In-Browser Neural
+                      </button>
+                      {' or '}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectEngine('browser')}
+                        className="underline font-bold hover:text-amber-900 dark:hover:text-amber-200"
+                      >
+                        Free Browser Voice
+                      </button>.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                      Try resetting the filter to
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLanguage('all')}
+                        className="ml-1 underline font-bold hover:text-amber-900 dark:hover:text-amber-200"
+                      >
+                        All Available Languages
+                      </button>
+                      {' or '}
+                      <button
+                        type="button"
+                        onClick={refreshVoices}
+                        className="underline font-bold hover:text-amber-900 dark:hover:text-amber-200"
+                      >
+                        Reload System Voices
+                      </button>.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

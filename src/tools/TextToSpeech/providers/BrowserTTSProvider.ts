@@ -58,10 +58,61 @@ export class BrowserTTSProvider implements TTSProvider {
     )
   }
 
+  /**
+   * Robust asynchronous voice retrieval ensuring voices are returned
+   * even when browser SpeechSynthesis loads voices asynchronously.
+   */
+  static async loadSystemVoices(): Promise<SpeechSynthesisVoice[]> {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return []
+
+    const immediate = window.speechSynthesis.getVoices()
+    if (immediate && immediate.length > 0) {
+      return immediate
+    }
+
+    return new Promise<SpeechSynthesisVoice[]>((resolve) => {
+      let resolved = false
+      const finish = (result: SpeechSynthesisVoice[]) => {
+        if (!resolved) {
+          resolved = true
+          resolve(result)
+        }
+      }
+
+      const onVoicesChanged = () => {
+        const v = window.speechSynthesis.getVoices()
+        if (v && v.length > 0) {
+          window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged)
+          finish(v)
+        }
+      }
+
+      window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged)
+      if ('onvoiceschanged' in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = onVoicesChanged
+      }
+
+      // Polling fallback every 60ms up to 1.5s
+      const startTime = Date.now()
+      const interval = setInterval(() => {
+        const v = window.speechSynthesis.getVoices()
+        if (v && v.length > 0) {
+          clearInterval(interval)
+          window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged)
+          finish(v)
+        } else if (Date.now() - startTime > 1500) {
+          clearInterval(interval)
+          window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged)
+          finish(v || [])
+        }
+      }, 60)
+    })
+  }
+
   async getVoices(langFilter?: string): Promise<TTSVoice[]> {
     if (!(await this.isAvailable())) return []
 
-    const rawVoices = window.speechSynthesis.getVoices()
+    const rawVoices = await BrowserTTSProvider.loadSystemVoices()
     if (!rawVoices || rawVoices.length === 0) return []
 
     const voices: TTSVoice[] = rawVoices.map((v) => {
@@ -82,10 +133,18 @@ export class BrowserTTSProvider implements TTSProvider {
     // Filter by language if specified
     const filtered = langFilter && langFilter !== 'all'
       ? voices.filter((v) => {
-          if (langFilter.startsWith('en-in') && v.lang.toLowerCase() === 'en-in') return true
-          if (langFilter.startsWith('en-us') && v.lang.toLowerCase() === 'en-us') return true
-          if (langFilter.startsWith('en-gb') && v.lang.toLowerCase() === 'en-gb') return true
-          return v.lang.toLowerCase().startsWith(langFilter.toLowerCase())
+          const vLang = v.lang.toLowerCase()
+          const fLang = langFilter.toLowerCase()
+          if (fLang.startsWith('en') && vLang.startsWith('en')) {
+            if (fLang.startsWith('en-in') && vLang === 'en-in') return true
+            if (fLang.startsWith('en-us') && vLang === 'en-us') return true
+            if (fLang.startsWith('en-gb') && vLang === 'en-gb') return true
+            return fLang === 'en' || vLang.startsWith(fLang)
+          }
+          if (fLang.startsWith('hi') && vLang.startsWith('hi')) return true
+          if (fLang.startsWith('bn') && vLang.startsWith('bn')) return true
+          if (fLang.startsWith('ur') && vLang.startsWith('ur')) return true
+          return vLang.startsWith(fLang) || fLang.startsWith(vLang)
         })
       : voices
 
