@@ -1,18 +1,22 @@
 /**
  * Unified Text-to-Speech Engine Types & Interfaces
  *
- * Defines the shared contracts for all TTS providers (Browser, Local Neural, Cloud Neural),
- * voices, playback options, and progress events.
+ * Defines the shared contracts for all TTS providers:
+ * - Companion Neural Engine (Localhost 127.0.0.1:8000)
+ * - In-Browser Local Neural (ONNX / WebAssembly)
+ * - Free Browser Voices (Web Speech API)
+ * - Optional Cloud Studio (BYOK)
  */
 
-export type TTSProviderId = 'browser' | 'local-neural' | 'cloud-neural'
+export type TTSProviderId = 'companion' | 'local-neural' | 'browser' | 'cloud-neural'
 
 export type VoiceQualityTier =
+  | 'neural-hq'
+  | 'local-neural'
   | 'natural'
   | 'cloud'
   | 'enhanced'
   | 'system'
-  | 'local-neural'
   | 'cloud-neural'
 
 export interface TTSVoice {
@@ -20,11 +24,14 @@ export interface TTSVoice {
   name: string
   displayName: string
   lang: string
+  locale?: string
+  gender?: 'Male' | 'Female' | 'Neutral'
   providerId: TTSProviderId
   tier: VoiceQualityTier
   tierLabel: string
   isOffline: boolean
   nativePreviewText: string
+  sampleRate?: number
 }
 
 export interface TTSPlaybackOptions {
@@ -57,4 +64,13 @@ export interface CloudProviderConfig {
   provider: 'openai' | 'elevenlabs'
   apiKey: string
   model?: string
+}
+
+export interface CompanionServerStatus {
+  isAvailable: boolean
+  url: string
+  version?: string
+  voicesCount?: number
+  cpuCores?: number
+  lastChecked: number
 }

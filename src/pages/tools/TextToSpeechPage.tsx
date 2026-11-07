@@ -9,32 +9,32 @@ export const TextToSpeechPage: React.FC = () => {
   const howToUseSteps = [
     'Type or paste your text into the large workspace input area (supports up to 5,000 characters).',
     'Automatic script detection identifies English, Hindi, Bengali, or Urdu and suggests matching authentic voices.',
-    'Choose your preferred language filter (such as English India, Hindi, Bengali, Urdu, or US English).',
+    'Choose your preferred voice engine: Companion 24kHz Studio Neural (localhost:8000), In-Browser ONNX, or Free Browser Voice.',
     'Click the "Preview" button next to the voice selector to hear an instant sample of any voice before playing.',
     'Fine-tune speech speed (0.5x to 2x), pitch (low, natural, high), volume, and vocal cadence presets.',
     'Click the large "Play Speech" button to listen with native natural voices. You can pause, resume, or stop speech playback anytime.',
     'Follow along with real-time sentence tracking and smooth progress visualization as each sentence is spoken.',
-    'Click "Download Audio" to synthesize and save a real 16-bit PCM WAV audio file with your chosen speed, pitch, and volume directly to your device.',
+    'Click "Download Audio" to synthesize and save high-fidelity MP3 or WAV audio with your chosen speed, pitch, and volume directly to your device.',
   ]
 
   const formulas = [
     {
+      title: 'Companion Neural Engine (24kHz Studio Quality)',
+      formula: 'Text → Fast Neural Speech Pipeline (Localhost:8000) → 24kHz Studio Audio (MP3/WAV)',
+      explanation:
+        'High-fidelity neural synthesis companion service running on your local machine with zero API keys. Delivers authentic, human-like cadence for Bengali, Hindi, English, and Urdu with multiple male and female voices.',
+    },
+    {
+      title: 'In-Browser Neural AI Waveform Generator (Meta MMS-TTS)',
+      formula: 'Text → VITS Neural Acoustic Pipeline → 16-bit PCM WAV (16 kHz / audio/wav)',
+      explanation:
+        'Uses Meta’s open-source MMS-TTS VITS models running entirely in-browser on WebAssembly via Transformers.js. Synthesizes natural voice waveforms locally without uploading text to any server.',
+    },
+    {
       title: 'Browser-Native Web Speech API',
       formula: 'window.speechSynthesis.speak(new SpeechSynthesisUtterance(text))',
       explanation:
-        'Converts written text to spoken audio 100% locally on your computer or phone using your browser and operating system speech engine. No external server requests or API keys required.',
-    },
-    {
-      title: 'Neural AI Waveform Generator (Meta MMS-TTS)',
-      formula: 'Text → VITS Neural Acoustic Pipeline → 16-bit PCM WAV (16 kHz / audio/wav)',
-      explanation:
-        'Uses Meta’s open-source MMS-TTS VITS models running entirely in-browser on WebAssembly via Transformers.js. Synthesizes natural, human-like voice waveforms locally without uploading text to any server.',
-    },
-    {
-      title: 'Fast Offline Synthesizer (Web Audio)',
-      formula: 'OfflineAudioContext → Formant Resonators → 16-bit PCM RIFF WAV Blob (22.05 kHz)',
-      explanation:
-        'Instant, lightweight audio synthesizer requiring 0 MB downloads. Operates 100% offline on any low-end smartphone or computer.',
+        'Converts written text to spoken audio 100% locally on your computer or phone using your browser and operating system speech engine. Zero downloads required.',
     },
     {
       title: 'Speed (Rate) Multiplier',
@@ -65,9 +65,9 @@ export const TextToSpeechPage: React.FC = () => {
     },
     {
       title: 'Language Pronunciation Practice',
-      description: 'Practicing English (India), Hindi, or regional phrases with accurate native inflection.',
-      input: 'नमस्ते! आप कैसे हैं? (Hindi greeting)',
-      output: 'Clear native Hindi audio pronunciation',
+      description: 'Practicing English (India), Hindi, Bengali, or Urdu phrases with accurate native inflection.',
+      input: 'আজকের দিনটা খুব সুন্দর। (Bengali greeting)',
+      output: 'Clear native Bengali audio pronunciation with natural cadence',
     },
     {
       title: 'Hands-Free Reading & Accessibility',
@@ -79,39 +79,29 @@ export const TextToSpeechPage: React.FC = () => {
 
   const faqs = [
     {
-      question: 'Why do available voices differ across different devices?',
+      question: 'What is the Companion Neural Engine and how do I use it?',
       answer:
-        'The Web Speech API utilizes the speech synthesis voices installed on your device by the operating system (Windows, macOS, Android, iOS, ChromeOS) and browser. Google Chrome, Microsoft Edge, and Apple Safari each provide their own unique set of built-in voices.',
+        'The Companion Neural Engine is a lightweight local Python FastAPI service included in the website repository under `server/`. Running `run_tts.bat` on Windows gives you studio-quality 24kHz neural voices in Bengali, Hindi, English, and Urdu with zero external API keys and 100% private local execution.',
     },
     {
-      question: 'Are Indian languages like Hindi and Bengali supported?',
+      question: 'Are Indian languages like Bengali, Hindi, and Urdu fully supported?',
       answer:
-        'Yes! If your device or browser has voices for Indian English (en-IN), Hindi (hi-IN), Bengali (bn-IN), Tamil (ta-IN), Telugu (te-IN), or Marathi (mr-IN), they will automatically appear in the voice selector. Google Chrome and Microsoft Edge on Windows and Android offer several high-quality Indian voices.',
+        'Yes! The Companion Engine offers authentic natural voices for Bengali (India & Bangladesh), Hindi, Indian English, and Urdu (India & Pakistan). In addition, on-device WebAssembly neural synthesis supports English and Hindi, and the Free Browser Voice supports all languages installed on your system.',
     },
     {
       question: 'Is my text private and secure?',
       answer:
-        '100% private. All speech generation takes place completely inside your local web browser session. Your text is never transmitted across the internet, logged, or saved to any remote database.',
+        '100% private. All speech generation takes place either directly in your local web browser or via the local companion service binding strictly to localhost (127.0.0.1). Your text is never uploaded to any third-party cloud database or logged.',
     },
     {
       question: 'Can I download the spoken speech as an audio file?',
       answer:
-        'Yes! SmartTools India provides two client-side download engines: 1) Neural AI Voice (Meta MMS-TTS): generates natural, human-like English and Hindi speech directly on your device via WebAssembly, with a one-time ~38 MB model download cached permanently in your browser; 2) Fast Lightweight Synthesizer: produces instant offline audio with zero downloads. Both generate genuine, uncompressed 16-bit PCM WAV audio files.',
-    },
-    {
-      question: 'Why is Bengali available for direct listening but not yet for neural WAV download?',
-      answer:
-        'Meta’s open-source MMS-TTS release for Bengali currently lacks pre-compiled browser-compatible ONNX tokenizers required by JavaScript runtimes. Rather than providing broken or synthetic fake downloads, SmartTools India supports Bengali for instant, crystal-clear playback using your device’s native browser speech engine (Play Speech), while neural WAV export is currently supported for verified English and Hindi models.',
+        'Yes! You can download high-fidelity MP3 audio directly via the Companion Engine, or uncompressed 16-bit PCM WAV audio via the client-side In-Browser Neural engine.',
     },
     {
       question: 'What is the license for the neural voice models?',
       answer:
-        'The neural voice models are Meta’s open-source Massively Multilingual Speech (MMS) checkpoints licensed under CC-BY-NC 4.0 (Creative Commons Non-Commercial). They are completely free for personal, educational, non-profit, and evaluation use.',
-    },
-    {
-      question: 'What audio format is generated for download?',
-      answer:
-        'The audio is downloaded as a standard 16-bit linear PCM WAV file (.wav, 16 kHz or 22.05 kHz mono) with a standard RIFF header. This uncompressed audio format is universally compatible with Windows, macOS, Linux, iOS, Android, and media editors like Audacity and Premiere.',
+        'The in-browser models are Meta’s open-source MMS checkpoints licensed under CC-BY-NC 4.0. The Companion Engine uses high-quality neural voice synthesis via edge-tts. Both operate with zero mandatory API keys or paid subscriptions.',
     },
     {
       question: 'What is the maximum text limit?',
@@ -125,9 +115,9 @@ export const TextToSpeechPage: React.FC = () => {
   return (
     <ToolPageLayout
       tool={tool}
-      seoTitle="Free Text to Speech Converter & Audio Download | SmartTools India"
-      seoDescription="Convert text into speech and download WAV audio. Choose language, voice, speed, pitch, and volume with this free, private online text-to-speech converter."
-      keywords="free text to speech converter, text to speech audio download, download tts wav, text to speech online, read aloud, speech synthesis browser, hindi text to speech, indian english voice, smarttools india"
+      seoTitle="Free Neural Text to Speech Converter & Audio Download | SmartTools India"
+      seoDescription="Convert text into natural neural speech and download MP3/WAV audio. High-fidelity Bengali, Hindi, English, and Urdu voices with speed, pitch, and volume controls."
+      keywords="free text to speech converter, neural text to speech, bengali text to speech, hindi text to speech, urdu text to speech, download tts wav mp3, read aloud, speech synthesis browser, indian english voice, smarttools india"
       howToUseSteps={howToUseSteps}
       formulas={formulas}
       examples={examples}

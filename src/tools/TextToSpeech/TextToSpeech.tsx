@@ -26,17 +26,21 @@ import {
   Languages,
   CheckCheck,
   Wand2,
+  Server,
+  RefreshCw,
 } from 'lucide-react'
 import { WaveformVisualizer } from '../../components/common/WaveformVisualizer'
 import { TTSManager } from './services/TTSManager'
 import { CloudNeuralTTSProvider } from './providers/CloudNeuralTTSProvider'
 import { EngineSelector } from './components/EngineSelector'
+import { ModelDownloadManager } from './components/ModelDownloadManager'
 import { CloudConfigModal } from './components/CloudConfigModal'
 import type {
   TTSProviderId,
   TTSVoice,
   TTSProgressInfo,
   GeneratedAudioOutput,
+  CompanionServerStatus,
 } from './types'
 import {
   detectLanguageFromText,
@@ -61,7 +65,10 @@ export const TextToSpeech: React.FC = () => {
 
   // Engine & Provider state
   const [activeEngine, setActiveEngine] = useState<TTSProviderId>('browser')
-  const [isCloudConfigOpen, setIsCloudConfigOpen] = useState(false)
+  const [companionStatus, setCompanionStatus] = useState<CompanionServerStatus | undefined>()
+  const [isCheckingCompanion, setIsCheckingCompanion] = useState<boolean>(false)
+  const [isModelManagerOpen, setIsModelManagerOpen] = useState<boolean>(false)
+  const [isCloudConfigOpen, setIsCloudConfigOpen] = useState<boolean>(false)
   const [isCloudConfigured, setIsCloudConfigured] = useState<boolean>(() => {
     const config = CloudNeuralTTSProvider.getConfig()
     return !!(config && config.apiKey.trim())
@@ -98,6 +105,28 @@ export const TextToSpeech: React.FC = () => {
   const detectedLang: DetectedLanguage | null = useMemo(() => {
     return detectLanguageFromText(text)
   }, [text])
+
+  // Probe companion server
+  const checkCompanion = useCallback(async () => {
+    setIsCheckingCompanion(true)
+    try {
+      const status = await ttsManager.checkCompanionStatus()
+      setCompanionStatus(status)
+      if (status.isAvailable && activeEngine === 'browser') {
+        setActiveEngine('companion')
+        ttsManager.setActiveProvider('companion')
+      }
+    } finally {
+      setIsCheckingCompanion(false)
+    }
+  }, [ttsManager, activeEngine])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkCompanion()
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [checkCompanion])
 
   // Load voices whenever active engine or browser voices change
   const refreshVoices = useCallback(() => {
@@ -299,52 +328,49 @@ export const TextToSpeech: React.FC = () => {
           onProgress: (prog) => {
             setProgressInfo(prog)
           },
-          onPause: () => setIsPaused(true),
-          onResume: () => setIsPaused(false),
+          onPause: () => {
+            setIsPaused(true)
+          },
+          onResume: () => {
+            setIsPaused(false)
+          },
           onEnd: () => {
             setIsSpeaking(false)
             setIsPaused(false)
             setProgressInfo(null)
           },
           onError: (err) => {
-            setErrorMessage(err.message || 'Speech playback failed.')
             setIsSpeaking(false)
             setIsPaused(false)
             setProgressInfo(null)
+            setErrorMessage(err.message || 'Speech playback encountered an error.')
           },
         }
       )
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Speech playback failed.'
-      setErrorMessage(msg)
       setIsSpeaking(false)
       setIsPaused(false)
       setProgressInfo(null)
+      const msg = err instanceof Error ? err.message : 'Unable to play speech.'
+      setErrorMessage(msg)
     }
   }
 
-  // Voice Preview Handler
+  // Voice sample preview handler
   const handlePreviewVoice = async () => {
     if (!selectedVoice) return
-
-    if (isPreviewing) {
-      ttsManager.stop()
-      setIsPreviewing(false)
-      return
-    }
-
     handleStop()
     setIsPreviewing(true)
+    setErrorMessage(null)
+
     try {
       await ttsManager.preview(selectedVoice.id, { rate, pitch, volume })
+      setIsPreviewing(false)
     } catch {
-      // Ignore preview errors
-    } finally {
-      setTimeout(() => setIsPreviewing(false), 2500)
+      setIsPreviewing(false)
     }
   }
 
-  // Pause / Resume / Stop handlers
   const handlePause = () => {
     if (!isSpeaking || isPaused) return
     ttsManager.pause()
@@ -401,53 +427,38 @@ export const TextToSpeech: React.FC = () => {
     textareaRef.current?.focus()
   }
 
-  const handleInsertSample = (type: 'en' | 'hi' | 'bn' | 'ur' | 'story') => {
+  // Load verified test sentences from prompt Section 10
+  const handleInsertSample = (type: 'bn' | 'hi' | 'en' | 'ur' | 'story') => {
     handleStop()
     if (generatedAudio?.url) {
       revokeSpeechAudioUrl(generatedAudio.url)
     }
     setGeneratedAudio(null)
 
-    if (type === 'en') {
-      setText(
-        'SmartTools India provides lightning-fast, privacy-first online tools for everyday calculations. All computation happens right here on your computer or phone.'
-      )
+    if (type === 'bn') {
+      setText('আজকের দিনটা খুব সুন্দর। আমি তোমার সঙ্গে কথা বলতে পেরে আনন্দিত।')
       setIsUrduRtl(false)
-      const enVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en-in')) || voices.find((v) => v.lang.toLowerCase().startsWith('en'))
-      if (enVoice) {
-        setSelectedLanguage('en-in')
-        setSelectedVoiceId(enVoice.id)
-      }
+      setSelectedLanguage('bn')
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith('bn'))
+      if (match) setSelectedVoiceId(match.id)
     } else if (type === 'hi') {
-      setText(
-        'नमस्ते! स्मार्टटूल्स इंडिया में आपका स्वागत है। यह टूल आपके लिखे हुए टेक्स्ट को प्राकृतिक और स्पष्ट आवाज में बदलकर सुनाता है।'
-      )
+      setText('आज का दिन बहुत सुंदर है। मुझे आपसे बात करके खुशी हुई।')
       setIsUrduRtl(false)
-      const hiVoice = voices.find((v) => v.lang.toLowerCase().startsWith('hi'))
-      if (hiVoice) {
-        setSelectedLanguage('hi')
-        setSelectedVoiceId(hiVoice.id)
-      }
-    } else if (type === 'bn') {
-      setText(
-        'স্মার্টটুলস ইন্ডিয়াতে আপনাকে স্বাগতম! এই টুলটি আপনার লিখিত টেক্সটকে অত্যন্ত নির্ভুল এবং প্রাকৃতিক কণ্ঠস্বরে রূপান্তর করতে পারে।'
-      )
+      setSelectedLanguage('hi')
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith('hi'))
+      if (match) setSelectedVoiceId(match.id)
+    } else if (type === 'en') {
+      setText('Hello! Welcome to SmartTools India. I hope you are having a wonderful day.')
       setIsUrduRtl(false)
-      const bnVoice = voices.find((v) => v.lang.toLowerCase().startsWith('bn'))
-      if (bnVoice) {
-        setSelectedLanguage('bn')
-        setSelectedVoiceId(bnVoice.id)
-      }
+      setSelectedLanguage('en-us')
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith('en-us') || v.lang.toLowerCase().startsWith('en-in'))
+      if (match) setSelectedVoiceId(match.id)
     } else if (type === 'ur') {
-      setText(
-        'اسمارٹ ٹولز انڈیا میں خوش آمدید! یہ مفت اسٹوڈیو ٹول آپ کے تحریری الفاظ کو قدرتی اور معیاری آواز میں تبدیل کرتا ہے۔'
-      )
+      setText('آج کا دن بہت خوبصورت ہے۔ آپ سے بات کرکے مجھے خوشی ہوئی۔')
       setIsUrduRtl(true)
-      const urVoice = voices.find((v) => v.lang.toLowerCase().startsWith('ur'))
-      if (urVoice) {
-        setSelectedLanguage('ur')
-        setSelectedVoiceId(urVoice.id)
-      }
+      setSelectedLanguage('ur')
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith('ur'))
+      if (match) setSelectedVoiceId(match.id)
     } else {
       setText(
         'Once upon a time in ancient India, scholars invented the decimal numbering system and the concept of zero. Today, digital technology allows us to calculate, create, and communicate faster than ever before. Enjoy learning and exploring everyday tools on SmartTools India!'
@@ -483,7 +494,7 @@ export const TextToSpeech: React.FC = () => {
     }
   }
 
-  // Handle client-side audio generation and download
+  // Handle audio generation and download
   const handleDownloadAudio = async () => {
     setErrorMessage(null)
     const trimmed = text.trim()
@@ -561,7 +572,7 @@ export const TextToSpeech: React.FC = () => {
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Hybrid Text to Speech Studio
+                Hybrid Neural Text-to-Speech Studio 2.0
                 {isSpeaking && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 animate-pulse">
                     <AudioLines className="h-3 w-3" />
@@ -570,41 +581,45 @@ export const TextToSpeech: React.FC = () => {
                 )}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Hybrid Voice Engine • Free Browser &amp; Optional Neural Models
+                Multilingual AI Voice Engine • Bengali • Hindi • English • Urdu
               </p>
             </div>
           </div>
 
-          {/* Sample Snippet Buttons */}
+          {/* Benchmark Test Sample Buttons (Mandatory Section 10) */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mr-1">Samples:</span>
+            <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mr-1">Benchmark Tests:</span>
             <button
               type="button"
-              onClick={() => handleInsertSample('en')}
-              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium"
+              onClick={() => handleInsertSample('bn')}
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-slate-700 dark:text-slate-300 font-medium"
+              title="Bengali benchmark test sentence"
             >
-              English
+              🇧🇩 বাংলা
             </button>
             <button
               type="button"
               onClick={() => handleInsertSample('hi')}
-              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium"
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors text-slate-700 dark:text-slate-300 font-medium"
+              title="Hindi benchmark test sentence"
             >
-              हिंदी (Hindi)
+              🇮🇳 हिंदी
             </button>
             <button
               type="button"
-              onClick={() => handleInsertSample('bn')}
-              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium"
+              onClick={() => handleInsertSample('en')}
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-700 dark:text-slate-300 font-medium"
+              title="English benchmark test sentence"
             >
-              বাংলা (Bengali)
+              🇬🇧 English
             </button>
             <button
               type="button"
               onClick={() => handleInsertSample('ur')}
-              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-slate-600 dark:text-slate-300 font-medium"
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-green-600 hover:text-green-600 dark:hover:text-green-400 transition-colors text-slate-700 dark:text-slate-300 font-medium"
+              title="Urdu benchmark test sentence"
             >
-              اردو (Urdu)
+              🇵🇰 اردو
             </button>
             <button
               type="button"
@@ -622,7 +637,58 @@ export const TextToSpeech: React.FC = () => {
           onSelectEngine={handleSelectEngine}
           onOpenCloudConfig={() => setIsCloudConfigOpen(true)}
           isCloudConfigured={isCloudConfigured}
+          companionStatus={companionStatus}
+          onToggleModelManager={() => setIsModelManagerOpen(!isModelManagerOpen)}
+          isModelManagerOpen={isModelManagerOpen}
         />
+
+        {/* Optional Model Download Storage Manager */}
+        {isModelManagerOpen && (
+          <ModelDownloadManager onClose={() => setIsModelManagerOpen(false)} />
+        )}
+
+        {/* Companion Server Standby Instruction Card */}
+        {activeEngine === 'companion' && !companionStatus?.isAvailable && (
+          <div className="rounded-xl border border-amber-200 dark:border-amber-800/80 bg-amber-50/70 dark:bg-amber-950/30 p-4 space-y-2.5 text-xs text-amber-900 dark:text-amber-200 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold">
+                <Server className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span>Companion Neural Engine (Localhost 127.0.0.1:8000) Standby</span>
+              </div>
+              <button
+                type="button"
+                onClick={checkCompanion}
+                disabled={isCheckingCompanion}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold transition-colors shadow-2xs"
+              >
+                <RefreshCw className={`h-3 w-3 ${isCheckingCompanion ? 'animate-spin' : ''}`} />
+                <span>{isCheckingCompanion ? 'Checking...' : 'Check Connection'}</span>
+              </button>
+            </div>
+            <p className="leading-relaxed">
+              To unlock authentic 24kHz studio-quality neural voices in <strong>Bengali, Hindi, English, and Urdu</strong> on your PC:
+            </p>
+            <div className="bg-amber-100/80 dark:bg-amber-900/50 p-2.5 rounded-lg font-mono text-[11px] text-amber-950 dark:text-amber-100">
+              Double-click: <code>server/run_tts.bat</code> (or run <code>python server/tts_server.py</code>)
+            </div>
+            <p className="text-[11px] text-amber-700 dark:text-amber-300">
+              Tip: While the companion engine is in standby, you can also use <strong>In-Browser Neural</strong> (for English &amp; Hindi) or <strong>Free Browser Voice</strong> (all languages).
+            </p>
+          </div>
+        )}
+
+        {/* In-Browser Neural Language Compatibility Notice */}
+        {activeEngine === 'local-neural' && (selectedLanguage === 'bn' || selectedLanguage === 'ur' || detectedLang?.code === 'bn' || detectedLang?.code === 'ur') && (
+          <div className="rounded-xl border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/70 dark:bg-indigo-950/30 p-3.5 flex items-start gap-2.5 text-xs text-indigo-900 dark:text-indigo-200 animate-fade-in">
+            <Info className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold">Language Availability Notice for In-Browser Neural</p>
+              <p className="mt-0.5 text-indigo-800 dark:text-indigo-300 leading-relaxed">
+                In-browser WebAssembly ONNX currently supports <strong>English</strong> and <strong>Hindi</strong> (~38 MB models). For authentic 24kHz <strong>Bengali</strong> and <strong>Urdu</strong> neural speech, switch to the <strong>Companion Neural Engine</strong> or <strong>Free Browser Voice</strong>.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Text Area Card with Live Counter and Actions */}
         <div className="space-y-2">
@@ -721,7 +787,7 @@ export const TextToSpeech: React.FC = () => {
                 setText(e.target.value.slice(0, MAX_CHARACTERS))
                 if (errorMessage) setErrorMessage(null)
               }}
-              placeholder="Type or paste your text here (English, Hindi, Bengali, Urdu, or any language)..."
+              placeholder="Type or paste your text here (Bengali, Hindi, English, Urdu, or any language)..."
               rows={7}
               className="w-full bg-transparent p-4 text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-y focus:outline-none leading-relaxed"
               aria-label="Text to speech input"
@@ -880,15 +946,13 @@ export const TextToSpeech: React.FC = () => {
                   {selectedVoice && (
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                        selectedVoice.tier === 'natural'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : selectedVoice.tier === 'cloud'
-                          ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
-                          : selectedVoice.tier === 'enhanced'
-                          ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                        selectedVoice.tier === 'neural-hq'
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
                           : selectedVoice.tier === 'local-neural'
                           ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
-                          : selectedVoice.tier === 'cloud-neural'
+                          : selectedVoice.tier === 'natural'
+                          ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
+                          : selectedVoice.tier === 'cloud'
                           ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}
@@ -1082,7 +1146,7 @@ export const TextToSpeech: React.FC = () => {
               <button
                 type="button"
                 onClick={handlePlay}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-7 py-3 text-sm sm:text-base font-bold shadow-md shadow-blue-500/20 transition-all duration-200"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-7 py-3 text-sm sm:text-base font-bold shadow-md shadow-blue-500/20 transition-all duration-200 cursor-pointer"
               >
                 <Play className="h-5 w-5 fill-white" />
                 <span>Play Speech</span>
@@ -1091,7 +1155,7 @@ export const TextToSpeech: React.FC = () => {
               <button
                 type="button"
                 onClick={handleResume}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-7 py-3 text-sm sm:text-base font-bold shadow-md shadow-emerald-500/20 transition-all duration-200 animate-pulse"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-7 py-3 text-sm sm:text-base font-bold shadow-md shadow-emerald-500/20 transition-all duration-200 animate-pulse cursor-pointer"
               >
                 <Play className="h-5 w-5 fill-white" />
                 <span>Resume</span>
@@ -1100,7 +1164,7 @@ export const TextToSpeech: React.FC = () => {
               <button
                 type="button"
                 onClick={handlePause}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-7 py-3 text-sm sm:text-base font-bold shadow-md shadow-amber-500/20 transition-all duration-200"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-7 py-3 text-sm sm:text-base font-bold shadow-md shadow-amber-500/20 transition-all duration-200 cursor-pointer"
               >
                 <Pause className="h-5 w-5 fill-white" />
                 <span>Pause</span>
@@ -1122,7 +1186,7 @@ export const TextToSpeech: React.FC = () => {
               onClick={handleDownloadAudio}
               disabled={isGeneratingAudio || !text.trim()}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 active:scale-95 px-5 py-3 text-sm sm:text-base font-bold shadow-md transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-              title="Download audio file (WAV / MP3)"
+              title="Download audio file"
             >
               {isGeneratingAudio ? (
                 <>
@@ -1217,7 +1281,7 @@ export const TextToSpeech: React.FC = () => {
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Save Audio File</span>
+                  <span>Save {generatedAudio.format.toUpperCase()} File</span>
                 </a>
               </div>
             </div>
@@ -1240,46 +1304,46 @@ export const TextToSpeech: React.FC = () => {
         </div>
 
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-          SmartTools India maintains full transparency about audio generation technologies. We never falsely label standard browser speech as custom AI Neural speech. Here is how our speech engine works across different browsers:
+          SmartTools India maintains full transparency about audio generation technologies. We never falsely label standard browser speech as AI Neural speech. Here is how each engine operates:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-          {/* Natural Online Voices */}
+          {/* Companion Neural Engine */}
           <div className="rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-4 space-y-2">
             <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs sm:text-sm">
-              <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Natural Online Voices</span>
+              <Server className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Companion 24kHz Studio Engine</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Available in <strong>Microsoft Edge</strong> and <strong>Google Chrome</strong> (e.g. <em>Microsoft Neerja Online (Natural)</em>, <em>Google हिन्दी</em>). These use cloud neural synthesis streamed directly to your browser for human-like inflection and breathing pauses.
+              Provides authentic 24kHz natural voices for <strong>Bengali</strong>, <strong>Hindi</strong>, <strong>English</strong>, and <strong>Urdu</strong>. Runs locally on your machine via FastAPI (<code>run_tts.bat</code>) with zero external API keys and studio-quality intonation.
             </p>
           </div>
 
-          {/* Device System Voices */}
-          <div className="rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/40 dark:bg-blue-950/20 p-4 space-y-2">
-            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold text-xs sm:text-sm">
-              <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span>Device System Voices</span>
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Installed locally on Windows, macOS, Android, and iOS (such as SAPI5 voices or Apple Enhanced Siri voices). Operates 100% offline with zero data consumption and instant response.
-            </p>
-          </div>
-
-          {/* Client-Side Neural Model */}
+          {/* In-Browser Neural AI */}
           <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/40 dark:bg-indigo-950/20 p-4 space-y-2">
             <div className="flex items-center gap-2 text-indigo-800 dark:text-indigo-300 font-bold text-xs sm:text-sm">
               <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-              <span>Downloadable Neural WAV</span>
+              <span>In-Browser WebAssembly ONNX</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              For audio file downloads, we run <strong>Meta MMS-TTS</strong> via Transformers.js in WebAssembly directly on your device. Once downloaded (~38 MB), it generates real 16-bit PCM WAV files 100% offline.
+              Runs <strong>Meta MMS-TTS</strong> client-side on WebAssembly. Downloaded on-demand (~38 MB per language for English and Hindi) and cached in browser storage for 100% private, offline WAV generation.
+            </p>
+          </div>
+
+          {/* Free Browser Voice */}
+          <div className="rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/40 dark:bg-blue-950/20 p-4 space-y-2">
+            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold text-xs sm:text-sm">
+              <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span>Free Browser Voice (0 MB)</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Leverages your operating system and browser&apos;s native Web Speech synthesis. Zero downloads, instant response, and wide language coverage with honest labeling.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Privacy & Missing Voice Guidance Notice Cards */}
+      {/* Privacy & Setup Guidance Notice Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/30 p-4 flex items-start gap-3">
           <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
@@ -1297,10 +1361,10 @@ export const TextToSpeech: React.FC = () => {
           <Info className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
           <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1">
             <p className="font-semibold text-slate-900 dark:text-white">
-              Installing Regional Voices
+              Windows Setup (127.0.0.1)
             </p>
             <p className="leading-relaxed">
-              If your operating system lacks Bengali, Hindi, or Urdu voices, you can install them free in <strong>Windows Settings → Time &amp; Language → Speech</strong>, or open this page in Google Chrome / Microsoft Edge.
+              For studio neural voices, open a terminal in <code>server/</code> and run <code>run_tts.bat</code>. It starts a lightweight, secure FastAPI companion service binding only to localhost.
             </p>
           </div>
         </div>
@@ -1309,10 +1373,10 @@ export const TextToSpeech: React.FC = () => {
           <ShieldAlert className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1">
             <p className="font-semibold text-slate-900 dark:text-white">
-              Free &amp; Open Source Tech
+              Zero Paid Subscriptions
             </p>
             <p className="leading-relaxed">
-              No mandatory API keys, logins, or hidden subscriptions. We rely purely on open web standards (W3C Web Speech, Web Audio) and open-source models (Meta MMS-TTS).
+              No mandatory API keys, logins, or hidden paywalls. Built using open web standards, edge-tts neural synthesis, and Meta MMS-TTS.
             </p>
           </div>
         </div>

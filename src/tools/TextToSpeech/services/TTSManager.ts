@@ -1,36 +1,51 @@
 /**
  * TTS Manager (Engine Orchestrator)
  *
- * Coordinates between Browser, Local Neural, and Cloud Neural providers.
- * - Handles dynamic engine switching
- * - Manages graceful fallback to Free Browser TTS if a neural provider is unavailable
- * - Centralizes playback state and audio generation
+ * Coordinates between:
+ * 1. Local Companion Neural Engine (FastAPI 127.0.0.1:8000) - 24kHz Studio Quality (Bengali, Hindi, English, Urdu)
+ * 2. In-Browser Local Neural AI (Transformers.js ONNX) - WebAssembly On-Device (English, Hindi)
+ * 3. Free Browser Voices (Web Speech API) - Instant 0 MB System Voices
+ * 4. Cloud Studio (BYOK OpenAI / ElevenLabs)
  */
 
 import type { TTSProvider } from '../providers/TTSProvider'
 import { BrowserTTSProvider } from '../providers/BrowserTTSProvider'
 import { LocalNeuralTTSProvider } from '../providers/LocalNeuralTTSProvider'
 import { CloudNeuralTTSProvider } from '../providers/CloudNeuralTTSProvider'
+import { LocalCompanionTTSProvider } from '../providers/LocalCompanionTTSProvider'
 import type {
   TTSProviderId,
   TTSVoice,
   TTSPlaybackOptions,
   TTSProgressInfo,
   GeneratedAudioOutput,
+  CompanionServerStatus,
 } from '../types'
 
 export class TTSManager {
   private providers: Map<TTSProviderId, TTSProvider> = new Map()
   private activeProviderId: TTSProviderId = 'browser'
+  private companionProvider: LocalCompanionTTSProvider
 
   constructor() {
     const browserProvider = new BrowserTTSProvider()
     const localNeuralProvider = new LocalNeuralTTSProvider()
     const cloudProvider = new CloudNeuralTTSProvider()
+    this.companionProvider = new LocalCompanionTTSProvider()
 
-    this.providers.set('browser', browserProvider)
+    this.providers.set('companion', this.companionProvider)
     this.providers.set('local-neural', localNeuralProvider)
+    this.providers.set('browser', browserProvider)
     this.providers.set('cloud-neural', cloudProvider)
+  }
+
+  async checkCompanionStatus(): Promise<CompanionServerStatus> {
+    await this.companionProvider.isAvailable()
+    return this.companionProvider.getStatus()
+  }
+
+  getCompanionStatus(): CompanionServerStatus {
+    return this.companionProvider.getStatus()
   }
 
   getActiveProviderId(): TTSProviderId {
@@ -55,7 +70,13 @@ export class TTSManager {
   async getAllVoices(langFilter?: string): Promise<TTSVoice[]> {
     const active = this.getActiveProvider()
     try {
-      return await active.getVoices(langFilter)
+      const voices = await active.getVoices(langFilter)
+      if (voices.length > 0) {
+        return voices
+      }
+      // If companion or neural returned no voices for this language, fallback to browser voices
+      const fallback = this.providers.get('browser')!
+      return await fallback.getVoices(langFilter)
     } catch {
       // Fallback to browser provider
       const fallback = this.providers.get('browser')!
@@ -118,7 +139,11 @@ export class TTSManager {
       return await provider.downloadAudio(text, options, onProgress)
     }
 
-    // Default to local neural provider for file download if active provider cannot download
+    // Default to local companion if active, or local neural provider for file download
+    if (this.companionProvider.getStatus().isAvailable) {
+      return await this.companionProvider.downloadAudio(text, options, onProgress)
+    }
+
     const localNeural = this.providers.get('local-neural')!
     if (localNeural.downloadAudio) {
       return await localNeural.downloadAudio(text, options, onProgress)

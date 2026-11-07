@@ -31,6 +31,14 @@ export interface NeuralSpeechResult {
   language: NeuralLanguage
 }
 
+export interface ModelCacheStatus {
+  modelId: string
+  language: NeuralLanguage
+  label: string
+  sizeMb: number
+  isCached: boolean
+}
+
 // In-memory cache of pipeline instances to avoid re-instantiation overhead
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const pipelineCache: Partial<Record<NeuralLanguage, any>> = {}
@@ -61,6 +69,29 @@ const DIGIT_WORDS_EN: Record<string, string> = {
   '9': 'nine',
 }
 
+const DIGIT_WORDS_HI: Record<string, string> = {
+  '०': 'शून्य ',
+  '१': 'एक ',
+  '२': 'दो ',
+  '३': 'तीन ',
+  '४': 'चार ',
+  '५': 'पाँच ',
+  '६': 'छह ',
+  '७': 'सात ',
+  '८': 'आठ ',
+  '९': 'नौ ',
+  '0': 'शून्य ',
+  '1': 'एक ',
+  '2': 'दो ',
+  '3': 'तीन ',
+  '4': 'चार ',
+  '5': 'पाँच ',
+  '6': 'छह ',
+  '7': 'सात ',
+  '8': 'आठ ',
+  '9': 'नौ ',
+}
+
 /**
  * Normalizes input text for MMS-TTS: expands symbols and stand-alone numbers
  * so the model does not skip or mispronounce them.
@@ -73,9 +104,13 @@ export function normalizeTextForMms(input: string, lang: NeuralLanguage): string
     text = text.split(sym).join(word)
   }
 
-  // In English, expand stand-alone digits
+  // Expand stand-alone digits according to language
   if (lang === 'en') {
     text = text.replace(/\b\d\b/g, (d) => DIGIT_WORDS_EN[d] || d)
+  } else if (lang === 'hi') {
+    for (const [d, word] of Object.entries(DIGIT_WORDS_HI)) {
+      text = text.split(d).join(word)
+    }
   }
 
   // Remove repeated punctuation and normalize spaces
@@ -157,6 +192,83 @@ export function isNeuralTtsSupported(): boolean {
     typeof WebAssembly !== 'undefined' &&
     'caches' in window
   )
+}
+
+/**
+ * Inspect browser Cache API to see if model weights are already cached locally
+ */
+export async function inspectModelCache(): Promise<ModelCacheStatus[]> {
+  const models: ModelCacheStatus[] = [
+    {
+      modelId: 'Xenova/mms-tts-eng',
+      language: 'en',
+      label: 'Meta MMS-TTS English',
+      sizeMb: 38.4,
+      isCached: false,
+    },
+    {
+      modelId: 'Xenova/mms-tts-hin',
+      language: 'hi',
+      label: 'Meta MMS-TTS Hindi',
+      sizeMb: 38.4,
+      isCached: false,
+    },
+  ]
+
+  if (typeof window === 'undefined' || !('caches' in window)) {
+    return models
+  }
+
+  try {
+    const keys = await window.caches.keys()
+    for (const key of keys) {
+      const cache = await window.caches.open(key)
+      const requests = await cache.keys()
+      for (const req of requests) {
+        if (req.url.includes('mms-tts-eng')) {
+          models[0].isCached = true
+        }
+        if (req.url.includes('mms-tts-hin')) {
+          models[1].isCached = true
+        }
+      }
+    }
+  } catch {
+    // Non-fatal cache inspection error
+  }
+
+  return models
+}
+
+/**
+ * Clears cached browser model weights to release storage
+ */
+export async function clearBrowserModelCache(): Promise<void> {
+  // Free in-memory pipeline instances
+  releasePipelineCache()
+
+  if (typeof window === 'undefined' || !('caches' in window)) {
+    return
+  }
+
+  try {
+    const keys = await window.caches.keys()
+    for (const key of keys) {
+      if (key.includes('transformers') || key.includes('onnx') || key.includes('huggingface')) {
+        await window.caches.delete(key)
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to clear model cache:', err)
+  }
+}
+
+/**
+ * Releases loaded neural models from browser RAM
+ */
+export function releasePipelineCache(): void {
+  delete pipelineCache.en
+  delete pipelineCache.hi
 }
 
 /**
